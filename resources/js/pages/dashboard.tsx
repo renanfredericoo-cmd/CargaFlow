@@ -450,6 +450,38 @@ interface Props {
 
                 </div>
 
+<div className="mt-8">
+
+    <a
+        href="/reports"
+        className="block rounded-xl border bg-white p-6 shadow-sm transition hover:shadow-lg hover:bg-gray-50 dark:bg-neutral-900"
+    >
+
+        <div className="flex items-center justify-between">
+
+            <div>
+
+                <h2 className="text-xl font-bold">
+                    📊 Relatórios
+                </h2>
+
+                <p className="mt-2 text-gray-500">
+                    Visualize indicadores, desempenho e acompanhamento das tarefas.
+                </p>
+
+            </div>
+
+
+            <div className="text-2xl">
+                →
+            </div>
+
+        </div>
+
+    </a>
+
+</div>               
+
 
 
 
