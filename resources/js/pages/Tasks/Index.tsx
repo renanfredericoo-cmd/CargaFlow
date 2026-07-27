@@ -114,57 +114,122 @@ const statusText =
 const dueDate = task.due_date
     ? new Date(task.due_date).toLocaleDateString('pt-BR')
     : '';
-    const content = `
-        <html>
-        <head>
-            <title>TaskFlow - Tarefa</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    padding: 40px;
-                    color: #222;
-                }
+const content = `
+<html>
+<head>
+    <title>TaskFlow - Ordem de Serviço</title>
 
-                h1 {
-                    color: #2563eb;
-                }
+    <style>
+    body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    color: #222;
+}
 
-                .item {
-                    margin-bottom: 12px;
-                }
-            </style>
-        </head>
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
 
-        <body>
+        h1 {
+    color: #2563eb;
+    margin: 0;
+    font-size: 30px;
+}
 
-            <h1>TaskFlow</h1>
+        h2 {
+            margin-top: 10px;
+            color: #444;
+        }
 
-            <h2>${task.title}</h2>
+        .box {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
 
-            <div class="item">
-                <strong>Prioridade:</strong>
-                ${priorityText}
-            </div>
+        .label {
+            font-weight: bold;
+        }
 
-            <div class="item">
-                <strong>Status:</strong>
-${statusText}
-            </div>
+        .description {
+            min-height: 80px;
+        }
 
-            <div className="item">
-    <strong>Prazo:</strong>
-    ${dueDate}
-</div>
+        .footer {
+    margin-top: 25px;
+}
 
-            <div class="item">
-                <strong>Descrição:</strong>
-                <br>
-                ${task.description ?? ''}
-            </div>
+    </style>
+</head>
 
-        </body>
-        </html>
-    `;
+<body>
+
+    <div class="header">
+        <h1>TaskFlow</h1>
+        <h2>Ordem de Serviço</h2>
+    </div>
+
+
+    <div class="box">
+        <p>
+            <span class="label">Tarefa:</span><br>
+            ${task.title}
+        </p>
+
+        <p>
+            <span class="label">Prioridade:</span>
+            ${priorityText}
+        </p>
+
+        <p>
+            <span class="label">Status:</span>
+            ${statusText}
+        </p>
+
+        <p>
+            <span class="label">Prazo:</span>
+            ${dueDate}
+        </p>
+    </div>
+
+
+    <div class="box description">
+        <p class="label">Descrição:</p>
+
+        <p>
+            ${task.description ?? ''}
+        </p>
+    </div>
+
+
+    <div class="footer">
+
+        <p>
+            Observações:
+        </p>
+
+        <br><br>
+
+        ______________________________________
+
+        <br><br>
+
+        Responsável pela execução:
+
+        <br><br><br>
+
+        ______________________________________
+
+    </div>
+
+
+</body>
+</html>
+`;
 
 
     const win = window.open('', '_blank');
