@@ -1,6 +1,5 @@
-## 👨‍💻 Autor
+# TaskFlow
 
-Desenvolvido por **Renan Leite**
+Sistema de gestão de tarefas e Ordens de Serviço.
 
-Sistema criado com foco em organização de tarefas,
-gestão de equipes e melhoria de processos.
+Desenvolvido por Renan Leite.
