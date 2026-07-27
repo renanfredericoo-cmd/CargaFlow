@@ -94,6 +94,90 @@ export default function Tasks({
 
 
 
+const printTask = (task: Task) => {
+    const priorityText =
+    task.priority === 'high'
+        ? 'Alta'
+        : task.priority === 'medium'
+        ? 'Média'
+        : 'Baixa';
+
+const statusText =
+    task.status === 'pending'
+        ? 'Pendente'
+        : task.status === 'in_progress'
+        ? 'Em andamento'
+        : task.status === 'completed'
+        ? 'Concluída'
+        : task.status;
+
+const dueDate = task.due_date
+    ? new Date(task.due_date).toLocaleDateString('pt-BR')
+    : '';
+    const content = `
+        <html>
+        <head>
+            <title>TaskFlow - Tarefa</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    padding: 40px;
+                    color: #222;
+                }
+
+                h1 {
+                    color: #2563eb;
+                }
+
+                .item {
+                    margin-bottom: 12px;
+                }
+            </style>
+        </head>
+
+        <body>
+
+            <h1>TaskFlow</h1>
+
+            <h2>${task.title}</h2>
+
+            <div class="item">
+                <strong>Prioridade:</strong>
+                ${priorityText}
+            </div>
+
+            <div class="item">
+                <strong>Status:</strong>
+${statusText}
+            </div>
+
+            <div className="item">
+    <strong>Prazo:</strong>
+    ${dueDate}
+</div>
+
+            <div class="item">
+                <strong>Descrição:</strong>
+                <br>
+                ${task.description ?? ''}
+            </div>
+
+        </body>
+        </html>
+    `;
+
+
+    const win = window.open('', '_blank');
+
+    if (win) {
+        win.document.write(content);
+        win.document.close();
+        win.print();
+    }
+};
+
+
+
 
     const [showModal, setShowModal] = useState(false);
 
@@ -857,16 +941,18 @@ return (
 
 
                             <Button
+    variant="secondary"
+    onClick={() => openEdit(task)}
+>
+    Editar
+</Button>
 
-                                variant="secondary"
-
-                                onClick={() => openEdit(task)}
-
-                            >
-
-                                Editar
-
-                            </Button>
+<Button
+    variant="secondary"
+    onClick={() => printTask(task)}
+>
+    🖨 Imprimir
+</Button>
 
 
 

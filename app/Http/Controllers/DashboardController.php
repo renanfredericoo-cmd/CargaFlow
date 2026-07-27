@@ -132,6 +132,12 @@ $attentionTasks = Task::with('user')
 
         }
 
+$attentionTasks = Task::where('status', 'pending')
+    ->where('user_id', $user->id)
+    ->orderBy('due_date')
+    ->get();
+
+
 
 
 
