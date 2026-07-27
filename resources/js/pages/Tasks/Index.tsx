@@ -122,15 +122,15 @@ const content = `
     <style>
     body {
     font-family: Arial, sans-serif;
-    padding: 20px;
+    padding: 10px;
     color: #222;
 }
 
         .header {
             text-align: center;
             border-bottom: 2px solid #2563eb;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         h1 {
@@ -147,8 +147,8 @@ const content = `
         .box {
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 8px;
+    margin-bottom: 8px;
 }
 
         .label {
@@ -160,7 +160,7 @@ const content = `
         }
 
         .footer {
-    margin-top: 25px;
+    margin-top: 15px;
 }
 
     </style>
@@ -169,9 +169,19 @@ const content = `
 <body>
 
     <div class="header">
-        <h1>TaskFlow</h1>
-        <h2>Ordem de Serviço</h2>
-    </div>
+    <h1>TaskFlow</h1>
+    <h2>Ordem de Serviço</h2>
+
+    <p>
+        <strong>OS Nº:</strong>
+        ${String(task.id).padStart(6, '0')}
+    </p>
+
+    <p>
+        <strong>Emitida em:</strong>
+        ${new Date().toLocaleString('pt-BR')}
+    </p>
+</div>
 
 
     <div class="box">
