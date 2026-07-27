@@ -1,4 +1,5 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 interface Props {
     reports: {
@@ -12,6 +13,21 @@ interface Props {
 
 export default function Reports({ reports }: Props) {
 
+
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+
+
+    function filterReports() {
+
+        router.get('/reports', {
+            start_date: startDate,
+            end_date: endDate,
+        });
+
+    }
+
+
     return (
         <>
             <Head title="Relatórios" />
@@ -21,6 +37,72 @@ export default function Reports({ reports }: Props) {
                 <h1 className="text-3xl font-bold">
                     📊 Relatórios
                 </h1>
+
+                {startDate && endDate && (
+
+    <p className="mt-4 text-sm text-gray-500">
+        Período analisado:
+
+        <strong className="ml-2">
+            {startDate} até {endDate}
+        </strong>
+
+    </p>
+
+)}
+
+                <div className="mt-6 flex flex-wrap gap-4 items-end">
+
+    <div>
+        <label className="block text-sm text-gray-500">
+            Data inicial
+        </label>
+
+        <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="rounded-lg border p-2"
+        />
+    </div>
+
+
+    <div>
+        <label className="block text-sm text-gray-500">
+            Data final
+        </label>
+
+        <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="rounded-lg border p-2"
+        />
+    </div>
+
+
+<button
+    onClick={filterReports}
+    className="rounded-lg bg-blue-600 px-5 py-2 text-white"
+>
+    🔍 Filtrar
+</button>
+
+
+<button
+    onClick={() => {
+        setStartDate('');
+        setEndDate('');
+
+        router.get('/reports');
+    }}
+    className="rounded-lg border px-5 py-2"
+>
+    🧹 Limpar
+</button>
+
+
+</div>
 
 
                 <div className="mt-8 grid gap-4 md:grid-cols-5">
