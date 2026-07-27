@@ -11,9 +11,12 @@ import Button from '@/components/Button';
 interface User {
 
     id: number;
+
     name: string;
 
 }
+
+
 
 
 
@@ -27,9 +30,12 @@ interface History {
 
     created_at: string;
 
+
     user: User;
 
 }
+
+
 
 
 
@@ -47,11 +53,15 @@ interface Task {
 
     due_date: string | null;
 
+
     user: User;
+
 
     histories: History[];
 
 }
+
+
 
 
 
@@ -67,14 +77,26 @@ interface Props {
 
 
 
-export default function Tasks({ tasks, users }: Props) {
+
+
+export default function Tasks({
+
+    tasks,
+
+    users
+
+
+}: Props) {
+
 
 
     const { auth } = usePage().props as any;
 
 
 
+
     const [showModal, setShowModal] = useState(false);
+
 
 
     const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -83,15 +105,37 @@ export default function Tasks({ tasks, users }: Props) {
 
 
 
+    const [search, setSearch] = useState('');
+
+    const [filterStatus, setFilterStatus] = useState('');
+
+    const [filterPriority, setFilterPriority] = useState('');
+
+    const [filterUser, setFilterUser] = useState('');
+
+
+
+
+
+
+
     const {
+
         data,
+
         setData,
+
         post,
+
         put,
+
         processing,
+
         reset
 
+
     } = useForm({
+
 
         title: '',
 
@@ -105,202 +149,369 @@ export default function Tasks({ tasks, users }: Props) {
 
         due_date: '',
 
+
+    });function openCreate() {
+
+
+    setEditingTask(null);
+
+    reset();
+
+    setShowModal(true);
+
+
+}
+
+
+
+
+
+
+function openEdit(task: Task) {
+
+
+    setEditingTask(task);
+
+
+    setData({
+
+        title: task.title,
+
+        description: task.description ?? '',
+
+        user_id: String(task.user.id),
+
+        priority: task.priority,
+
+        status: task.status,
+
+        due_date: task.due_date ?? '',
+
     });
 
 
 
+    setShowModal(true);
 
 
-    function openCreate() {
+}
 
 
-        setEditingTask(null);
 
 
-        reset();
 
 
-        setShowModal(true);
+
+function deleteTask(task: Task) {
+
+
+    if(confirm(`Excluir a tarefa ${task.title}?`)) {
+
+
+        router.delete(`/tasks/${task.id}`);
 
 
     }
 
 
+}
 
 
 
-    function openEdit(task: Task) {
 
 
-        setEditingTask(task);
 
 
-        setData({
+function submit(e: React.FormEvent) {
 
-            title: task.title,
 
-            description: task.description ?? '',
+    e.preventDefault();
 
-            user_id: String(task.user.id),
 
-            priority: task.priority,
 
-            status: task.status,
+    if(editingTask) {
 
-            due_date: task.due_date ?? '',
+
+        put(`/tasks/${editingTask.id}`, {
+
+
+            onSuccess: () => {
+
+
+                setShowModal(false);
+
+                setEditingTask(null);
+
+                reset();
+
+
+            }
+
 
         });
 
 
-        setShowModal(true);
+
+    } else {
 
 
-    }    function deleteTask(task: Task) {
+
+        post('/tasks', {
 
 
-        if (confirm(`Excluir a tarefa ${task.title}?`)) {
+            onSuccess: () => {
 
 
-            router.delete(`/tasks/${task.id}`);
+                setShowModal(false);
+
+                reset();
 
 
-        }
+            }
+
+
+        });
+
 
 
     }
 
 
+}
 
 
 
-    function submit(e: React.FormEvent) {
-
-
-        e.preventDefault();
 
 
 
-        if (editingTask) {
+
+function formatDate(date:string) {
 
 
-            put(`/tasks/${editingTask.id}`, {
+    return new Date(date)
+        .toLocaleString('pt-BR');
 
 
-                onSuccess: () => {
+}
+function dueStatus(date: string | null) {
+
+    if (!date) {
+        return null;
+    }
 
 
-                    setShowModal(false);
+    const today = new Date();
 
-                    setEditingTask(null);
+    const todayDate = today.toISOString().split('T')[0];
 
-                    reset();
-
-
-                }
+    const dueDate = date.split('T')[0];
 
 
-            });
+    const todayTime = new Date(todayDate).getTime();
+
+    const dueTime = new Date(dueDate).getTime();
 
 
-
-        } else {
-
-
-            post('/tasks', {
-
-
-                onSuccess: () => {
+    const diff = Math.floor(
+        (todayTime - dueTime) /
+        (1000 * 60 * 60 * 24)
+    );
 
 
-                    setShowModal(false);
+    if (diff > 0) {
 
-                    reset();
-
-
-                }
-
-
-            });
-
-
-        }
-
+        return {
+            text: `🚨 Atrasada há ${diff} ${diff === 1 ? 'dia' : 'dias'}`,
+            color: 'bg-red-600 text-white'
+        };
 
     }
 
 
+    if (diff === 0) {
 
-
-
-    function formatDate(date: string) {
-
-
-        return new Date(date)
-            .toLocaleString('pt-BR');
-
+        return {
+            text: '⚠️ Vence hoje',
+            color: 'bg-yellow-500 text-white'
+        };
 
     }
 
 
+    return {
+        text: '🟢 Dentro do prazo',
+        color: 'bg-green-600 text-white'
+    };
+
+}
 
 
 
-    function historyIcon(action: string) {
 
 
-        if (action === 'concluida') {
-
-            return '✅';
-
-        }
+function historyIcon(action:string) {
 
 
-        if (action === 'andamento') {
+    if(action === 'concluida') {
 
-            return '🚀';
+        return '✅';
 
-        }
-
-
-        return '📋';
-
-    }    return (
-
-        <>
-
-            <Head title="Tarefas" />
+    }
 
 
-            <div className="p-6">
+    if(action === 'andamento') {
+
+        return '🚀';
+
+    }
 
 
-                <div className="mb-6 flex items-center justify-between">
+    return '📋';
 
 
-                    <div>
-
-                        <h1 className="text-2xl font-bold">
-                            📋 Tarefas
-                        </h1>
+}function statusColor(status:string) {
 
 
-                        <p className="text-gray-500">
-                            Gerenciamento de tarefas
-                        </p>
+    if(status === 'concluida') {
 
-                    </div>
+        return 'bg-green-600 text-white';
+
+    }
+
+
+    if(status === 'andamento') {
+
+        return 'bg-blue-600 text-white';
+
+    }
+
+
+    return 'bg-gray-600 text-white';
+
+
+}
 
 
 
-                    {auth.user.role === 'admin' && (
 
-                        <Button onClick={openCreate}>
 
-                            + Nova Tarefa
 
-                        </Button>
 
-                    )}
+function priorityColor(priority:string) {
+
+
+    if(priority === 'alta') {
+
+        return 'bg-red-600 text-white';
+
+    }
+
+
+    if(priority === 'media') {
+
+        return 'bg-yellow-500 text-white';
+
+    }
+
+
+    return 'bg-green-600 text-white';
+
+
+}
+
+
+
+
+
+
+
+const filteredTasks = tasks.filter(task => {
+
+
+    const matchSearch =
+
+        task.title
+            .toLowerCase()
+            .includes(
+                search.toLowerCase()
+            );
+
+
+
+
+    const matchStatus =
+
+        !filterStatus ||
+
+        task.status === filterStatus;
+
+
+
+
+    const matchPriority =
+
+        !filterPriority ||
+
+        task.priority === filterPriority;
+
+
+
+
+
+    const matchUser =
+
+        !filterUser ||
+
+        String(task.user.id) === filterUser;
+
+
+
+
+    return (
+
+        matchSearch &&
+
+        matchStatus &&
+
+        matchPriority &&
+
+        matchUser
+
+    );
+
+
+});
+
+
+
+
+
+
+
+return (
+
+    <>
+
+        <Head title="Tarefas" />
+
+
+        <div className="p-6"></div>            <div className="mb-6 flex items-center justify-between">
+
+
+                <div>
+
+                    <h1 className="text-3xl font-bold">
+
+                        📋 Tarefas
+
+                    </h1>
+
+
+                    <p className="text-gray-500">
+
+                        Gerenciamento de tarefas
+
+                    </p>
 
 
                 </div>
@@ -309,504 +520,710 @@ export default function Tasks({ tasks, users }: Props) {
 
 
 
-                <div className="space-y-6">
+                {auth.user.role === 'admin' && (
 
 
-                    {tasks.map(task => (
+                    <Button onClick={openCreate}>
+
+                        + Nova Tarefa
+
+                    </Button>
 
 
-                        <div
-                            key={task.id}
-                            className="rounded-xl border p-5"
-                        >
+                )}
 
 
-
-                            <div className="flex justify-between">
-
-
-                                <div>
-
-
-                                    <h2 className="text-xl font-bold">
-
-                                        {task.title}
-
-                                    </h2>
-
-
-                                    <p className="text-gray-500">
-
-                                        👤 {task.user.name}
-
-                                    </p>
-
-
-                                </div>
+            </div>
 
 
 
 
-                                <span className="rounded bg-gray-100 px-3 py-1">
-
-                                    {task.status}
-
-                                </span>
 
 
+            <div className="mb-6 rounded-xl border bg-white p-5 dark:bg-neutral-900">
+
+
+                <h2 className="mb-4 text-lg font-bold">
+
+                    🔎 Filtros
+
+                </h2>
+
+
+
+
+
+                <div className="grid gap-4 md:grid-cols-4">
+
+
+
+                    <Input
+
+                        label="Buscar tarefa"
+
+                        value={search}
+
+                        onChange={(e:any) =>
+                            setSearch(e.target.value)
+                        }
+
+                    />
+
+
+
+
+
+                    <Select
+
+                        label="Status"
+
+                        value={filterStatus}
+
+                        onChange={(e:any) =>
+                            setFilterStatus(e.target.value)
+                        }
+
+                    >
+
+                        <option value="">
+
+                            Todos
+
+                        </option>
+
+
+                        <option value="pendente">
+
+                            Pendente
+
+                        </option>
+
+
+
+                        <option value="andamento">
+
+                            Em andamento
+
+                        </option>
+
+
+
+
+                        <option value="concluida">
+
+                            Concluída
+
+                        </option>
+
+
+                    </Select>
+
+
+
+
+
+
+                    <Select
+
+                        label="Prioridade"
+
+                        value={filterPriority}
+
+                        onChange={(e:any) =>
+                            setFilterPriority(e.target.value)
+                        }
+
+                    >
+
+
+                        <option value="">
+
+                            Todas
+
+                        </option>
+
+
+                        <option value="alta">
+
+                            Alta
+
+                        </option>
+
+
+
+                        <option value="media">
+
+                            Média
+
+                        </option>
+
+
+
+                        <option value="baixa">
+
+                            Baixa
+
+                        </option>
+
+
+
+                    </Select>
+
+
+
+
+
+
+
+                    <Select
+
+                        label="Responsável"
+
+                        value={filterUser}
+
+                        onChange={(e:any) =>
+                            setFilterUser(e.target.value)
+                        }
+
+                    >
+
+
+                        <option value="">
+
+                            Todos
+
+                        </option>
+
+
+
+
+
+                        {users.map(user => (
+
+
+                            <option
+
+                                key={user.id}
+
+                                value={user.id}
+
+                            >
+
+                                {user.name}
+
+                            </option>
+
+
+                        ))}
+
+
+                    </Select>
+
+
+                </div>
+
+
+
+
+
+
+                <p className="mt-4 text-sm text-gray-500">
+
+                    Mostrando {filteredTasks.length} tarefa(s)
+
+                </p>
+
+
+            </div>
+
+
+
+
+
+            <div className="space-y-6">                {filteredTasks.map(task => (
+
+
+                    <div
+
+                        key={task.id}
+
+                        className="rounded-xl border bg-white p-6 shadow-sm dark:bg-neutral-900"
+
+                    >
+
+
+
+                        <div className="flex justify-between gap-4">
+
+
+                            <div>
+
+
+                                <h2 className="text-xl font-bold">
+
+                                    📋 {task.title}
+
+                                </h2>
+
+
+
+                                <p className="mt-1 text-gray-500">
+
+                                    👤 {task.user.name}
+
+                                </p>
+
+
+{task.due_date && (() => {
+
+    const due = dueStatus(task.due_date);
+
+    return due && (
+
+        <span
+            className={`mt-2 inline-block rounded-lg px-3 py-1 text-sm font-semibold ${due.color}`}
+        >
+
+            📅 {due.text}
+
+        </span>
+
+    );
+
+})()}
                             </div>
 
 
 
 
 
-                            {task.description && (
-
-                                <p className="mt-3">
-
-                                    {task.description}
-
-                                </p>
-
-                            )}
+                            <div className="flex flex-col gap-2">
 
 
+                                <span
 
+                                    className={`rounded-lg px-3 py-1 text-center text-sm font-semibold ${priorityColor(task.priority)}`}
 
-
-                            <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
-
-
-                                <div>
-
-                                    <strong>
-                                        Prioridade:
-                                    </strong>
-
-                                    <br />
+                                >
 
                                     {task.priority}
 
-                                </div>
+                                </span>
 
 
 
-                                <div>
 
-                                    <strong>
-                                        Prazo:
-                                    </strong>
+                                <span
 
-                                    <br />
+                                    className={`rounded-lg px-3 py-1 text-center text-sm font-semibold ${statusColor(task.status)}`}
 
-
-                                    {task.due_date
-
-                                        ? new Date(task.due_date)
-                                            .toLocaleDateString('pt-BR')
-
-                                        : '-'
-
-                                    }
-
-
-                                </div>
-
-
-
-                                <div className="flex justify-end gap-2">
-
-
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => openEdit(task)}
-                                    >
-
-                                        Editar
-
-                                    </Button>
-
-
-
-                                    {auth.user.role === 'admin' && (
-
-                                        <Button
-                                            variant="danger"
-                                            onClick={() => deleteTask(task)}
-                                        >
-
-                                            Excluir
-
-                                        </Button>
-
-                                    )}
-
-
-                                </div>
-
-
-                            </div>                            <div className="mt-6 border-t pt-5">
-
-
-                                <h3 className="mb-4 text-lg font-bold">
-
-                                    📜 Histórico
-
-                                </h3>
-
-
-
-
-                                <div className="space-y-4">
-
-
-                                    {task.histories?.map(history => (
-
-
-                                        <div
-                                            key={history.id}
-                                            className="relative border-l-2 border-gray-300 pl-5"
-                                        >
-
-
-
-                                            <div
-                                                className={`
-                                                    absolute -left-3 
-                                                    flex h-6 w-6 
-                                                    items-center justify-center 
-                                                    rounded-full 
-                                                    text-sm
-                                                    ${
-                                                        history.action === 'concluida'
-                                                            ? 'bg-green-500'
-                                                            : history.action === 'andamento'
-                                                            ? 'bg-yellow-500'
-                                                            : 'bg-blue-500'
-                                                    }
-                                                `}
-                                            >
-
-                                                {historyIcon(history.action)}
-
-                                            </div>
-
-
-
-
-
-                                            <div className="rounded-xl border border-gray-700 bg-[#111827] p-4 shadow-sm">
-
-
-
-                                                <div className="font-bold text-white">
-
-                                                    👤 {history.user.name}
-
-                                                </div>
-
-
-
-
-                                                <div className="mt-2 font-medium text-white">
-
-
-                                                    {history.action === 'criada' && (
-                                                        <>
-                                                            📋 Criou a tarefa
-                                                        </>
-                                                    )}
-
-
-
-                                                    {history.action === 'andamento' && (
-                                                        <>
-                                                            🚀 Iniciou a tarefa
-                                                        </>
-                                                    )}
-
-
-
-                                                    {history.action === 'concluida' && (
-                                                        <>
-                                                            ✅ Concluiu a tarefa
-                                                        </>
-                                                    )}
-
-
-                                                </div>
-
-
-
-
-
-                                                <div className="mt-2 text-sm text-gray-300">
-
-
-                                                    {history.description}
-
-
-                                                </div>
-
-
-
-
-
-                                                <div className="mt-2 text-xs text-gray-400">
-
-
-                                                    {formatDate(history.created_at)}
-
-
-                                                </div>
-
-
-                                            </div>
-
-
-
-                                        </div>
-
-
-                                    ))}
-
-
-                                </div>
-
-
-                            </div>                        </div>
-
-
-                    ))}
-
-
-                </div>
-
-
-
-
-
-                <Modal
-                    show={showModal}
-                    title={
-                        editingTask
-                            ? 'Editar Tarefa'
-                            : 'Nova Tarefa'
-                    }
-                    onClose={() => setShowModal(false)}
-                >
-
-
-
-                    <form
-                        onSubmit={submit}
-                        className="space-y-4"
-                    >
-
-
-
-                        <Input
-
-                            label="Título"
-
-                            value={data.title}
-
-                            onChange={(e:any) =>
-                                setData(
-                                    'title',
-                                    e.target.value
-                                )
-                            }
-
-                        />
-
-
-
-
-
-                        <Input
-
-                            label="Descrição"
-
-                            value={data.description}
-
-                            onChange={(e:any) =>
-                                setData(
-                                    'description',
-                                    e.target.value
-                                )
-                            }
-
-                        />
-
-
-
-
-
-                        <Select
-
-                            label="Responsável"
-
-                            value={data.user_id}
-
-                            onChange={(e:any) =>
-                                setData(
-                                    'user_id',
-                                    e.target.value
-                                )
-                            }
-
-                        >
-
-
-                            <option value="">
-                                Selecione
-                            </option>
-
-
-
-                            {users.map(user => (
-
-                                <option
-                                    key={user.id}
-                                    value={user.id}
                                 >
 
-                                    {user.name}
+                                    {task.status}
 
-                                </option>
-
-
-                            ))}
-
-
-                        </Select>
+                                </span>
 
 
 
+                            </div>
 
-
-                        <Select
-
-                            label="Prioridade"
-
-                            value={data.priority}
-
-                            onChange={(e:any) =>
-                                setData(
-                                    'priority',
-                                    e.target.value
-                                )
-                            }
-
-                        >
-
-                            <option value="baixa">
-                                Baixa
-                            </option>
-
-
-                            <option value="media">
-                                Média
-                            </option>
-
-
-                            <option value="alta">
-                                Alta
-                            </option>
-
-
-                        </Select>
-
-
-
-
-
-                        <Select
-
-                            label="Status"
-
-                            value={data.status}
-
-                            onChange={(e:any) =>
-                                setData(
-                                    'status',
-                                    e.target.value
-                                )
-                            }
-
-                        >
-
-                            <option value="pendente">
-                                Pendente
-                            </option>
-
-
-                            <option value="andamento">
-                                Em andamento
-                            </option>
-
-
-                            <option value="concluida">
-                                Concluída
-                            </option>
-
-
-                        </Select>
-
-
-
-
-
-                        <Input
-
-                            label="Prazo"
-
-                            type="date"
-
-                            value={data.due_date}
-
-                            onChange={(e:any) =>
-                                setData(
-                                    'due_date',
-                                    e.target.value
-                                )
-                            }
-
-                        />
-
-
-
-
-
-                        <div className="flex justify-end">
-
-
-                            <Button disabled={processing}>
-
-                                Salvar
-
-                            </Button>
 
 
                         </div>
 
 
 
-                    </form>
 
 
 
-                </Modal>
 
+                        {task.description && (
+
+                            <p className="mt-4 text-gray-700 dark:text-gray-300">
+
+                                {task.description}
+
+                            </p>
+
+                        )}
+
+
+
+
+
+
+
+                        <div className="mt-5 flex justify-end gap-2">
+
+
+                            <Button
+
+                                variant="secondary"
+
+                                onClick={() => openEdit(task)}
+
+                            >
+
+                                Editar
+
+                            </Button>
+
+
+
+
+
+                            {auth.user.role === 'admin' && (
+
+
+                                <Button
+
+                                    variant="danger"
+
+                                    onClick={() => deleteTask(task)}
+
+                                >
+
+                                    Excluir
+
+                                </Button>
+
+
+                            )}
+
+
+                        </div>
+
+
+
+
+
+
+                        <div className="mt-6 border-t pt-5">
+
+
+                            <h3 className="mb-4 text-lg font-bold">
+
+                                📜 Histórico
+
+                            </h3>
+
+
+
+
+
+                            {task.histories?.map(history => (
+
+
+                                <div
+
+                                    key={history.id}
+
+                                    className="mb-4 rounded-xl border border-gray-700 bg-[#111827] p-4"
+
+                                >
+
+
+                                    <div className="font-bold text-white">
+
+                                        👤 {history.user.name}
+
+                                    </div>
+
+
+
+                                    <div className="mt-2 font-semibold text-white">
+
+                                        {historyIcon(history.action)}
+
+                                        {' '}
+
+                                        {history.description}
+
+                                    </div>
+
+
+
+
+                                    <div className="mt-2 text-xs text-gray-400">
+
+                                        {formatDate(history.created_at)}
+
+                                    </div>
+
+
+                                </div>
+
+
+                            ))}
+
+
+                        </div>
+
+
+
+
+                    </div>
+
+
+                ))}
 
 
 
             </div>
 
 
-        </>
 
-    );
+
+
+
+            <Modal
+
+                show={showModal}
+
+                title={
+                    editingTask
+                        ? 'Editar Tarefa'
+                        : 'Nova Tarefa'
+                }
+
+                onClose={() => setShowModal(false)}
+
+            >
+
+
+
+                <form
+
+                    onSubmit={submit}
+
+                    className="space-y-4"
+
+                >
+
+
+
+                    <Input
+
+                        label="Título"
+
+                        value={data.title}
+
+                        onChange={(e:any) =>
+                            setData(
+                                'title',
+                                e.target.value
+                            )
+                        }
+
+                    />
+
+
+
+
+
+                    <Input
+
+                        label="Descrição"
+
+                        value={data.description}
+
+                        onChange={(e:any) =>
+                            setData(
+                                'description',
+                                e.target.value
+                            )
+                        }
+
+                    />
+
+
+
+
+
+                    <Select
+
+                        label="Responsável"
+
+                        value={data.user_id}
+
+                        onChange={(e:any) =>
+                            setData(
+                                'user_id',
+                                e.target.value
+                            )
+                        }
+
+                    >
+
+
+                        <option value="">
+
+                            Selecione
+
+                        </option>
+
+
+
+
+                        {users.map(user => (
+
+                            <option
+
+                                key={user.id}
+
+                                value={user.id}
+
+                            >
+
+                                {user.name}
+
+                            </option>
+
+
+                        ))}
+
+
+                    </Select>
+
+
+
+
+
+
+                    <Select
+
+                        label="Prioridade"
+
+                        value={data.priority}
+
+                        onChange={(e:any) =>
+                            setData(
+                                'priority',
+                                e.target.value
+                            )
+                        }
+
+                    >
+
+                        <option value="baixa">
+
+                            Baixa
+
+                        </option>
+
+
+                        <option value="media">
+
+                            Média
+
+                        </option>
+
+
+                        <option value="alta">
+
+                            Alta
+
+                        </option>
+
+
+                    </Select>
+
+
+
+
+
+
+                    <Select
+
+                        label="Status"
+
+                        value={data.status}
+
+                        onChange={(e:any) =>
+                            setData(
+                                'status',
+                                e.target.value
+                            )
+                        }
+
+                    >
+
+
+                        <option value="pendente">
+
+                            Pendente
+
+                        </option>
+
+
+
+                        <option value="andamento">
+
+                            Em andamento
+
+                        </option>
+
+
+
+                        <option value="concluida">
+
+                            Concluída
+
+                        </option>
+
+
+                    </Select>
+
+
+
+
+
+
+                    <Input
+
+                        label="Prazo"
+
+                        type="date"
+
+                        value={data.due_date}
+
+                        onChange={(e:any) =>
+                            setData(
+                                'due_date',
+                                e.target.value
+                            )
+                        }
+
+                    />
+
+
+
+
+
+
+                    <div className="flex justify-end">
+
+
+                        <Button disabled={processing}>
+
+                            Salvar
+
+                        </Button>
+
+
+                    </div>
+
+
+                </form>
+
+
+                        </Modal>
+
+    
+
+    </>
+
+);
+
 
 }

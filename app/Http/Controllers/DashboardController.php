@@ -29,8 +29,14 @@ class DashboardController extends Controller
                 'progress' => Task::where('status', 'andamento')->count(),
 
                 'completed' => Task::where('status', 'concluida')->count(),
+'overdue' => Task::whereNotNull('due_date')
+    ->whereDate('due_date', '<', now())
+    ->where('status', '!=', 'concluida')
+    ->count(),
 
-            ];
+];
+
+            
 
 
 
@@ -41,7 +47,13 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
-
+$attentionTasks = Task::with('user')
+    ->where('status', '!=', 'concluida')
+    ->whereNotNull('due_date')
+    ->whereDate('due_date', '<=', now())
+    ->orderBy('due_date')
+    ->limit(5)
+    ->get();
 
 
             $activities = TaskHistory::with([
@@ -134,6 +146,8 @@ class DashboardController extends Controller
             'activities' => $activities,
 
             'ranking' => $ranking,
+
+            'attentionTasks' => $attentionTasks,
 
         ]);
 
