@@ -101,6 +101,18 @@ export default function Reports({ reports }: Props) {
     🧹 Limpar
 </button>
 
+<button
+    onClick={() => {
+        window.open(
+            `/reports/pdf?start_date=${startDate}&end_date=${endDate}`,
+            '_blank'
+        );
+    }}
+    className="rounded-lg bg-green-600 px-5 py-2 text-white"
+>
+    📄 Gerar PDF
+</button>
+
 
 </div>
 

@@ -466,9 +466,14 @@ function dueStatus(date: string | null) {
     const dueDate = date.split('T')[0];
 
 
-    const todayTime = new Date(todayDate).getTime();
+const todayTime = new Date(
+    todayDate + 'T00:00:00'
+).getTime();
 
-    const dueTime = new Date(dueDate).getTime();
+
+const dueTime = new Date(
+    dueDate + 'T00:00:00'
+).getTime();
 
 
     const diff = Math.floor(

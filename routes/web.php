@@ -24,8 +24,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Relatórios
 
-    Route::get('/reports', [ReportController::class, 'index'])
+    // Relatórios
+
+Route::get('/reports', [ReportController::class, 'index'])
     ->name('reports.index');
+
+
+// Relatório PDF
+
+Route::get('/reports/pdf', [ReportController::class, 'pdf'])
+    ->name('reports.pdf');
 
 
 
