@@ -46,7 +46,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                     placeholder="email@exemplo.com"
                                 />
 
-                                <InputError message={errors.email} />
+                                <InputError message={errors.email || errors.password} />
 
                             </div>
 
@@ -76,15 +76,15 @@ export default function Login({ status, canResetPassword }: Props) {
 
 
                                 <PasswordInput
-                                    id="password"
-                                    name="password"
-                                    required
-                                    tabIndex={2}
-                                    autoComplete="current-password"
-                                    placeholder="Senha"
-                                />
+    id="password"
+    name="password"
+    required
+    tabIndex={2}
+    autoComplete="current-password"
+    placeholder="Senha"
+/>
 
-                                <InputError message={errors.password} />
+<InputError message={errors.password} />
 
                             </div>
 

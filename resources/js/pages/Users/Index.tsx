@@ -23,12 +23,13 @@ export default function Users({ users }: Props) {
     const [editingUser, setEditingUser] = useState<User | null>(null);
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
-        name: '',
-        email: '',
-        password: '',
-        role: 'funcionario',
-        active: true,
-    });
+    name: '',
+    email: '',
+    password: '',
+    password_confirmation: '',
+    role: 'funcionario',
+    active: true,
+});
 
 
     function openCreate() {
@@ -247,18 +248,29 @@ export default function Users({ users }: Props) {
 
 
 
-                        {!editingUser && (
+                        {editingUser && (
+    <>
+        <Input
+            label="Nova senha"
+            type="password"
+            value={data.password}
+            onChange={e =>
+                setData('password', e.target.value)
+            }
+            error={errors.password}
+        />
 
-                            <Input
-                                label="Senha"
-                                type="password"
-                                value={data.password}
-                                onChange={e =>
-                                    setData('password', e.target.value)
-                                }
-                            />
-
-                        )}
+        <Input
+            label="Confirmar nova senha"
+            type="password"
+            value={data.password_confirmation}
+            onChange={e =>
+                setData('password_confirmation', e.target.value)
+            }
+            error={errors.password_confirmation}
+        />
+    </>
+)}
 
 
 

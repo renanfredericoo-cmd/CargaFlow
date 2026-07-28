@@ -51,22 +51,63 @@ class UserController extends Controller
 
 
     public function update(Request $request, User $user)
-    {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email'],
-            'role' => ['required', 'in:admin,funcionario'],
-            'active' => ['required', 'boolean'],
-        ]);
+{
+    $validated = $request->validate([
+
+        'name' => [
+            'required',
+            'string',
+            'max:255'
+        ],
+
+        'email' => [
+            'required',
+            'email'
+        ],
+
+        'role' => [
+            'required',
+            'in:admin,funcionario'
+        ],
+
+        'active' => [
+            'required',
+            'boolean'
+        ],
+
+        'password' => [
+            'nullable',
+            'string',
+            'min:6',
+            'confirmed'
+        ],
+
+    ]);
 
 
-        $user->update($validated);
 
+    if (!empty($validated['password'])) {
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'Usuário atualizado com sucesso.');
+        $validated['password'] = Hash::make(
+            $validated['password']
+        );
+
+    } else {
+
+        unset($validated['password']);
+
     }
+
+
+
+    $user->update($validated);
+
+
+
+    return redirect()
+        ->route('users.index')
+        ->with('success', 'Usuário atualizado com sucesso.');
+}
 
 
 
