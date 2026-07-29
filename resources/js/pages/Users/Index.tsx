@@ -85,6 +85,8 @@ export default function Users({ users }: Props) {
 
         } else {
 
+            console.log(data);
+
             post('/users', {
                 onSuccess: () => {
                     setShowModal(false);
@@ -248,7 +250,32 @@ export default function Users({ users }: Props) {
 
 
 
-                        {editingUser && (
+                        {!editingUser && (
+    <>
+        <Input
+            label="Senha"
+            type="password"
+            value={data.password}
+            onChange={e =>
+                setData('password', e.target.value)
+            }
+            error={errors.password}
+        />
+
+        <Input
+            label="Confirmar senha"
+            type="password"
+            value={data.password_confirmation}
+            onChange={e =>
+                setData('password_confirmation', e.target.value)
+            }
+            error={errors.password_confirmation}
+        />
+    </>
+)}
+
+
+{editingUser && (
     <>
         <Input
             label="Nova senha"
@@ -305,9 +332,12 @@ export default function Users({ users }: Props) {
                             </Button>
 
 
-                            <Button disabled={processing}>
-                                Salvar
-                            </Button>
+                            <Button
+    type="submit"
+    disabled={processing}
+>
+    Salvar
+</Button>
 
                         </div>
 
