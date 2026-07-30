@@ -60,6 +60,23 @@ class TaskController extends Controller
 
     }
 
+    public function monitoramento()
+{
+    if (auth()->user()->role !== 'admin') {
+        abort(403);
+    }
+
+    $tasks = Task::with([
+        'user'
+    ])
+    ->orderBy('created_at', 'desc')
+    ->get();
+
+    return Inertia::render('Monitoramento/Index', [
+        'tasks' => $tasks,
+    ]);
+}
+
 
 
 

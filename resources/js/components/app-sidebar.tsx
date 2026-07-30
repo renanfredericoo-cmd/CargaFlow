@@ -1,5 +1,12 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, ClipboardList, Users } from 'lucide-react';
+import {
+    BookOpen,
+    FolderGit2,
+    LayoutGrid,
+    ClipboardList,
+    Users,
+    BarChart3,
+} from 'lucide-react';
 
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -50,11 +57,26 @@ function getMainNavItems(role: string): NavItem[] {
 
         items.push({
 
+
             title: 'Usuários',
             href: '/users',
             icon: Users,
 
+
         });
+
+
+
+        items.push({
+
+
+            title: 'Monitoramento',
+            href: '/monitoramento',
+            icon: BarChart3,
+
+
+        });
+
 
 
     }
@@ -64,6 +86,7 @@ function getMainNavItems(role: string): NavItem[] {
     return items;
 
 }
+
 
 
 
@@ -91,10 +114,14 @@ const footerNavItems: NavItem[] = [
 
 
 
+
 export function AppSidebar() {
 
 
     const { auth } = usePage().props as any;
+
+
+    console.log(auth.user);
 
 
     const mainNavItems = getMainNavItems(auth.user.role);

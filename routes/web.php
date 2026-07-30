@@ -15,6 +15,7 @@ Route::inertia('/', 'welcome')
 Route::middleware(['auth', 'verified'])->group(function () {
 
 
+
     // Dashboard
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -22,26 +23,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 
-    // Relatórios
 
     // Relatórios
 
-Route::get('/reports', [ReportController::class, 'index'])
-    ->name('reports.index');
+    Route::get('/reports', [ReportController::class, 'index'])
+        ->name('reports.index');
 
 
-// Relatório PDF
-
-Route::get('/reports/pdf', [ReportController::class, 'pdf'])
-    ->name('reports.pdf');
-
+    Route::get('/reports/pdf', [ReportController::class, 'pdf'])
+        ->name('reports.pdf');
 
 
 
-    // Usuários - somente ADMIN
+
+
+
+    // ADMIN
 
     Route::middleware('admin')->group(function () {
 
+
+
+        // Usuários
 
         Route::get('/users', [UserController::class, 'index'])
             ->name('users.index');
@@ -63,7 +66,17 @@ Route::get('/reports/pdf', [ReportController::class, 'pdf'])
             ->name('users.toggleStatus');
 
 
+
+
+        // Monitoramento Kanban
+
+        Route::get('/monitoramento', [TaskController::class, 'monitoramento'])
+            ->name('monitoramento.index');
+
+
+
     });
+
 
 
 
@@ -87,8 +100,6 @@ Route::get('/reports/pdf', [ReportController::class, 'pdf'])
 
 
 
-    // Atualizar somente o status da tarefa
-
     Route::patch('/tasks/{task}/status', [TaskController::class, 'updateStatus'])
         ->name('tasks.updateStatus');
 
@@ -96,6 +107,7 @@ Route::get('/reports/pdf', [ReportController::class, 'pdf'])
 
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])
         ->name('tasks.destroy');
+
 
 
 });
