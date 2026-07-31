@@ -13,6 +13,11 @@ class UserController extends Controller
 
     public function index()
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+
         $users = User::select(
             'id',
             'name',
@@ -34,12 +39,24 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+
         User::create([
+
             'name' => $request->name,
+
             'email' => $request->email,
+
             'password' => Hash::make($request->password),
+
+            // Admin escolhe se é admin ou funcionário
             'role' => $request->role,
+
             'active' => true,
+
         ]);
 
 
@@ -50,69 +67,83 @@ class UserController extends Controller
 
 
 
+
+
     public function update(Request $request, User $user)
-{
-    $validated = $request->validate([
-
-        'name' => [
-            'required',
-            'string',
-            'max:255'
-        ],
-
-        'email' => [
-            'required',
-            'email'
-        ],
-
-        'role' => [
-            'required',
-            'in:admin,funcionario'
-        ],
-
-        'active' => [
-            'required',
-            'boolean'
-        ],
-
-        'password' => [
-            'nullable',
-            'string',
-            'min:6',
-            'confirmed'
-        ],
-
-    ]);
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
 
 
+        $validated = $request->validate([
 
-    if (!empty($validated['password'])) {
+            'name' => [
+                'required',
+                'string',
+                'max:255'
+            ],
 
-        $validated['password'] = Hash::make(
-            $validated['password']
-        );
+            'email' => [
+                'required',
+                'email'
+            ],
 
-    } else {
+            'role' => [
+                'required',
+                'in:admin,funcionario'
+            ],
 
-        unset($validated['password']);
+            'active' => [
+                'required',
+                'boolean'
+            ],
 
+            'password' => [
+                'nullable',
+                'string',
+                'min:6',
+                'confirmed'
+            ],
+
+        ]);
+
+
+
+        if (!empty($validated['password'])) {
+
+            $validated['password'] = Hash::make(
+                $validated['password']
+            );
+
+        } else {
+
+            unset($validated['password']);
+
+        }
+
+
+
+        $user->update($validated);
+
+
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'Usuário atualizado com sucesso.');
     }
 
 
-
-    $user->update($validated);
-
-
-
-    return redirect()
-        ->route('users.index')
-        ->with('success', 'Usuário atualizado com sucesso.');
-}
 
 
 
     public function destroy(User $user)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+
         $user->delete();
 
 
@@ -123,11 +154,21 @@ class UserController extends Controller
 
 
 
+
+
     public function toggleStatus(User $user)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+
         $user->update([
+
             'active' => !$user->active
+
         ]);
+
 
 
         return redirect()

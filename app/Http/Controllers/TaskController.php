@@ -151,9 +151,16 @@ class TaskController extends Controller
 
 
     public function update(Request $request, Task $task)
-    {
+{
 
-        $validated = $request->validate([
+    if (
+        auth()->user()->role !== 'admin'
+    ) {
+        abort(403);
+    }
+
+
+    $validated = $request->validate([
 
             'title' => [
                 'required',

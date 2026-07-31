@@ -53,6 +53,8 @@ interface Task {
 
     due_date: string | null;
 
+    completion_note: string | null;
+
 
     user: User;
 
@@ -254,7 +256,11 @@ const content = `
 
 
 
-    const [showModal, setShowModal] = useState(false);
+const [showModal, setShowModal] = useState(false);
+
+const [showCompleteModal, setShowCompleteModal] = useState(false);
+const [completionNote, setCompletionNote] = useState('');
+const [selectedTask, setSelectedTask] = useState<number | null>(null);
 
 
 
@@ -355,6 +361,22 @@ function openEdit(task: Task) {
 
 }
 
+function changeStatus(id: number, status: string) {
+
+    router.patch(`/tasks/${id}/status`, {
+        status: status
+    });
+
+}
+function openCompleteModal(taskId: number) {
+
+    setSelectedTask(taskId);
+
+    setCompletionNote('');
+
+    setShowCompleteModal(true);
+
+}
 
 
 
@@ -1003,13 +1025,19 @@ return (
 
                         {task.description && (
 
-                            <p className="mt-4 text-gray-700 dark:text-gray-300">
+    <p className="mt-4 text-gray-700 dark:text-gray-300">
+        {task.description}
+    </p>
 
-                                {task.description}
+)}
 
-                            </p>
 
-                        )}
+{task.completion_note && (
+    <p className="mt-4 text-gray-700 dark:text-gray-300">
+        📝 O que foi realizado: {task.completion_note}
+    </p>
+)}
+                        
 
 
 
@@ -1019,13 +1047,51 @@ return (
 
                         <div className="mt-5 flex justify-end gap-2">
 
+{auth.user.role === 'admin' && (
 
-                            <Button
-    variant="secondary"
-    onClick={() => openEdit(task)}
->
-    Editar
-</Button>
+    <Button
+        variant="secondary"
+        onClick={() => openEdit(task)}
+    >
+        Editar
+    </Button>
+
+)}
+
+
+{task.status === 'pendente' && (
+
+    <Button
+        variant="secondary"
+        onClick={() =>
+            changeStatus(
+                task.id,
+                'andamento'
+            )
+        }
+    >
+        🚀 Iniciar tarefa
+    </Button>
+
+
+    
+
+)}
+
+
+{task.status === 'andamento' && (
+
+    <Button
+        variant="secondary"
+        onClick={() =>
+            openCompleteModal(task.id)
+        }
+    >
+        ✅ Concluir tarefa
+    </Button>
+
+)}
+
 
 <Button
     variant="secondary"
@@ -1035,34 +1101,18 @@ return (
 </Button>
 
 
+{auth.user.role === 'admin' && (
 
+    <Button
+        variant="danger"
+        onClick={() => deleteTask(task)}
+    >
+        Excluir
+    </Button>
 
+)}
 
-                            {auth.user.role === 'admin' && (
-
-
-                                <Button
-
-                                    variant="danger"
-
-                                    onClick={() => deleteTask(task)}
-
-                                >
-
-                                    Excluir
-
-                                </Button>
-
-
-                            )}
-
-
-                        </div>
-
-
-
-
-
+</div>
 
                         <div className="mt-6 border-t pt-5">
 
@@ -1385,11 +1435,65 @@ return (
 
                         </Modal>
 
-    
 
-    </>
+<Modal
+    show={showCompleteModal}
+    title="Concluir tarefa"
+    onClose={() => setShowCompleteModal(false)}
+>
+
+    <div className="space-y-4">
+
+        <Input
+            label="O que foi realizado?"
+            value={completionNote}
+            onChange={(e:any) =>
+                setCompletionNote(e.target.value)
+            }
+        />
+
+
+        <div className="flex justify-end gap-3">
+
+            <Button
+                variant="secondary"
+                onClick={() =>
+                    setShowCompleteModal(false)
+                }
+            >
+                Cancelar
+            </Button>
+
+
+            <Button
+                onClick={() => {
+
+                    router.patch(
+                        `/tasks/${selectedTask}/status`,
+                        {
+                            status: 'concluida',
+                            completion_note: completionNote
+                        }
+                    );
+
+                    setShowCompleteModal(false);
+                    setCompletionNote('');
+                    setSelectedTask(null);
+
+                }}
+            >
+                Concluir
+            </Button>
+
+        </div>
+
+    </div>
+
+</Modal>
+
+
+</>
 
 );
-
 
 }
