@@ -938,7 +938,7 @@ return (
                                 </p>
 
 
-{task.due_date && (() => {
+{task.due_date && task.status !== 'concluida' && (() => {
 
     const due = dueStatus(task.due_date);
 
