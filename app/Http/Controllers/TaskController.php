@@ -87,36 +87,36 @@ class TaskController extends Controller
 
         $validated = $request->validate([
 
-            'title' => [
-                'required',
-                'string',
-                'max:255'
-            ],
+    'title' => [
+        'required',
+        'string',
+        'max:255'
+    ],
 
-            'description' =>
-    $validated['status'] === 'andamento'
-        ? '🚀 Tarefa iniciada'
-        : 'Status alterado para ' . $validated['status'],
+    'description' => [
+        'nullable',
+        'string'
+    ],
 
-            'user_id' => [
-                'required',
-                'exists:users,id'
-            ],
+    'user_id' => [
+        'required',
+        'exists:users,id'
+    ],
 
-            'priority' => [
-                'required'
-            ],
+    'priority' => [
+        'required'
+    ],
 
-            'status' => [
-                'required'
-            ],
+    'status' => [
+        'required'
+    ],
 
-            'due_date' => [
-                'nullable',
-                'date'
-            ],
+    'due_date' => [
+        'nullable',
+        'date'
+    ],
 
-        ]);
+]);
 
 
 
