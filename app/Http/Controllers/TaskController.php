@@ -93,10 +93,10 @@ class TaskController extends Controller
                 'max:255'
             ],
 
-            'description' => [
-                'nullable',
-                'string'
-            ],
+            'description' =>
+    $validated['status'] === 'andamento'
+        ? '🚀 Tarefa iniciada'
+        : 'Status alterado para ' . $validated['status'],
 
             'user_id' => [
                 'required',
@@ -290,9 +290,9 @@ class TaskController extends Controller
 
                 'action' => 'concluida',
 
-                'description' =>
-                    $validated['completion_note'] ?? 
-                    'Tarefa concluída',
+'description' =>
+    '✅ Tarefa concluída - ' .
+    ($validated['completion_note'] ?? 'Sem observação'),
 
             ]);
 

@@ -149,8 +149,8 @@ const content = `
         .box {
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 8px;
-    margin-bottom: 8px;
+    padding: 6px;
+    margin-bottom: 6px;
 }
 
         .label {
@@ -162,7 +162,7 @@ const content = `
         }
 
         .footer {
-    margin-top: 15px;
+    margin-top: 5px;
 }
 
     </style>
@@ -209,34 +209,42 @@ const content = `
     </div>
 
 
-    <div class="box description">
-        <p class="label">Descrição:</p>
-
-        <p>
-            ${task.description ?? ''}
-        </p>
-    </div>
+    
 
 
-    <div class="footer">
+    <div class="box">
 
-        <p>
-            Observações:
-        </p>
+    <p class="label">
+        Relato da execução:
+    </p>
 
-        <br><br>
+    <p>
+        ${task.completion_note ?? 'Não informado'}
+    </p>
 
-        ______________________________________
+</div>
 
-        <br><br>
 
-        Responsável pela execução:
+<div class="footer">
 
-        <br><br><br>
+    <p>
+        <strong>Responsável pela execução:</strong><br>
+        ${task.user?.name ?? ''}
+    </p>
 
-        ______________________________________
 
-    </div>
+    <br>
+
+
+    <p>
+        Assinatura:
+    </p>
+
+    <br><br>
+
+    ______________________________________
+
+</div>
 
 
 </body>
@@ -1033,9 +1041,20 @@ return (
 
 
 {task.completion_note && (
-    <p className="mt-4 text-gray-700 dark:text-gray-300">
-        📝 O que foi realizado: {task.completion_note}
-    </p>
+
+    <div className="mt-5 rounded-xl border border-green-500/30 bg-green-500/10 p-4">
+
+        <div className="mb-2 font-bold text-green-400">
+    Relato da execução
+</div>
+
+
+        <p className="leading-relaxed text-gray-200">
+            {task.completion_note}
+        </p>
+
+    </div>
+
 )}
                         
 
