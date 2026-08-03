@@ -513,8 +513,12 @@ interface Props {
             >
 
                 <p className="font-semibold">
-                    📋 {task.title}
-                </p>
+    OS #{String(task.id).padStart(6, '0')}
+</p>
+
+<p className="text-gray-500">
+    {task.title}
+</p>
 
 
                 <p className="text-sm text-gray-500">
@@ -579,10 +583,12 @@ interface Props {
 
 
                                         <h3 className="text-lg font-bold">
+    OS #{String(task.id).padStart(6, '0')}
+</h3>
 
-                                            📋 {task.title}
-
-                                        </h3>
+<p className="text-gray-500">
+    {task.title}
+</p>
 
 
 
@@ -657,12 +663,12 @@ interface Props {
                                 {task.status === 'concluida' && task.completion_note && (
 
 
-                                    <div className="mt-4 rounded-lg bg-gray-100 p-4 text-sm dark:bg-neutral-800">
+                                    <div className="mt-4 rounded-lg border border-gray-700 bg-neutral-800 p-4 text-sm">
 
 
                                         <p className="font-semibold">
 
-                                            📝 O que foi realizado:
+                                            📝 Resultado da execução:
 
                                         </p>
 
@@ -1048,8 +1054,16 @@ function Card({
 
         <div
     className={`rounded-xl border p-4 sm:p-6 shadow-sm dark:bg-neutral-900 ${
-        alert
+        title.includes('Pendentes')
+            ? 'border-yellow-500 bg-yellow-950/20'
+            : title.includes('Em andamento')
+            ? 'border-blue-500 bg-blue-950/20'
+            : title.includes('Concluídas')
+            ? 'border-green-500 bg-green-950/20'
+            : title.includes('Atrasadas')
             ? 'border-red-500 bg-red-950/20'
+            : title.includes('Usuários')
+            ? 'border-purple-500 bg-purple-950/20'
             : 'bg-white'
     }`}
 >
