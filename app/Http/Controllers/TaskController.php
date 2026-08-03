@@ -286,15 +286,14 @@ class TaskController extends Controller
 
             $task->histories()->create([
 
-                'user_id' => auth()->id(),
+    'user_id' => auth()->id(),
 
-                'action' => 'concluida',
+    'action' => 'concluida',
 
-'description' =>
-    '✅ Tarefa concluída - ' .
-    ($validated['completion_note'] ?? 'Sem observação'),
+    'description' =>
+        'Tarefa concluída',
 
-            ]);
+]);
 
 
 
@@ -315,15 +314,16 @@ class TaskController extends Controller
 
             $task->histories()->create([
 
-                'user_id' => auth()->id(),
+    'user_id' => auth()->id(),
 
-                'action' => $validated['status'],
+    'action' => $validated['status'],
 
-                'description' =>
-                    'Status alterado para ' .
-                    $validated['status'],
+    'description' =>
+        $validated['status'] === 'andamento'
+            ? 'Tarefa iniciada'
+            : 'Status alterado para ' . $validated['status'],
 
-            ]);
+]);
 
 
         }

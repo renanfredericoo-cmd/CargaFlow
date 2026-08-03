@@ -1160,10 +1160,9 @@ return (
 
                                     <div className="font-bold text-white">
 
-                                        👤 {history.user.name}
+    {history.user.name}
 
-                                    </div>
-
+</div>
 
 
                                     <div className="mt-2 font-semibold text-white">
