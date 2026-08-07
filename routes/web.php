@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -24,6 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 
+
     // Relatórios
 
     Route::get('/reports', [ReportController::class, 'index'])
@@ -38,13 +40,104 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 
-    // ADMIN
+    /*
+    |--------------------------------------------------------------------------
+    | Pedidos
+    |--------------------------------------------------------------------------
+    */
+
+
+    Route::get('/pedidos', [PedidoController::class, 'index'])
+        ->name('pedidos.index');
+
+
+    Route::post('/pedidos', [PedidoController::class, 'store'])
+        ->name('pedidos.store');
+
+
+    Route::put('/pedidos/{pedido}', [PedidoController::class, 'update'])
+        ->name('pedidos.update');
+
+
+
+    // Agendamento do pedido
+
+    Route::put('/pedidos/{pedido}/agendar', [PedidoController::class, 'agendar'])
+        ->name('pedidos.agendar');
+
+
+
+    // Iniciar carregamento
+
+    Route::put('/pedidos/{pedido}/carregar', [PedidoController::class, 'carregar'])
+        ->name('pedidos.carregar');
+
+
+
+    // Faturamento
+
+    Route::put('/pedidos/{pedido}/faturar', [PedidoController::class, 'faturar'])
+        ->name('pedidos.faturar');
+
+
+
+    // Cancelamento
+
+    Route::patch('/pedidos/{pedido}/cancelar', [PedidoController::class, 'cancelar'])
+        ->name('pedidos.cancelar');
+
+
+
+    // Exclusão
+
+    Route::delete('/pedidos/{pedido}', [PedidoController::class, 'destroy'])
+        ->name('pedidos.destroy');
+
+
+
+
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Produtos
+    |--------------------------------------------------------------------------
+    */
+
+
+    Route::get('/produtos', [ProdutoController::class, 'index'])
+        ->name('produtos.index');
+
+
+    Route::post('/produtos', [ProdutoController::class, 'store'])
+        ->name('produtos.store');
+
+
+    Route::put('/produtos/{produto}', [ProdutoController::class, 'update'])
+        ->name('produtos.update');
+
+
+    Route::patch('/produtos/{produto}/toggle', [ProdutoController::class, 'toggle'])
+        ->name('produtos.toggle');
+
+
+
+
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Administração
+    |--------------------------------------------------------------------------
+    */
+
 
     Route::middleware('admin')->group(function () {
 
-
-
-        // Usuários
 
         Route::get('/users', [UserController::class, 'index'])
             ->name('users.index');
@@ -66,52 +159,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('users.toggleStatus');
 
 
-
-
-        // Monitoramento Kanban
-
-        Route::get('/monitoramento', [TaskController::class, 'monitoramento'])
-            ->name('monitoramento.index');
-
-
-
     });
 
 
 
-
-
-
-    // Tarefas
-
-
-    Route::get('/tasks', [TaskController::class, 'index'])
-        ->name('tasks.index');
-
-
-
-    Route::post('/tasks', [TaskController::class, 'store'])
-        ->name('tasks.store');
-
-
-
-    Route::put('/tasks/{task}', [TaskController::class, 'update'])
-        ->name('tasks.update');
-
-
-
-    Route::patch('/tasks/{task}/status', [TaskController::class, 'updateStatus'])
-        ->name('tasks.updateStatus');
-
-
-
-    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])
-        ->name('tasks.destroy');
-
-
-
 });
-
 
 
 require __DIR__.'/settings.php';

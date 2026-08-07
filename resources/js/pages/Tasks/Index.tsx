@@ -119,7 +119,9 @@ const dueDate = task.due_date
 const content = `
 <html>
 <head>
-    <title>TaskFlow - Ordem de Serviço</title>
+    <title>CargaFlow - Gestão de Carregamentos</title>
+
+<h1>CargaFlow</h1>
 
     <style>
     body {
@@ -186,43 +188,37 @@ const content = `
 </div>
 
 
-    <div class="box">
-        <p>
-            <span class="label">Tarefa:</span><br>
-            ${task.title}
-        </p>
-
-        <p>
-            <span class="label">Prioridade:</span>
-            ${priorityText}
-        </p>
-
-        <p>
-            <span class="label">Status:</span>
-            ${statusText}
-        </p>
-
-        <p>
-            <span class="label">Prazo:</span>
-            ${dueDate}
-        </p>
-    </div>
 
 
-    
+        <div class="box">
+
+    <p class="label">
+        Descrição:
+    </p>
+
+    <p>
+        ${task.description ?? 'Não informado'}
+    </p>
+
+</div>
 
 
-    <div class="box">
+${task.status === 'concluida' && task.completion_note ? `
+
+<div class="box">
 
     <p class="label">
         Relato da execução:
     </p>
 
     <p>
-        ${task.completion_note ?? 'Não informado'}
+        ${task.completion_note}
     </p>
 
 </div>
+
+` : ''}
+
 
 
 <div class="footer">
@@ -484,6 +480,8 @@ function formatDate(date:string) {
 }
 function dueStatus(date: string | null) {
 
+    console.log('ENTROU DUE STATUS', date);
+
     if (!date) {
         return null;
     }
@@ -491,9 +489,12 @@ function dueStatus(date: string | null) {
 
     const today = new Date();
 
-    const todayDate = today.toISOString().split('T')[0];
+    const todayDate = today.toLocaleDateString('en-CA');
 
     const dueDate = date.split('T')[0];
+
+    console.log('HOJE:', todayDate);
+console.log('VENCIMENTO:', dueDate);
 
 
 const todayTime = new Date(

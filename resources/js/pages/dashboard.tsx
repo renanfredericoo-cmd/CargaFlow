@@ -1,352 +1,139 @@
-import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head } from "@inertiajs/react";
 
 
-
-interface Task {
+interface Pedido {
 
     id: number;
 
-    title: string;
+    numero_pedido: string | null;
 
-    priority: string;
+    codigo: string | null;
+
+    cliente: string;
+
+    destino: string;
+
+    peso: number | string;
 
     status: string;
 
-    due_date: string | null;
+    numero_nfe: string | null;
 
-    completion_note: string | null;
+    produto?: {
 
-    completed_at: string | null;
-
-
-    completedBy?: {
-
-        name: string;
+        descricao: string;
 
     } | null;
 
-
-
-    user: {
-
-        name: string;
-
-    };
-
-
 }
-
-
-
-
-interface Activity {
-
-    id: number;
-
-    action: string;
-
-    description: string;
-
-    created_at: string;
-
-
-    user: {
-
-        name: string;
-
-    };
-
-
-    task: {
-
-        title: string;
-
-    };
-
-}
-
-
-
-
-
-interface Ranking {
-
-
-    id: number;
-
-    name: string;
-
-    completed_tasks_count: number;
-
-
-}
-
-
-
 
 
 
 interface Props {
 
-
     stats: {
-
 
         users: number;
 
-        tasks: number;
+        pedidos: number;
 
-        pending: number;
+        programados: number;
 
-        progress: number;
+        carregados: number;
 
-        completed: number;
+        faturados: number;
 
-        overdue: number;
+        cancelados: number;
+
+        toneladas: number;
+
+
+
+        pontualidade: {
+
+            no_horario: number;
+
+            atrasados: number;
+
+            media_atraso: number;
+
+            total: number;
+
+            eficiencia: number;
+
+        };
+
+
+
+        tempo_operacao: {
+
+    media_segundos: number;
+
+    total_analisados: number;
+
+};
+
 
     };
-
 
 
     role: string;
 
 
+    ultimos?: Pedido[];
 
-    latestTasks?: Task[];
+}
 
+function formatarTempo(segundos: number) {
 
+    if (segundos < 60) {
 
-    activities?: Activity[];
+        return `${segundos}s`;
 
-
-
-    ranking?: Ranking[];
-
-   
-    attentionTasks?: Task[];
+    }
 
 
-}export default function Dashboard({
+    const horas = Math.floor(segundos / 3600);
 
-    stats,
-
-    role,
-
-    latestTasks = [],
-
-    activities = [],
-
-    ranking = [],
-
-    attentionTasks = [],
-
-
-}: Props) {
-
-    function formatAttentionDate(date: string) {
-
-    const today = new Date();
-
-    const todayDate = today.toISOString().split('T')[0];
-
-    const dueDate = date.split('T')[0];
-
-
-    const todayTime = new Date(todayDate).getTime();
-
-    const dueTime = new Date(dueDate).getTime();
-
-
-    const diff = Math.floor(
-        (todayTime - dueTime) /
-        (1000 * 60 * 60 * 24)
+    const minutos = Math.floor(
+        (segundos % 3600) / 60
     );
 
 
-    if (diff > 0) {
+    if (horas > 0) {
 
-        return `🚨 Atrasada há ${diff} ${diff === 1 ? 'dia' : 'dias'}`;
-
-    }
-
-
-    if (diff === 0) {
-
-        return '⚠️ Vence hoje';
+        return `${horas}h ${minutos}min`;
 
     }
 
 
-    return '🟢 Dentro do prazo';
+    return `${minutos}min`;
 
 }
 
 
 
-    const isAdmin = role === 'admin';
 
+export default function Dashboard({
 
+    stats,
 
-    const [selectedTask, setSelectedTask] = useState<number | null>(null);
+    ultimos = [],
 
+}: Props) {
 
 
-    const [completionNote, setCompletionNote] = useState('');
-
-
-
-
-
-    function changeStatus(
-        taskId: number,
-        status: string
-    ) {
-
-
-        router.patch(
-            `/tasks/${taskId}/status`,
-            {
-                status
-            }
-        );
-
-
-    }
-
-
-
-
-
-
-    function openCompleteModal(taskId: number) {
-
-
-        setSelectedTask(taskId);
-
-        setCompletionNote('');
-
-
-    }
-
-
-
-
-
-
-    function completeTask() {
-
-
-        if (!selectedTask) {
-
-            return;
-
-        }
-
-
-
-        router.patch(
-            `/tasks/${selectedTask}/status`,
-            {
-
-                status: 'concluida',
-
-                completion_note: completionNote,
-
-            },
-            {
-
-                onSuccess: () => {
-
-                    setSelectedTask(null);
-
-                    setCompletionNote('');
-
-                }
-
-            }
-
-        );
-
-
-    }
-
-
-
-
-
-    function statusColor(status:string) {
-
-
-        if(status === 'concluida') {
-
-            return 'bg-green-600';
-
-        }
-
-
-        if(status === 'andamento') {
-
-            return 'bg-blue-600';
-
-        }
-
-
-        return 'bg-gray-600';
-
-
-    }
-
-
-
-
-
-    function priorityColor(priority:string) {
-
-
-        if(priority === 'alta') {
-
-            return 'bg-red-600';
-
-        }
-
-
-        if(priority === 'media') {
-
-            return 'bg-yellow-500';
-
-        }
-
-
-        return 'bg-green-600';
-
-
-    }
-
-
-
-
-
-    function formatDate(date:string) {
-
-
-        return new Date(date)
-            .toLocaleString('pt-BR');
-
-
-    }    return (
+    return (
 
         <>
 
             <Head title="Dashboard" />
 
 
-
             <div className="p-6">
 
 
                 <div className="mb-8">
-
 
                     <h1 className="text-3xl font-bold">
 
@@ -355,495 +142,425 @@ interface Props {
                     </h1>
 
 
-
                     <p className="text-gray-500">
 
-                        {isAdmin
-                            ? 'Visão geral do sistema.'
-                            : 'Visão das suas tarefas.'
-                        }
+                        Visão geral da operação.
 
                     </p>
 
-
                 </div>
 
 
 
 
 
-
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-
-
-
-                    {isAdmin && (
-
-                        <Card
-
-                            title="👥 Usuários ativos"
-
-                            value={stats.users}
-
-                        />
-
-                    )}
-
-
-
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
 
 
                     <Card
-
-                        title="📋 Total tarefas"
-
-                        value={stats.tasks}
-
+                        title="📦 Total pedidos"
+                        value={stats.pedidos}
                     />
 
 
-
-
-
                     <Card
-
-                        title="⏳ Pendentes"
-
-                        value={stats.pending}
-
+                        title="📅 Agendados"
+                        value={stats.programados}
                     />
 
 
-
-
-
                     <Card
-
-                        title="🚀 Em andamento"
-
-                        value={stats.progress}
-
+                        title="🔄 Em carregamento"
+                        value={stats.carregados}
                     />
 
 
-
+                    <Card
+                        title="🧾 Faturados"
+                        value={stats.faturados}
+                    />
 
 
                     <Card
-
-    title="✅ Concluídas"
-
-    value={stats.completed}
-
-/>
+                        title="❌ Cancelados"
+                        value={stats.cancelados}
+                    />
 
 
-<Card
-
-    title="🚨 Atrasadas"
-
-    value={stats.overdue}
-
-    alert={stats.overdue > 0}
-
-/>
-
-                </div>
-
-<div className="mt-8">
-
-    <a
-        href="/reports"
-        className="block rounded-xl border bg-white p-6 shadow-sm transition hover:shadow-lg hover:bg-gray-50 dark:bg-neutral-900"
-    >
-
-        <div className="flex items-center justify-between">
-
-            <div>
-
-                <h2 className="text-xl font-bold">
-                    📊 Relatórios
-                </h2>
-
-                <p className="mt-2 text-gray-500">
-                    Visualize indicadores, desempenho e acompanhamento das tarefas.
-                </p>
-
-            </div>
+                    <Card
+                        title="⚖️ Toneladas"
+                        value={stats.toneladas}
+                    />
 
 
-            <div className="text-2xl">
-                →
-            </div>
-
-        </div>
-
-    </a>
-
-</div>               
-
-
-
-
-
-<div className="mt-8 rounded-xl border bg-white p-6 dark:bg-neutral-900">
-
-    <h2 className="mb-4 text-xl font-bold">
-        🚨 Tarefas que precisam de atenção
-    </h2>
-
-
-    <div className="space-y-3">
-
-        {attentionTasks.length === 0 && (
-
-            <p className="text-gray-500">
-                Nenhuma tarefa atrasada.
-            </p>
-
-        )}
-
-
-
-        {attentionTasks.map(task => (
-
-            <div
-                key={task.id}
-                className="rounded-lg border p-4"
-            >
-
-                <p className="font-semibold">
-    OS #{String(task.id).padStart(6, '0')}
-</p>
-
-<p className="text-gray-500">
-    {task.title}
-</p>
-
-
-                <p className="text-sm text-gray-500">
-                    👤 {task.user.name}
-                </p>
-
-                <p className="text-sm font-semibold">
-    🔥 Prioridade: {task.priority}
-</p>
-
-
-                <p className="text-sm text-red-500">
-
-    {formatAttentionDate(task.due_date!)}
-
-                </p>
-
-            </div>
-
-        ))}
-
-    </div>
-
-</div>
-
-                <div className="mt-8 rounded-xl border bg-white p-6 dark:bg-neutral-900">
+                </div>                <div className="mt-6 rounded-xl border bg-white p-6 shadow-sm dark:bg-neutral-900">
 
 
                     <h2 className="mb-5 text-xl font-bold">
 
-                        📝 Tarefas recentes
+                        🚛 Pontualidade
 
                     </h2>
 
 
 
 
+                    <div className="grid gap-4 md:grid-cols-4">
 
-                    <div className="space-y-4">
 
 
+                        <div className="rounded-lg border p-4">
 
-                        {latestTasks.map(task => (
+                            <p className="text-sm text-gray-500">
 
+                                🟢 No horário
 
+                            </p>
 
-                            <div
 
-                                key={task.id}
+                            <p className="mt-2 text-3xl font-bold text-green-500">
 
-                                className="rounded-xl border p-5"
+                                {stats.pontualidade.no_horario}
 
-                            >
+                            </p>
 
+                        </div>
 
 
 
-                                <div className="flex justify-between">
 
 
-                                    <div>
+                        <div className="rounded-lg border p-4">
 
+                            <p className="text-sm text-gray-500">
 
-                                        <h3 className="text-lg font-bold">
-    OS #{String(task.id).padStart(6, '0')}
-</h3>
+                                🔴 Atrasados
 
-<p className="text-gray-500">
-    {task.title}
-</p>
+                            </p>
 
 
+                            <p className="mt-2 text-3xl font-bold text-red-500">
 
+                                {stats.pontualidade.atrasados}
 
-                                        <p className="text-sm text-gray-500">
+                            </p>
 
-                                            👤 {task.user.name}
+                        </div>
 
-                                        </p>
 
 
-                                    </div>
 
 
+                        <div className="rounded-lg border p-4">
 
 
+                            <p className="text-sm text-gray-500">
 
-                                    <div className="flex flex-col gap-2">
+                                📊 Eficiência
 
+                            </p>
 
 
-                                        <span
+                            <p className="mt-2 text-3xl font-bold">
 
-                                            className={`rounded-lg px-3 py-1 text-center text-sm font-semibold text-white ${priorityColor(task.priority)}`}
+                                {stats.pontualidade.eficiencia}%
 
-                                        >
+                            </p>
 
-                                            {task.priority}
 
-                                        </span>
 
+                            <div className="mt-3 h-3 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
 
 
+                                <div
 
+                                    className={`
 
-                                        <span
+                                        h-3
 
-                                            className={`rounded-lg px-3 py-1 text-center text-sm font-semibold text-white ${statusColor(task.status)}`}
+                                        rounded-full
 
-                                        >
+                                        ${
+                                            stats.pontualidade.eficiencia >= 90
 
-                                            {task.status}
+                                                ? "bg-green-500"
 
-                                        </span>
+                                                : stats.pontualidade.eficiencia >= 70
 
+                                                    ? "bg-yellow-500"
 
+                                                    : "bg-red-500"
+                                        }
 
-                                    </div>
+                                    `}
 
+                                    style={{
 
+                                        width: `${stats.pontualidade.eficiencia}%`
 
-                                </div>                                {task.due_date && (
+                                    }}
 
-                                    <p className="mt-3 text-sm text-gray-500">
-
-                                        📅 Prazo:
-
-                                        {' '}
-
-                                        {new Date(task.due_date)
-                                            .toLocaleDateString('pt-BR')}
-
-                                    </p>
-
-                                )}
-
-
-
-
-
-
-                                {task.status === 'concluida' && task.completion_note && (
-
-
-                                    <div className="mt-4 rounded-lg border border-gray-700 bg-neutral-800 p-4 text-sm">
-
-
-                                        <p className="font-semibold">
-
-                                            📝 Resultado da execução:
-
-                                        </p>
-
-
-
-
-                                        <p className="mt-2 text-gray-600 dark:text-gray-300">
-
-                                            {task.completion_note}
-
-                                        </p>
-
-
-
-
-
-                                        {task.completedBy && (
-
-                                            <p className="mt-3 text-gray-500">
-
-                                                ✅ Finalizado por:
-
-                                                {' '}
-
-                                                {task.completedBy.name}
-
-                                            </p>
-
-                                        )}
-
-
-
-
-
-                                        {task.completed_at && (
-
-                                            <p className="mt-2 text-gray-500">
-
-                                                📅 Data:
-
-                                                {' '}
-
-                                                {formatDate(task.completed_at)}
-
-                                            </p>
-
-                                        )}
-
-
-                                    </div>
-
-                                )}
-
-
-
-
-
-
-
-                                <div className="mt-5">
-
-
-                                    {task.status === 'pendente' && (
-
-
-                                        <button
-
-                                            onClick={() =>
-                                                changeStatus(
-                                                    task.id,
-                                                    'andamento'
-                                                )
-                                            }
-
-                                            className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white"
-
-                                        >
-
-                                            🚀 Iniciar tarefa
-
-                                        </button>
-
-
-                                    )}
-
-
-
-
-
-
-                                    {task.status === 'andamento' && (
-
-
-                                        <button
-
-                                            onClick={() =>
-                                                openCompleteModal(task.id)
-                                            }
-
-                                            className="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white"
-
-                                        >
-
-                                            ✅ Concluir tarefa
-
-                                        </button>
-
-
-                                    )}
-
-
-                                </div>
-
+                                />
 
 
                             </div>
 
 
-                        ))}
+                        </div>
+
+
+
+
+
+                        <div className="rounded-lg border p-4">
+
+
+                            <p className="text-sm text-gray-500">
+
+                                ⏱ Média atraso
+
+                            </p>
+
+
+                            <p className="mt-2 text-3xl font-bold">
+
+                                +{stats.pontualidade.media_atraso} min
+
+                            </p>
+
+
+                        </div>
 
 
 
                     </div>
 
 
-                </div>                <div className="mt-8 grid gap-6 md:grid-cols-2">
+                </div>
 
 
-                    <div className="rounded-xl border bg-white p-6 dark:bg-neutral-900">
 
 
-                        <h2 className="mb-4 text-xl font-bold">
 
-                            📜 Últimas atividades
-
-                        </h2>
+                <div className="mt-6 rounded-xl border bg-white p-6 shadow-sm dark:bg-neutral-900">
 
 
+                    <h2 className="mb-5 text-xl font-bold">
+
+                        ⏱ Performance de carregamento
+
+                    </h2>
+
+
+
+
+                    <div className="grid gap-4 md:grid-cols-3">
+
+
+                        <div className="rounded-lg border p-4">
+
+
+                            <p className="text-sm text-gray-500">
+
+                                ⏱ Tempo médio carregamento
+
+                            </p>
+
+
+                            <p className="mt-2 text-3xl font-bold">
+
+                                {formatarTempo(
+    stats.tempo_operacao.media_segundos
+)}
+
+                            </p>
+
+
+                        </div>
+
+
+
+
+
+                        <div className="rounded-lg border p-4">
+
+
+                            <p className="text-sm text-gray-500">
+
+                                🚚 Carregamentos analisados
+
+                            </p>
+
+
+                            <p className="mt-2 text-3xl font-bold">
+
+                                {stats.tempo_operacao.total_analisados}
+
+                            </p>
+
+
+                        </div>
+
+
+
+                    </div>
+
+
+                </div>                <div className="mt-8 rounded-xl border bg-white p-6 shadow-sm dark:bg-neutral-900">
+
+
+                    <h2 className="mb-5 text-xl font-bold">
+
+                        📋 Últimos pedidos
+
+                    </h2>
+
+
+
+                    {ultimos.length === 0 ? (
+
+
+                        <p className="text-gray-500">
+
+                            Nenhum pedido encontrado.
+
+                        </p>
+
+
+                    ) : (
 
 
                         <div className="space-y-3">
 
 
-                            {activities.map(activity => (
+                            {ultimos.map((pedido) => (
 
 
                                 <div
-                                    key={activity.id}
-                                    className="rounded-lg border p-3"
+
+                                    key={pedido.id}
+
+                                    className="rounded-lg border p-4"
+
                                 >
 
 
-                                    <p className="font-semibold">
-
-                                        👤 {activity.user.name}
-
-                                    </p>
+                                    <div className="flex flex-col gap-3 md:flex-row md:justify-between">
 
 
-                                    <p className="text-sm">
-
-                                        {activity.description}
-
-                                    </p>
+                                        <div>
 
 
-                                    <p className="text-xs text-gray-500">
+                                            <p className="font-bold">
 
-                                        {activity.task.title}
+                                                Pedido #
 
-                                        {' - '}
+                                                {pedido.numero_pedido ?? pedido.codigo}
 
-                                        {formatDate(activity.created_at)}
+                                            </p>
 
-                                    </p>
+
+
+                                            <p className="text-sm text-gray-500">
+
+                                                Cliente: {pedido.cliente}
+
+                                            </p>
+
+
+
+                                            <p className="text-sm text-gray-500">
+
+                                                Destino: {pedido.destino}
+
+                                            </p>
+
+
+
+                                            <p className="text-sm text-gray-500">
+
+                                                Produto: {pedido.produto?.descricao ?? "-"}
+
+                                            </p>
+
+
+
+                                            <p className="text-sm text-gray-500">
+
+                                                Peso: {(Number(pedido.peso) / 1000).toLocaleString("pt-BR", {
+
+                                                    minimumFractionDigits: 3,
+
+                                                    maximumFractionDigits: 3,
+
+                                                })} T
+
+                                            </p>
+
+
+                                        </div>
+
+
+
+
+
+                                        <div className="self-start md:self-auto">
+
+
+                                            <span
+
+                                                className={`
+
+                                                    rounded-full
+
+                                                    px-3
+
+                                                    py-1
+
+                                                    text-sm
+
+                                                    font-semibold
+
+
+                                                    ${
+
+                                                        pedido.status === "Agendado"
+
+                                                            ? "bg-yellow-100 text-yellow-700"
+
+
+                                                        : pedido.status === "Em Carregamento"
+
+                                                            ? "bg-blue-100 text-blue-700"
+
+
+                                                        : pedido.status === "Faturado"
+
+                                                            ? "bg-green-100 text-green-700"
+
+
+                                                        : pedido.status === "Cancelado"
+
+                                                            ? "bg-red-100 text-red-700"
+
+
+                                                        : "bg-gray-100 text-gray-700"
+
+                                                    }
+
+                                                `}
+
+                                            >
+
+                                                {pedido.status}
+
+                                            </span>
+
+
+                                        </div>
+
+
+                                    </div>
 
 
                                 </div>
@@ -855,163 +572,10 @@ interface Props {
                         </div>
 
 
-                    </div>
-
-
-
-
-
-
-
-                    {isAdmin && (
-
-
-                        <div className="rounded-xl border bg-white p-6 dark:bg-neutral-900">
-
-
-                            <h2 className="mb-4 text-xl font-bold">
-
-                                🏆 Ranking da equipe
-
-                            </h2>
-
-
-
-
-
-                            <div className="space-y-3">
-
-
-                                {ranking.map((user, index) => (
-
-
-                                    <div
-                                        key={user.id}
-                                        className="flex justify-between rounded-lg border p-3"
-                                    >
-
-
-                                        <span>
-
-                                            {index + 1}º 👤 {user.name}
-
-                                        </span>
-
-
-
-                                        <strong>
-
-                                            {user.completed_tasks_count}
-
-                                        </strong>
-
-
-                                    </div>
-
-
-                                ))}
-
-
-                            </div>
-
-
-                        </div>
-
-
                     )}
 
 
                 </div>
-
-
-
-
-
-
-
-                {selectedTask && (
-
-
-                    <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-
-
-                        <div className="w-full max-w-lg rounded-xl bg-white p-6">
-
-
-                            <h2 className="mb-4 text-xl font-bold">
-
-                                ✅ Finalizar tarefa
-
-                            </h2>
-
-
-
-
-                            <textarea
-
-                                value={completionNote}
-
-                                onChange={(e) =>
-                                    setCompletionNote(e.target.value)
-                                }
-
-                                className="w-full rounded-lg border p-3 text-black"
-
-                                rows={5}
-
-                                placeholder="Descreva o que foi realizado."
-
-                            />
-
-
-
-
-
-                            <div className="mt-5 flex justify-end gap-3">
-
-
-                                <button
-
-                                    onClick={() =>
-                                        setSelectedTask(null)
-                                    }
-
-                                    className="rounded-lg bg-gray-300 px-4 py-2"
-
-                                >
-
-                                    Cancelar
-
-                                </button>
-
-
-
-
-
-                                <button
-
-                                    onClick={completeTask}
-
-                                    className="rounded-lg bg-green-600 px-4 py-2 text-white"
-
-                                >
-
-                                    Finalizar
-
-                                </button>
-
-
-                            </div>
-
-
-                        </div>
-
-
-                    </div>
-
-
-                )}
-
 
 
             </div>
@@ -1029,56 +593,36 @@ interface Props {
 
 
 
+
 function Card({
 
     title,
 
     value,
 
-    alert = false,
-
-
 }: {
 
-    title:string;
+    title: string;
 
-    value:number;
-
-    alert?: boolean;
-
+    value: number;
 
 }) {
 
 
     return (
 
-        <div
-    className={`rounded-xl border p-4 sm:p-6 shadow-sm dark:bg-neutral-900 ${
-        title.includes('Pendentes')
-            ? 'border-yellow-500 bg-yellow-950/20'
-            : title.includes('Em andamento')
-            ? 'border-blue-500 bg-blue-950/20'
-            : title.includes('Concluídas')
-            ? 'border-green-500 bg-green-950/20'
-            : title.includes('Atrasadas')
-            ? 'border-red-500 bg-red-950/20'
-            : title.includes('Usuários')
-            ? 'border-purple-500 bg-purple-950/20'
-            : 'bg-white'
-    }`}
->
+        <div className="rounded-xl border bg-white p-5 shadow-sm dark:bg-neutral-900">
 
 
-            <h2 className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500">
 
                 {title}
 
-            </h2>
+            </p>
 
 
 
-
-            <p className="mt-3 text-2xl sm:text-3xl font-bold">
+            <p className="mt-3 text-3xl font-bold">
 
                 {value}
 

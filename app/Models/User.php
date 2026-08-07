@@ -34,13 +34,38 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+
             'password' => 'hashed',
+
             'active' => 'boolean',
         ];
     }
 
 
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Permissões
+    |--------------------------------------------------------------------------
+    */
+
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relacionamentos
+    |--------------------------------------------------------------------------
+    */
 
 
     public function completedTasks(): HasMany

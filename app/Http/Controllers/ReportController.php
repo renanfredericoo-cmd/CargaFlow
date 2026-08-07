@@ -164,7 +164,7 @@ class ReportController extends Controller
 
 
 
-        return $pdf->stream('relatorio-taskflow.pdf');
+        return $pdf->stream('relatorio-cargaflow.pdf');
 
     }
 

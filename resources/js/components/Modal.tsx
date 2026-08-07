@@ -5,6 +5,7 @@ interface ModalProps {
     title: string;
     children: ReactNode;
     onClose: () => void;
+    maxWidth?: string;
 }
 
 export default function Modal({
@@ -12,31 +13,34 @@ export default function Modal({
     title,
     children,
     onClose,
+    maxWidth = "max-w-3xl",
 }: ModalProps) {
 
     if (!show) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
 
-            <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl dark:bg-neutral-900">
+            <div
+                className={`w-full ${maxWidth} rounded-xl bg-white p-6 shadow-xl dark:bg-neutral-900`}
+            >
 
-                <div className="mb-5 flex items-center justify-between">
+                <div className="mb-6 flex items-center justify-between">
+
                     <h2 className="text-xl font-bold">
                         {title}
                     </h2>
 
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-gray-800"
+                        className="text-gray-500 transition hover:text-red-600"
                     >
                         ✕
                     </button>
+
                 </div>
 
-                <div>
-                    {children}
-                </div>
+                {children}
 
             </div>
 

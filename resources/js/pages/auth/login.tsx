@@ -18,7 +18,7 @@ type Props = {
 export default function Login({ status, canResetPassword }: Props) {
     return (
         <>
-            <Head title="TaskFlow" />
+            <Head title="CargaFlow" />
 
             <Form
                 {...store.form()}
@@ -145,7 +145,7 @@ export default function Login({ status, canResetPassword }: Props) {
 
 Login.layout = {
 
-    title: 'Bem-vindo ao TaskFlow',
+    title: 'Bem-vindo ao CargaFlow',
 
     description: 'Gerencie tarefas, equipes e resultados em um só lugar',
 

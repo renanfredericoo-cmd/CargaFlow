@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
+use App\Models\Pedido;
 use App\Models\User;
-use App\Models\TaskHistory;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -15,127 +14,189 @@ class DashboardController extends Controller
 
 
 
-        if ($user->role === 'admin') {
-
-
-            $stats = [
-
-                'users' => User::where('active', true)->count(),
-
-                'tasks' => Task::count(),
-
-                'pending' => Task::where('status', 'pendente')->count(),
-
-                'progress' => Task::where('status', 'andamento')->count(),
-
-                'completed' => Task::where('status', 'concluida')->count(),
-'overdue' => Task::whereNotNull('due_date')
-    ->whereDate('due_date', '<', now())
-    ->where('status', '!=', 'concluida')
-    ->count(),
-
-];
-
-            
+        $pedidosComCarregamento = Pedido::whereNotNull(
+            'hora_carregamento'
+        )
+        ->get();
 
 
 
-            $latestTasks = Task::with([
-                'user',
-                'completedBy'
-            ])
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
-$attentionTasks = Task::with('user')
-    ->where('status', '!=', 'concluida')
-    ->whereNotNull('due_date')
-    ->whereDate('due_date', '<=', now())
-    ->orderBy('due_date')
-    ->limit(5)
-    ->get();
+
+        $pedidosComTempo = Pedido::whereNotNull(
+            'inicio_carregamento_at'
+        )
+        ->whereNotNull(
+            'fim_carregamento_at'
+        )
+        ->get();
 
 
-            $activities = TaskHistory::with([
-                'user',
-                'task'
-            ])
-            ->orderBy('created_at', 'desc')
+
+
+        $tempoMedioCarregamento = $pedidosComTempo->avg(function ($pedido) {
+
+    return \Carbon\Carbon::parse(
+        $pedido->inicio_carregamento_at
+    )
+    ->diffInSeconds(
+        \Carbon\Carbon::parse(
+            $pedido->fim_carregamento_at
+        )
+    );
+
+});
+
+
+
+
+
+
+        $stats = [
+
+
+            'users' => User::where('active', true)->count(),
+
+
+
+            'pedidos' => Pedido::count(),
+
+
+
+            'programados' => Pedido::where(
+                'status',
+                'Agendado'
+            )->count(),
+
+
+
+            'carregados' => Pedido::where(
+                'status',
+                'Em Carregamento'
+            )->count(),
+
+
+
+            'faturados' => Pedido::where(
+                'status',
+                'Faturado'
+            )->count(),
+
+
+
+            'cancelados' => Pedido::where(
+                'status',
+                'Cancelado'
+            )->count(),
+
+
+
+            'toneladas' => Pedido::sum('peso') / 1000,
+
+
+
+
+            'tempo_operacao' => [
+
+                'media_segundos' => round(
+    $tempoMedioCarregamento ?? 0
+),
+
+
+                'total_analisados' => $pedidosComTempo->count(),
+
+            ],
+
+
+
+
+
+
+            'pontualidade' => [
+
+
+                'no_horario' => $pedidosComCarregamento
+                    ->filter(function ($pedido) {
+
+                        return $pedido->atraso_carregamento <= 0;
+
+                    })
+                    ->count(),
+
+
+
+
+                'atrasados' => $pedidosComCarregamento
+                    ->filter(function ($pedido) {
+
+                        return $pedido->atraso_carregamento > 0;
+
+                    })
+                    ->count(),
+
+
+
+
+                'media_atraso' => round(
+
+                    $pedidosComCarregamento
+                        ->filter(function ($pedido) {
+
+                            return $pedido->atraso_carregamento > 0;
+
+                        })
+                        ->avg('atraso_carregamento') ?? 0
+
+                ),
+
+
+
+
+                'total' => $pedidosComCarregamento->count(),
+
+
+
+
+                'eficiencia' => $pedidosComCarregamento->count() > 0
+
+                    ? round(
+
+                        (
+                            $pedidosComCarregamento
+                                ->filter(function ($pedido) {
+
+                                    return $pedido->atraso_carregamento <= 0;
+
+                                })
+                                ->count()
+                            /
+                            $pedidosComCarregamento->count()
+
+                        ) * 100
+
+                    )
+
+                    : 0,
+
+
+            ],
+
+
+        ];
+
+
+
+
+
+
+
+
+        $ultimos = Pedido::with('produto')
+            ->latest()
             ->limit(10)
             ->get();
 
 
 
-            $ranking = User::withCount([
-                'completedTasks'
-            ])
-            ->orderBy(
-                'completed_tasks_count',
-                'desc'
-            )
-            ->limit(5)
-            ->get();
-
-
-
-        } else {
-
-
-            $stats = [
-
-                'users' => 0,
-
-                'tasks' => Task::where(
-                    'user_id',
-                    $user->id
-                )->count(),
-
-                'pending' => Task::where('user_id', $user->id)
-                    ->where('status', 'pendente')
-                    ->count(),
-
-                'progress' => Task::where('user_id', $user->id)
-                    ->where('status', 'andamento')
-                    ->count(),
-
-                'completed' => Task::where('user_id', $user->id)
-                    ->where('status', 'concluida')
-                    ->count(),
-
-            ];
-
-
-
-            $latestTasks = Task::with([
-                'user',
-                'completedBy'
-            ])
-            ->where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
-
-
-
-            $activities = TaskHistory::with([
-                'user',
-                'task'
-            ])
-            ->where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
-
-
-
-            $ranking = [];
-
-        }
-
-$attentionTasks = Task::where('status', 'pending')
-    ->where('user_id', $user->id)
-    ->orderBy('due_date')
-    ->get();
 
 
 
@@ -147,13 +208,7 @@ $attentionTasks = Task::where('status', 'pending')
 
             'role' => $user->role,
 
-            'latestTasks' => $latestTasks,
-
-            'activities' => $activities,
-
-            'ranking' => $ranking,
-
-            'attentionTasks' => $attentionTasks,
+            'ultimos' => $ultimos,
 
         ]);
 
