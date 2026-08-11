@@ -24,6 +24,7 @@ interface Props {
 }
 
 
+
 export default function EditarPedidoModal({
     pedido,
     produtos = [],
@@ -41,33 +42,54 @@ export default function EditarPedidoModal({
 
 
 
+
     useEffect(() => {
+    if (!pedido) {
+        return;
+    }
 
-        if (pedido) {
+    setData("numero_pedido", pedido.numero_pedido ?? "");
 
-            setData({
+    setData("data", pedido.data ?? "");
 
-                data: pedido.data,
+    setData(
+        "cliente_id",
+        String(pedido.cliente_id ?? "")
+    );
 
-                cliente: pedido.cliente,
+    setData(
+        "cliente",
+        typeof pedido.cliente === "string"
+            ? pedido.cliente
+            : pedido.cliente?.nome ?? ""
+    );
 
-                destino: pedido.destino,
+    setData("destino", pedido.destino ?? "");
 
-                produto_id: pedido.produto_id ?? "",
+    setData(
+        "produto_id",
+        String(pedido.produto_id ?? "")
+    );
 
-                peso: pedido.peso,
+    setData(
+        "peso",
+        String(pedido.peso ?? "")
+    );
 
-                tipo_frete: pedido.tipo_frete,
+    setData(
+        "tipo_frete",
+        pedido.tipo_frete ?? "CIF"
+    );
 
-                vendedor: pedido.vendedor,
+    setData("vendedor", pedido.vendedor ?? "");
 
-                observacoes: pedido.observacoes ?? "",
+    setData(
+        "observacoes",
+        pedido.observacoes ?? ""
+    );
+}, [pedido]);
 
-            });
 
-        }
-
-    }, [pedido]);
 
 
 
@@ -91,6 +113,8 @@ export default function EditarPedidoModal({
 
 
 
+
+
     return (
 
         <Modal
@@ -109,6 +133,27 @@ export default function EditarPedidoModal({
                 <div className="grid grid-cols-2 gap-4">
 
 
+
+                    <Input
+
+                        label="Número do Pedido"
+
+                        value={data.numero_pedido}
+
+                        error={errors.numero_pedido}
+
+                        onChange={(e) =>
+                            setData(
+                                "numero_pedido",
+                                e.target.value
+                            )
+                        }
+
+                    />
+
+
+
+
                     <Input
 
                         label="Data"
@@ -120,10 +165,14 @@ export default function EditarPedidoModal({
                         error={errors.data}
 
                         onChange={(e) =>
-                            setData("data", e.target.value)
+                            setData(
+                                "data",
+                                e.target.value
+                            )
                         }
 
                     />
+
 
 
 
@@ -136,10 +185,14 @@ export default function EditarPedidoModal({
                         error={errors.cliente}
 
                         onChange={(e) =>
-                            setData("cliente", e.target.value)
+                            setData(
+                                "cliente",
+                                e.target.value
+                            )
                         }
 
                     />
+
 
 
 
@@ -152,10 +205,14 @@ export default function EditarPedidoModal({
                         error={errors.destino}
 
                         onChange={(e) =>
-                            setData("destino", e.target.value)
+                            setData(
+                                "destino",
+                                e.target.value
+                            )
                         }
 
                     />
+
 
 
 
@@ -168,7 +225,10 @@ export default function EditarPedidoModal({
                         error={errors.produto_id}
 
                         onChange={(e) =>
-                            setData("produto_id", e.target.value)
+                            setData(
+                                "produto_id",
+                                e.target.value
+                            )
                         }
 
                     >
@@ -181,16 +241,23 @@ export default function EditarPedidoModal({
                         {produtos.map((produto) => (
 
                             <option
+
                                 key={produto.id}
+
                                 value={produto.id}
+
                             >
+
                                 {produto.descricao}
+
                             </option>
 
                         ))}
 
 
                     </Select>
+
+
 
 
                     <Input
@@ -206,10 +273,15 @@ export default function EditarPedidoModal({
                         error={errors.peso}
 
                         onChange={(e) =>
-                            setData("peso", e.target.value)
+                            setData(
+                                "peso",
+                                e.target.value
+                            )
                         }
 
                     />
+
+
 
 
                     <Select
@@ -221,7 +293,10 @@ export default function EditarPedidoModal({
                         error={errors.tipo_frete}
 
                         onChange={(e) =>
-                            setData("tipo_frete", e.target.value)
+                            setData(
+                                "tipo_frete",
+                                e.target.value
+                            )
                         }
 
                     >
@@ -230,14 +305,18 @@ export default function EditarPedidoModal({
                             CIF
                         </option>
 
+
                         <option value="FOB">
                             FOB
                         </option>
+
 
                     </Select>
 
 
                 </div>
+
+
 
 
 
@@ -250,10 +329,15 @@ export default function EditarPedidoModal({
                     error={errors.vendedor}
 
                     onChange={(e) =>
-                        setData("vendedor", e.target.value)
+                        setData(
+                            "vendedor",
+                            e.target.value
+                        )
                     }
 
                 />
+
+
 
 
 
@@ -269,8 +353,12 @@ export default function EditarPedidoModal({
                         onClick={onClose}
 
                     >
+
                         Cancelar
+
                     </Button>
+
+
 
 
 
@@ -289,6 +377,7 @@ export default function EditarPedidoModal({
                             : "Salvar Alterações"}
 
                     </Button>
+
 
 
                 </div>

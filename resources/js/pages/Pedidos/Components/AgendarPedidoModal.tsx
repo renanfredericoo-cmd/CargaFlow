@@ -10,55 +10,83 @@ import type { Pedido } from "@/types/pedido";
 
 
 interface Props {
+
     pedido: Pedido | null;
+
     onClose: () => void;
+
 }
 
 
+
 export default function AgendarPedidoModal({
+
     pedido,
+
     onClose,
+
 }: Props) {
 
 
     const {
+
         data,
+
         setData,
+
         agendar,
+
         processing,
+
         errors,
+
     } = usePedidoForm();
+
+
 
 
 
     useEffect(() => {
 
+
         if (pedido) {
+
 
             const agora = new Date();
 
+
             setData({
 
+
                 transportadora: pedido.transportadora ?? "",
+
 
                 data_agendamento:
                     agora.toISOString().split("T")[0],
 
+
                 hora_agendamento:
                     agora.toTimeString().slice(0,5),
 
+
             });
 
+
         }
+
 
     }, [pedido]);
 
 
 
 
+
+
     function submit(e: React.FormEvent) {
 
+
         e.preventDefault();
+
 
 
         if (!pedido) {
@@ -68,18 +96,26 @@ export default function AgendarPedidoModal({
         }
 
 
+
         agendar(pedido.id, () => {
+
 
             onClose();
 
+
         });
+
 
     }
 
 
 
 
+
+
+
     return (
+
 
         <Modal
 
@@ -91,7 +127,10 @@ export default function AgendarPedidoModal({
 
         >
 
+
+
             <form onSubmit={submit}>
+
 
 
                 <Input
@@ -113,6 +152,8 @@ export default function AgendarPedidoModal({
 
 
 
+
+
                 <Input
 
                     label="Data do agendamento"
@@ -124,6 +165,8 @@ export default function AgendarPedidoModal({
                     disabled
 
                 />
+
+
 
 
 
@@ -143,7 +186,45 @@ export default function AgendarPedidoModal({
 
 
 
+
+                <div className="mt-4">
+
+
+                    <label className="text-sm font-medium">
+
+                        Observação do pedido
+
+                    </label>
+
+
+
+                    <div
+                        className="
+                            mt-1
+                            rounded-md
+                            border
+                            bg-gray-50
+                            p-3
+                            text-sm
+                            dark:bg-neutral-800
+                        "
+                    >
+
+                        {pedido?.observacoes || "-"}
+
+
+                    </div>
+
+
+                </div>
+
+
+
+
+
+
                 <div className="mt-6 flex justify-end gap-3">
+
 
 
                     <Button
@@ -163,6 +244,7 @@ export default function AgendarPedidoModal({
 
 
 
+
                     <Button
 
                         type="submit"
@@ -174,19 +256,31 @@ export default function AgendarPedidoModal({
                     >
 
                         {processing
+
                             ? "Salvando..."
-                            : "Agendar"}
+
+                            : "Agendar"
+
+                        }
+
 
                     </Button>
+
 
 
                 </div>
 
 
+
+
+
             </form>
 
 
+
+
         </Modal>
+
 
     );
 

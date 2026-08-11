@@ -8,9 +8,11 @@ import {
     X,
     Trash2,
     FileText,
+    Printer,
 } from "lucide-react";
 
 import type { Pedido } from "@/types/pedido";
+
 
 
 interface Props {
@@ -27,11 +29,16 @@ interface Props {
 
     onFaturar: (pedido: Pedido) => void;
 
+    onDetalhes: (pedido: Pedido) => void;
+
     onCancelar: (pedido: Pedido) => void;
 
     onExcluir: (pedido: Pedido) => void;
 
 }
+
+
+
 
 
 
@@ -49,11 +56,14 @@ export default function PedidoTable({
 
     onFaturar,
 
+    onDetalhes,
+
     onCancelar,
 
     onExcluir,
 
 }: Props) {
+
 
 
 
@@ -65,104 +75,142 @@ export default function PedidoTable({
 
 
 
+
+
     function formatarHora(hora?: string) {
 
         if (!hora) {
+
             return "-";
+
         }
 
-        return hora.substring(0,5);
+
+        return hora.substring(0, 5);
 
     }
 
 
 
 
+
+
+
     return (
 
+
         <div className="overflow-hidden rounded-xl border bg-white shadow-sm dark:bg-neutral-900">
+
 
 
             <div className="overflow-x-auto">
 
 
-                <table className="w-full text-left text-sm">
+
+                <table className="w-full text-left text-sm md:min-w-[900px]">
+
 
 
                     <thead className="border-b bg-gray-50 dark:bg-neutral-800">
+
 
                         <tr>
 
 
                             <th className="px-3 py-2 font-semibold">
+
                                 Pedido
+
                             </th>
 
 
                             <th className="px-3 py-2 font-semibold">
+
                                 Data
+
                             </th>
 
 
                             <th className="px-3 py-2 font-semibold">
+
                                 Cliente
+
                             </th>
 
 
                             <th className="px-3 py-2 font-semibold">
+
                                 Destino
+
                             </th>
 
 
                             <th className="px-3 py-2 font-semibold">
+
                                 Produto
+
                             </th>
 
 
                             <th className="px-3 py-2 font-semibold">
+
                                 Transportadora
+
                             </th>
 
 
                             <th className="px-3 py-2 font-semibold">
+
                                 Agendado
+
                             </th>
 
 
                             <th className="px-3 py-2 font-semibold">
+
                                 Carregado
+
                             </th>
 
 
                             <th className="px-3 py-2 font-semibold">
-                                Atraso
-                            </th>
 
-
-                            <th className="px-3 py-2 font-semibold">
                                 Status
+
                             </th>
 
 
                             <th className="px-3 py-2 font-semibold">
+
                                 NF-e
+
                             </th>
 
 
                             <th className="px-3 py-2 text-right font-semibold">
+
                                 Ações
+
                             </th>
+
 
 
                         </tr>
 
-                    </thead>                    
-                    
-                    
+
+                    </thead>
+
+
+
+
+
+
                     <tbody>
 
 
+
                         {pedidos.map((pedido) => (
+
 
 
                             <tr
@@ -175,126 +223,159 @@ export default function PedidoTable({
 
 
 
+
+
                                 <td className="px-3 py-2 font-bold">
+
 
                                     {pedido.numero_pedido ?? pedido.codigo}
 
+
                                 </td>
 
 
 
+
+
+
                                 <td className="px-3 py-2">
+
 
                                     {formatarData(pedido.data)}
 
-                                </td>
-
-
-
-                                <td className="px-3 py-2">
-
-                                    {pedido.cliente}
 
                                 </td>
 
 
 
+
+
+
+
+
                                 <td className="px-3 py-2">
+
+
+                                    {pedido.cliente && typeof pedido.cliente === "object"
+
+                                        ? pedido.cliente.nome
+
+                                        : pedido.cliente ?? "-"}
+
+
+                                </td>
+
+
+
+
+
+
+
+
+                                <td className="px-3 py-2">
+
 
                                     {pedido.destino}
 
+
                                 </td>
 
 
 
+
+
+
+
+
                                 <td className="px-3 py-2">
+
 
                                     {pedido.produto?.descricao ?? "-"}
 
+
                                 </td>
 
 
 
+
+
+
+
+
                                 <td className="px-3 py-2">
+
 
                                     {pedido.transportadora ?? "-"}
 
+
                                 </td>
 
 
 
+
+
+
+
+
                                 <td className="px-3 py-2">
+
 
                                     {formatarHora(pedido.hora_agendamento)}
 
+
                                 </td>
 
 
 
+
+
+
+
+
                                 <td className="px-3 py-2">
+
 
                                     {formatarHora(pedido.hora_carregamento)}
 
-                                </td>
-
-
-
-                                <td className="px-3 py-2 font-semibold">
-
-                                    {pedido.atraso_carregamento !== null &&
-                                    pedido.atraso_carregamento !== undefined ? (
-
-                                        pedido.atraso_carregamento > 0 ? (
-
-                                            <span className="text-red-600">
-
-                                                +{pedido.atraso_carregamento} min
-
-                                            </span>
-
-                                        ) : pedido.atraso_carregamento < 0 ? (
-
-                                            <span className="text-green-600">
-
-                                                {pedido.atraso_carregamento} min
-
-                                            </span>
-
-                                        ) : (
-
-                                            <span className="text-blue-600">
-
-                                                No horário
-
-                                            </span>
-
-                                        )
-
-                                    ) : (
-
-                                        "-"
-
-                                    )}
 
                                 </td>
+
+
+
+
+
 
 
 
                                 <td className="px-3 py-2">
+
 
                                     <StatusBadge
+
                                         status={pedido.status}
+
                                     />
+
 
                                 </td>
 
 
 
+
+
+
+
+
                                 <td className="px-3 py-2">
+
 
                                     {pedido.numero_nfe ?? "-"}
 
+
                                 </td>
+
+
+
 
 
 
@@ -303,7 +384,12 @@ export default function PedidoTable({
                                 <td className="px-3 py-2 text-right">
 
 
+
                                     <div className="flex justify-end gap-1">
+
+
+
+
 
 
 
@@ -311,45 +397,56 @@ export default function PedidoTable({
 
                                             <>
 
+
+
                                                 <Button
+
                                                     variant="primary"
+
                                                     onClick={() => onEditar(pedido)}
+
                                                 >
 
-                                                    <Pencil
-                                                        size={16}
-                                                        strokeWidth={2.5}
-                                                    />
+                                                    <Pencil size={20} />
 
                                                 </Button>
 
 
 
+
+
+
+
                                                 <Button
+
                                                     variant="warning"
+
                                                     onClick={() => onAgendar(pedido)}
+
                                                 >
 
-                                                    <Calendar
-                                                        size={16}
-                                                        strokeWidth={2.5}
-                                                    />
+                                                    <Calendar size={20} />
 
                                                 </Button>
+
+
+
+
 
 
 
                                                 <Button
+
                                                     variant="danger"
+
                                                     onClick={() => onCancelar(pedido)}
+
                                                 >
 
-                                                    <X
-                                                        size={18}
-                                                        strokeWidth={3}
-                                                    />
+                                                    <X size={20} />
 
                                                 </Button>
+
 
 
                                             </>
@@ -360,21 +457,35 @@ export default function PedidoTable({
 
 
 
+
+
+
+
+
                                         {pedido.status === "Agendado" && (
 
+
                                             <Button
+
                                                 variant="success"
+
                                                 onClick={() => onCarregar(pedido)}
+
                                             >
 
-                                                <Truck
-                                                    size={16}
-                                                    strokeWidth={2.5}
-                                                />
+
+                                                <Truck size={20} />
+
 
                                             </Button>
 
+
                                         )}
+
+
+
+
+
 
 
 
@@ -382,19 +493,57 @@ export default function PedidoTable({
 
                                         {pedido.status === "Em Carregamento" && (
 
+
                                             <Button
+
                                                 variant="success"
+
                                                 onClick={() => onFaturar(pedido)}
+
                                             >
 
-                                                <FileText
-                                                    size={16}
-                                                    strokeWidth={2.5}
-                                                />
+
+                                                <FileText size={20} />
+
 
                                             </Button>
 
+
                                         )}
+
+
+
+
+
+
+
+
+
+
+                                        {pedido.status === "Faturado" && (
+
+
+                                            <Button
+
+                                                variant="primary"
+
+                                                onClick={() => onDetalhes(pedido)}
+
+                                            >
+
+
+                                                <Printer size={16} />
+
+
+                                            </Button>
+
+
+                                        )}
+
+
+
+
+
 
 
 
@@ -402,30 +551,41 @@ export default function PedidoTable({
 
                                         {isAdmin && (
 
+
                                             <Button
+
                                                 variant="danger"
+
                                                 onClick={() => onExcluir(pedido)}
+
                                             >
 
-                                                <Trash2
-                                                    size={18}
-                                                    strokeWidth={3}
-                                                />
+
+                                                <Trash2 size={16} />
+
 
                                             </Button>
 
+
                                         )}
+
+
+
 
 
 
                                     </div>
 
 
+
                                 </td>
 
 
 
+
+
                             </tr>
+
 
 
                         ))}
@@ -435,14 +595,19 @@ export default function PedidoTable({
                     </tbody>
 
 
+
                 </table>
+
 
 
             </div>
 
 
+
         </div>
 
+
     );
+
 
 }

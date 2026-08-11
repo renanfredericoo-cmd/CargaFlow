@@ -8,178 +8,513 @@ import Select from "@/components/Select";
 import usePedidoForm from "../Hooks/usePedidoForm";
 
 
+
 interface Produto {
+
     id: number;
+
     descricao: string;
+
     ativo: boolean;
+
 }
+
+
+
+
+interface Cliente {
+
+    id: number;
+
+    nome: string;
+
+    cidade: string;
+
+    estado: string;
+
+    ativo: boolean;
+
+}
+
+
 
 
 interface Props {
+
     show: boolean;
+
     onClose: () => void;
+
     produtos?: Produto[];
+
+    clientes?: Cliente[];
+
 }
 
 
+
+
+
+
 export default function PedidoModal({
+
     show,
+
     onClose,
+
     produtos = [],
+
+    clientes = [],
+
 }: Props) {
 
 
+
     const {
+
         data,
+
         setData,
+
         salvar,
+
         processing,
+
         errors,
+
     } = usePedidoForm();
+
+
+
+
 
 
 
     function submit(e: React.FormEvent) {
 
+
         e.preventDefault();
+
+
 
         salvar(() => {
 
+
             onClose();
 
+
         });
+
 
     }
 
 
 
+
+
+
+
+
+    function selecionarCliente(id: string) {
+
+
+        const cliente = clientes.find(
+
+            (item) => item.id === Number(id)
+
+        );
+
+
+
+
+        setData(
+
+            "cliente_id",
+
+            id
+
+        );
+
+
+
+
+
+        if (cliente) {
+
+
+
+            setData(
+
+                "cliente",
+
+                cliente.nome
+
+            );
+
+
+
+
+
+            setData(
+
+                "destino",
+
+                `${cliente.cidade}/${cliente.estado}`
+
+            );
+
+
+        }
+
+
+    }
+
+
+
+
+
+
+
+
+
     return (
 
+
         <Modal
+
             show={show}
+
             onClose={onClose}
+
             title="Novo Pedido"
+
         >
 
+
+
             <form onSubmit={submit}>
+
 
 
                 <div className="grid grid-cols-2 gap-4">
 
 
+
+
+
                     <Input
+
                         label="Número do Pedido"
+
                         value={data.numero_pedido}
+
                         error={errors.numero_pedido}
+
                         onChange={(e) =>
-                            setData("numero_pedido", e.target.value)
+
+                            setData(
+
+                                "numero_pedido",
+
+                                e.target.value
+
+                            )
+
                         }
+
                     />
 
 
 
+
+
+
+
                     <Input
+
                         label="Data de Entrega"
+
                         type="date"
+
                         value={data.data}
+
                         error={errors.data}
+
                         onChange={(e) =>
-                            setData("data", e.target.value)
+
+                            setData(
+
+                                "data",
+
+                                e.target.value
+
+                            )
+
                         }
+
                     />
 
 
 
-                    <Input
-                        label="Cliente"
-                        value={data.cliente}
-                        error={errors.cliente}
-                        onChange={(e) =>
-                            setData("cliente", e.target.value)
-                        }
-                    />
 
 
 
-                    <Input
-                        label="Destino"
-                        value={data.destino}
-                        error={errors.destino}
-                        onChange={(e) =>
-                            setData("destino", e.target.value)
-                        }
-                    />
 
 
 
                     <Select
-                        label="Produto"
-                        value={data.produto_id}
-                        error={errors.produto_id}
+
+                        label="Cliente"
+
+                        value={data.cliente_id ?? ""}
+
+                        error={errors.cliente_id}
+
                         onChange={(e) =>
-                            setData(
-                                "produto_id",
+
+                            selecionarCliente(
+
                                 e.target.value
+
                             )
+
                         }
+
                     >
+
+
 
                         <option value="">
-                            Selecione o produto
+
+                            Selecione o cliente
+
                         </option>
 
 
-                        {produtos.map((produto) => (
 
-                            <option
-                                key={produto.id}
-                                value={produto.id}
-                            >
-                                {produto.descricao}
-                            </option>
 
-                        ))}
+
+                        {clientes
+
+                            .filter(
+
+                                (cliente) => cliente.ativo
+
+                            )
+
+                            .map((cliente) => (
+
+
+                                <option
+
+                                    key={cliente.id}
+
+                                    value={cliente.id}
+
+                                >
+
+                                    {cliente.nome}
+
+                                </option>
+
+
+
+                            ))}
+
+
 
                     </Select>
+
+
+
+
+
 
 
 
 
                     <Input
-                        label="Peso (kg)"
-                        type="number"
-                        step="1"
-                        value={data.peso}
-                        error={errors.peso}
+
+                        label="Destino"
+
+                        value={data.destino}
+
+                        error={errors.destino}
+
                         onChange={(e) =>
-                            setData("peso", e.target.value)
+
+                            setData(
+
+                                "destino",
+
+                                e.target.value
+
+                            )
+
                         }
+
                     />
 
 
 
 
+
+
+
+
+
                     <Select
-                        label="Tipo de Frete"
-                        value={data.tipo_frete}
-                        error={errors.tipo_frete}
+
+                        label="Produto"
+
+                        value={data.produto_id}
+
+                        error={errors.produto_id}
+
                         onChange={(e) =>
+
                             setData(
-                                "tipo_frete",
+
+                                "produto_id",
+
                                 e.target.value
+
                             )
+
                         }
+
                     >
 
-                        <option value="CIF">
-                            CIF
+
+
+                        <option value="">
+
+                            Selecione o produto
+
                         </option>
 
-                        <option value="FOB">
-                            FOB
-                        </option>
+
+
+
+
+                        {produtos
+
+                            .filter(
+
+                                (produto) => produto.ativo
+
+                            )
+
+                            .map((produto) => (
+
+
+                                <option
+
+                                    key={produto.id}
+
+                                    value={produto.id}
+
+                                >
+
+                                    {produto.descricao}
+
+                                </option>
+
+
+
+                            ))}
+
+
 
                     </Select>
+
+
+
+
+
+
+
+
+
+                    <Input
+
+                        label="Peso (kg)"
+
+                        type="number"
+
+                        step="0.01"
+
+                        value={data.peso}
+
+                        error={errors.peso}
+
+                        onChange={(e) =>
+
+                            setData(
+
+                                "peso",
+
+                                e.target.value
+
+                            )
+
+                        }
+
+                    />
+
+
+
+
+
+
+
+
+
+                    <Select
+
+                        label="Tipo de Frete"
+
+                        value={data.tipo_frete}
+
+                        error={errors.tipo_frete}
+
+                        onChange={(e) =>
+
+                            setData(
+
+                                "tipo_frete",
+
+                                e.target.value
+
+                            )
+
+                        }
+
+                    >
+
+
+
+                        <option value="CIF">
+
+                            CIF
+
+                        </option>
+
+
+
+
+                        <option value="FOB">
+
+                            FOB
+
+                        </option>
+
+
+
+                    </Select>
+
+
+
 
 
                 </div>
@@ -188,14 +523,35 @@ export default function PedidoModal({
 
 
 
+
+
+
+
                 <Input
+
                     label="Vendedor"
+
                     value={data.vendedor}
+
                     error={errors.vendedor}
+
                     onChange={(e) =>
-                        setData("vendedor", e.target.value)
+
+                        setData(
+
+                            "vendedor",
+
+                            e.target.value
+
+                        )
+
                     }
+
                 />
+
+
+
+
 
 
 
@@ -203,33 +559,62 @@ export default function PedidoModal({
 
                 <div className="mb-4">
 
+
+
                     <label className="mb-2 block text-sm text-gray-300 font-medium">
+
                         Observações
+
                     </label>
 
 
+
+
                     <textarea
+
                         rows={4}
+
                         value={data.observacoes}
+
                         onChange={(e) =>
+
                             setData(
+
                                 "observacoes",
+
                                 e.target.value
+
                             )
+
                         }
-                        className="w-full rounded-lg border bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-white"
+
+                        className="
+                            w-full
+                            rounded-lg
+                            border
+                            bg-white
+                            px-4
+                            py-3
+                            text-sm
+                            text-gray-900
+                            outline-none
+                            transition
+                            focus:border-blue-500
+                            dark:bg-neutral-900
+                            dark:border-neutral-700
+                            dark:text-white
+                        "
+
                     />
 
 
-                    {errors.observacoes && (
 
-                        <p className="mt-1 text-sm text-red-500">
-                            {errors.observacoes}
-                        </p>
-
-                    )}
 
                 </div>
+
+
+
+
 
 
 
@@ -238,37 +623,70 @@ export default function PedidoModal({
                 <div className="mt-6 flex justify-end gap-3">
 
 
+
+
+
                     <Button
+
                         type="button"
+
                         variant="secondary"
+
                         onClick={onClose}
+
                     >
+
                         Cancelar
+
                     </Button>
 
 
 
 
+
+
+
+
                     <Button
+
                         type="submit"
+
                         variant="success"
+
                         disabled={processing}
+
                     >
+
 
                         {processing
+
                             ? "Salvando..."
-                            : "Salvar Pedido"}
+
+                            : "Salvar Pedido"
+
+                        }
+
+
 
                     </Button>
+
+
+
 
 
                 </div>
 
 
+
+
+
             </form>
 
 
+
+
         </Modal>
+
 
     );
 

@@ -4,47 +4,59 @@ namespace App\Http\Controllers;
 
 use App\Models\Pedido;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
 
 
-
-        $pedidosComCarregamento = Pedido::whereNotNull(
-            'hora_carregamento'
-        )
-        ->get();
+        $dataInicial = $request->data_inicial;
+        $dataFinal = $request->data_final;
 
 
 
+        $query = Pedido::query();
 
-        $pedidosComTempo = Pedido::whereNotNull(
-            'inicio_carregamento_at'
-        )
-        ->whereNotNull(
-            'fim_carregamento_at'
-        )
-        ->get();
+
+
+        if ($dataInicial && $dataFinal) {
+
+            $query->whereBetween('data', [
+                $dataInicial,
+                $dataFinal,
+            ]);
+
+        }
+
+
+
+        $pedidos = $query->get();
+
+
+
+
+
+        $pedidosComTempo = $pedidos
+            ->whereNotNull('inicio_carregamento_at')
+            ->whereNotNull('fim_carregamento_at');
 
 
 
 
         $tempoMedioCarregamento = $pedidosComTempo->avg(function ($pedido) {
 
-    return \Carbon\Carbon::parse(
-        $pedido->inicio_carregamento_at
-    )
-    ->diffInSeconds(
-        \Carbon\Carbon::parse(
-            $pedido->fim_carregamento_at
-        )
-    );
 
-});
+            return Carbon::parse($pedido->inicio_carregamento_at)
+                ->diffInSeconds(
+                    Carbon::parse($pedido->fim_carregamento_at)
+                );
+
+        });
 
 
 
@@ -58,125 +70,77 @@ class DashboardController extends Controller
 
 
 
-            'pedidos' => Pedido::count(),
+            'pedidos' => $pedidos->count(),
 
 
 
-            'programados' => Pedido::where(
-                'status',
-                'Agendado'
-            )->count(),
+            'programados' => $pedidos
+                ->where('status', 'Agendado')
+                ->count(),
 
 
 
-            'carregados' => Pedido::where(
-                'status',
-                'Em Carregamento'
-            )->count(),
+            'carregados' => $pedidos
+                ->where('status', 'Em Carregamento')
+                ->count(),
 
 
 
-            'faturados' => Pedido::where(
-                'status',
-                'Faturado'
-            )->count(),
+            'faturados' => $pedidos
+                ->where('status', 'Faturado')
+                ->count(),
 
 
 
-            'cancelados' => Pedido::where(
-                'status',
-                'Cancelado'
-            )->count(),
+            'cancelados' => $pedidos
+                ->where('status', 'Cancelado')
+                ->count(),
 
 
 
-            'toneladas' => Pedido::sum('peso') / 1000,
+            'toneladas' => $pedidos->sum('peso'),
 
 
 
 
             'tempo_operacao' => [
 
-                'media_segundos' => round(
-    $tempoMedioCarregamento ?? 0
-),
+
+                'media_segundos' => round($tempoMedioCarregamento ?? 0),
+
 
 
                 'total_analisados' => $pedidosComTempo->count(),
 
-            ],
 
 
+                'menor_tempo' => $pedidosComTempo->count()
 
+                    ? $pedidosComTempo->min(function ($pedido) {
 
-
-
-            'pontualidade' => [
-
-
-                'no_horario' => $pedidosComCarregamento
-                    ->filter(function ($pedido) {
-
-                        return $pedido->atraso_carregamento <= 0;
+                        return Carbon::parse($pedido->inicio_carregamento_at)
+                            ->diffInSeconds(
+                                Carbon::parse($pedido->fim_carregamento_at)
+                            );
 
                     })
-                    ->count(),
-
-
-
-
-                'atrasados' => $pedidosComCarregamento
-                    ->filter(function ($pedido) {
-
-                        return $pedido->atraso_carregamento > 0;
-
-                    })
-                    ->count(),
-
-
-
-
-                'media_atraso' => round(
-
-                    $pedidosComCarregamento
-                        ->filter(function ($pedido) {
-
-                            return $pedido->atraso_carregamento > 0;
-
-                        })
-                        ->avg('atraso_carregamento') ?? 0
-
-                ),
-
-
-
-
-                'total' => $pedidosComCarregamento->count(),
-
-
-
-
-                'eficiencia' => $pedidosComCarregamento->count() > 0
-
-                    ? round(
-
-                        (
-                            $pedidosComCarregamento
-                                ->filter(function ($pedido) {
-
-                                    return $pedido->atraso_carregamento <= 0;
-
-                                })
-                                ->count()
-                            /
-                            $pedidosComCarregamento->count()
-
-                        ) * 100
-
-                    )
 
                     : 0,
 
+
+
+                'maior_tempo' => $pedidosComTempo->count()
+
+                    ? $pedidosComTempo->max(function ($pedido) {
+
+                        return Carbon::parse($pedido->inicio_carregamento_at)
+                            ->diffInSeconds(
+                                Carbon::parse($pedido->fim_carregamento_at)
+                            );
+
+                    })
+
+                    : 0,
 
             ],
 
@@ -189,12 +153,11 @@ class DashboardController extends Controller
 
 
 
-
-        $ultimos = Pedido::with('produto')
-            ->latest()
-            ->limit(10)
-            ->get();
-
+        $ultimos = $pedidos
+            ->load('produto')
+            ->sortByDesc('created_at')
+            ->take(10)
+            ->values();
 
 
 
@@ -210,7 +173,11 @@ class DashboardController extends Controller
 
             'ultimos' => $ultimos,
 
-        ]);
+            'filtro' => [
+                'data_inicial' => $dataInicial,
+                'data_final' => $dataFinal,
+            ],
 
+        ]);
     }
 }

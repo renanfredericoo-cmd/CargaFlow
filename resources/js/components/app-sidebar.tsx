@@ -5,6 +5,7 @@ import {
     ClipboardList,
     Package,
     Users,
+    Building2,
 } from 'lucide-react';
 
 import { NavMain } from '@/components/nav-main';
@@ -18,13 +19,17 @@ import {
 } from '@/components/ui/sidebar';
 
 import { dashboard } from '@/routes';
+
 import type { NavItem } from '@/types';
+
 
 
 
 function getMainNavItems(role: string): NavItem[] {
 
+
     const items: NavItem[] = [
+
 
         {
             title: 'Dashboard',
@@ -32,11 +37,13 @@ function getMainNavItems(role: string): NavItem[] {
             icon: LayoutGrid,
         },
 
+
         {
             title: 'Pedidos',
             href: '/pedidos',
             icon: ClipboardList,
         },
+
 
         {
             title: 'Produtos',
@@ -44,60 +51,110 @@ function getMainNavItems(role: string): NavItem[] {
             icon: Package,
         },
 
+
+        {
+            title: 'Clientes',
+            href: '/clientes',
+            icon: Building2,
+        },
+
+
     ];
+
+
 
 
     if (role === 'admin') {
 
+
         items.push({
+
 
             title: 'Usuários',
             href: '/users',
             icon: Users,
 
+
         });
+
 
     }
 
 
+
+
     return items;
+
+
 }
+
+
+
 
 
 
 export function AppSidebar() {
 
+
     const { auth } = usePage().props as any;
+
+
 
     const mainNavItems = getMainNavItems(auth.user.role);
 
 
+
+
+
     return (
 
+
         <Sidebar
+
             collapsible="offcanvas"
+
             variant="inset"
+
         >
 
+
+
             <SidebarHeader>
+
+
             </SidebarHeader>
+
+
+
 
 
             <SidebarContent>
 
+
                 <NavMain items={mainNavItems} />
+
 
             </SidebarContent>
 
 
+
+
+
             <SidebarFooter>
 
+
                 <NavUser />
+
 
             </SidebarFooter>
 
 
+
+
+
         </Sidebar>
 
+
     );
+
 }

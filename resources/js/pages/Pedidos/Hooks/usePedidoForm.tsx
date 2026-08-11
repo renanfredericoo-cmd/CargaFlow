@@ -6,34 +6,98 @@ export default function usePedidoForm() {
 
     const form = useForm({
 
+
+
         numero_pedido: "",
 
+
+
         data: "",
+
+
+
+        cliente_id: "",
+
+
+
         cliente: "",
+
+
+
         destino: "",
+
+
+
         produto_id: "",
+
+
+
         peso: "",
+
+
+
         tipo_frete: "CIF",
+
+
+
         vendedor: "",
+
+
+
         observacoes: "",
 
 
+
+
+
+
         transportadora: "",
+
+
+
         motorista: "",
+
+
+
         placa: "",
 
 
+
+
+
+
         data_agendamento: "",
+
+
+
         hora_agendamento: "",
 
 
+
+
+
+
         data_carregamento: "",
+
+
+
         hora_carregamento: "",
+
+
+
+
 
 
         numero_nfe: "",
 
+
+
     });
+
+
+
+
+
 
 
 
@@ -41,21 +105,35 @@ export default function usePedidoForm() {
     function salvar(onSuccess?: () => void) {
 
 
+
         form.post("/pedidos", {
+
 
             preserveScroll: true,
 
+
             onSuccess: () => {
+
 
                 form.reset();
 
+
                 onSuccess?.();
+
+
 
             },
 
+
         });
 
+
+
     }
+
+
+
+
 
 
 
@@ -63,20 +141,36 @@ export default function usePedidoForm() {
 
     function editar(id: number, onSuccess?: () => void) {
 
+        console.log("EDITANDO PEDIDO:", id);
+    console.log("DADOS:", form.data);
+
+
 
         form.put(`/pedidos/${id}`, {
 
+
             preserveScroll: true,
+
 
             onSuccess: () => {
 
+
                 onSuccess?.();
+
+
 
             },
 
+
         });
 
+
+
     }
+
+
+
+
 
 
 
@@ -85,19 +179,32 @@ export default function usePedidoForm() {
     function agendar(id: number, onSuccess?: () => void) {
 
 
+
         form.put(`/pedidos/${id}/agendar`, {
+
 
             preserveScroll: true,
 
+
             onSuccess: () => {
+
 
                 onSuccess?.();
 
+
+
             },
+
 
         });
 
+
+
     }
+
+
+
+
 
 
 
@@ -106,17 +213,26 @@ export default function usePedidoForm() {
     function programar(id: number, onSuccess?: () => void) {
 
 
+
         form.put(`/pedidos/${id}/programar`, {
+
 
             preserveScroll: true,
 
+
             onSuccess: () => {
+
 
                 onSuccess?.();
 
+
+
             },
 
+
         });
+
+
 
     }
 
@@ -124,17 +240,27 @@ export default function usePedidoForm() {
 
 
 
+
+
+
+
     return {
+
 
         ...form,
 
+
         salvar,
+
 
         editar,
 
+
         agendar,
 
+
         programar,
+
 
     };
 

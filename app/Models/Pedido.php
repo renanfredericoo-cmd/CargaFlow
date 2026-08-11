@@ -1,23 +1,36 @@
 <?php
 
+
 namespace App\Models;
+
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+
 class Pedido extends Model
 {
+
+
     /*
     |--------------------------------------------------------------------------
     | Status
     |--------------------------------------------------------------------------
     */
 
+
     public const STATUS_PEDIDO = 'Pedido';
+
     public const STATUS_AGENDADO = 'Agendado';
+
     public const STATUS_CARREGAMENTO = 'Em Carregamento';
+
     public const STATUS_FATURADO = 'Faturado';
+
     public const STATUS_CANCELADO = 'Cancelado';
+
+
+
 
 
 
@@ -27,60 +40,91 @@ class Pedido extends Model
     |--------------------------------------------------------------------------
     */
 
+
     protected $fillable = [
 
-    'numero_pedido',
 
-    'data',
-
-    'cliente',
-
-    'destino',
-
-    'produto_id',
-
-    'peso',
-
-    'tipo_frete',
-
-    'vendedor',
-
-    'observacoes',
+        'numero_pedido',
 
 
-    'status',
+        'data',
 
 
-    'transportadora',
-
-    'motorista',
-
-    'placa',
+        'cliente_id',
 
 
-    'data_agendamento',
-
-    'hora_agendamento',
+        'cliente',
 
 
-    'data_carregamento',
-
-    'hora_carregamento',
+        'destino',
 
 
-    'inicio_carregamento_at',
-
-    'fim_carregamento_at',
+        'produto_id',
 
 
-    'numero_nfe',
-
-    'hora_faturamento',
+        'peso',
 
 
-    'user_id',
+        'tipo_frete',
 
-];
+
+        'vendedor',
+
+
+        'observacoes',
+
+
+
+        'status',
+
+
+
+        'transportadora',
+
+
+        'motorista',
+
+
+        'placa',
+
+
+
+        'data_agendamento',
+
+
+        'hora_agendamento',
+
+
+
+        'data_carregamento',
+
+
+        'hora_carregamento',
+
+
+
+        'inicio_carregamento_at',
+
+
+        'fim_carregamento_at',
+
+
+
+        'numero_nfe',
+
+
+        'hora_faturamento',
+
+
+
+        'user_id',
+
+
+    ];
+
+
+
+
 
 
 
@@ -90,13 +134,21 @@ class Pedido extends Model
     |--------------------------------------------------------------------------
     */
 
+
     protected $appends = [
+
 
         'codigo',
 
+
         'atraso_carregamento',
 
+
     ];
+
+
+
+
 
 
 
@@ -106,26 +158,40 @@ class Pedido extends Model
     |--------------------------------------------------------------------------
     */
 
+
     protected function casts(): array
     {
+
         return [
+
 
             'data' => 'date',
 
+
             'data_agendamento' => 'date',
+
 
             'data_carregamento' => 'date',
 
 
+
             'hora_agendamento' => 'datetime:H:i',
+
 
             'hora_carregamento' => 'datetime:H:i',
 
 
+
             'peso' => 'decimal:2',
 
+
         ];
+
     }
+
+
+
+
 
 
 
@@ -135,17 +201,43 @@ class Pedido extends Model
     |--------------------------------------------------------------------------
     */
 
+
     public function user(): BelongsTo
     {
+
         return $this->belongsTo(User::class);
+
     }
+
+
+
+
 
 
 
     public function produto(): BelongsTo
     {
+
         return $this->belongsTo(Produto::class, 'produto_id');
+
     }
+
+
+
+
+
+
+
+    public function cliente(): BelongsTo
+    {
+
+        return $this->belongsTo(Cliente::class, 'cliente_id');
+
+    }
+
+
+
+
 
 
 
@@ -155,10 +247,17 @@ class Pedido extends Model
     |--------------------------------------------------------------------------
     */
 
+
     public function getCodigoAttribute(): string
     {
+
         return 'PED-' . str_pad($this->id, 6, '0', STR_PAD_LEFT);
+
     }
+
+
+
+
 
 
 
@@ -168,8 +267,10 @@ class Pedido extends Model
     |--------------------------------------------------------------------------
     */
 
+
     public function getAtrasoCarregamentoAttribute()
     {
+
 
         if (
             !$this->data_agendamento ||
@@ -177,8 +278,13 @@ class Pedido extends Model
             !$this->data_carregamento ||
             !$this->hora_carregamento
         ) {
+
             return null;
+
         }
+
+
+
 
 
 
@@ -190,6 +296,9 @@ class Pedido extends Model
 
 
 
+
+
+
         $realizado = \Carbon\Carbon::parse(
             $this->data_carregamento
         )->setTimeFromTimeString(
@@ -198,12 +307,19 @@ class Pedido extends Model
 
 
 
+
+
+
         return $agendado->diffInMinutes(
             $realizado,
             false
         );
 
+
     }
+
+
+
 
 
 
@@ -214,23 +330,37 @@ class Pedido extends Model
     |--------------------------------------------------------------------------
     */
 
+
     public function getProximaAcaoAttribute(): string
     {
+
         return match ($this->status) {
+
 
             self::STATUS_PEDIDO => 'Agendar',
 
+
             self::STATUS_AGENDADO => 'Iniciar carregamento',
+
 
             self::STATUS_CARREGAMENTO => 'Informar NF-e',
 
+
             self::STATUS_FATURADO => 'Concluído',
+
 
             self::STATUS_CANCELADO => 'Cancelado',
 
+
             default => '',
+
         };
+
     }
+
+
+
+
 
 
 
@@ -240,32 +370,49 @@ class Pedido extends Model
     |--------------------------------------------------------------------------
     */
 
+
     public function estaPedido(): bool
     {
+
         return $this->status === self::STATUS_PEDIDO;
+
     }
+
 
 
     public function estaAgendado(): bool
     {
+
         return $this->status === self::STATUS_AGENDADO;
+
     }
+
 
 
     public function estaEmCarregamento(): bool
     {
+
         return $this->status === self::STATUS_CARREGAMENTO;
+
     }
+
 
 
     public function estaFaturado(): bool
     {
+
         return $this->status === self::STATUS_FATURADO;
+
     }
+
 
 
     public function estaCancelado(): bool
     {
+
         return $this->status === self::STATUS_CANCELADO;
+
     }
+
+
 }

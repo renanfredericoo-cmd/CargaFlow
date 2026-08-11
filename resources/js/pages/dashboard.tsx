@@ -1,4 +1,5 @@
-import { Head } from "@inertiajs/react";
+import { useState } from "react";
+import { Head, router } from "@inertiajs/react";
 
 
 interface Pedido {
@@ -19,6 +20,7 @@ interface Pedido {
 
     numero_nfe: string | null;
 
+
     produto?: {
 
         descricao: string;
@@ -31,9 +33,8 @@ interface Pedido {
 
 interface Props {
 
-    stats: {
 
-        users: number;
+    stats: {
 
         pedidos: number;
 
@@ -48,31 +49,17 @@ interface Props {
         toneladas: number;
 
 
-
-        pontualidade: {
-
-            no_horario: number;
-
-            atrasados: number;
-
-            media_atraso: number;
-
-            total: number;
-
-            eficiencia: number;
-
-        };
-
-
-
         tempo_operacao: {
 
-    media_segundos: number;
+            media_segundos: number;
 
-    total_analisados: number;
+            total_analisados: number;
 
-};
+            menor_tempo: number;
 
+            maior_tempo: number;
+
+        };
 
     };
 
@@ -82,9 +69,31 @@ interface Props {
 
     ultimos?: Pedido[];
 
+
+    filtro?: {
+
+        data_inicial?: string;
+
+        data_final?: string;
+
+    };
+
 }
 
+
+
+
+
 function formatarTempo(segundos: number) {
+
+
+    if (!segundos) {
+
+        return "0 min";
+
+    }
+
+
 
     if (segundos < 60) {
 
@@ -93,23 +102,28 @@ function formatarTempo(segundos: number) {
     }
 
 
+
     const horas = Math.floor(segundos / 3600);
+
 
     const minutos = Math.floor(
         (segundos % 3600) / 60
     );
 
 
+
     if (horas > 0) {
 
-        return `${horas}h ${minutos}min`;
+        return `${horas} h ${minutos} min`;
 
     }
 
 
-    return `${minutos}min`;
+
+    return `${minutos} min`;
 
 }
+
 
 
 
@@ -120,20 +134,193 @@ export default function Dashboard({
 
     ultimos = [],
 
+    filtro,
+
 }: Props) {
 
 
-    return (
+
+    const [dataInicial, setDataInicial] = useState(
+        filtro?.data_inicial ?? ""
+    );
+
+
+    const [dataFinal, setDataFinal] = useState(
+        filtro?.data_final ?? ""
+    );
+
+
+
+
+    function filtrarPeriodo() {
+
+
+        router.get(
+
+            "/dashboard",
+
+            {
+
+                data_inicial: dataInicial,
+
+                data_final: dataFinal,
+
+            },
+
+            {
+
+                preserveState: true,
+
+                replace: true,
+
+            }
+
+        );
+
+
+    }
+
+
+
+
+
+    function limparPeriodo() {
+
+
+        setDataInicial("");
+
+        setDataFinal("");
+
+
+
+        router.get(
+
+            "/dashboard",
+
+            {},
+
+            {
+
+                preserveState: true,
+
+                replace: true,
+
+            }
+
+        );
+
+
+    }
+
+
+
+
+
+    const cards = [
+
+        {
+
+            title: "Total pedidos",
+
+            value: stats.pedidos,
+
+            color: "border-blue-500"
+
+        },
+
+
+        {
+
+            title: "Agendados",
+
+            value: stats.programados,
+
+            color: "border-yellow-500"
+
+        },
+
+
+        {
+
+            title: "Em carregamento",
+
+            value: stats.carregados,
+
+            color: "border-cyan-500"
+
+        },
+
+
+        {
+
+            title: "Faturados",
+
+            value: stats.faturados,
+
+            color: "border-green-500"
+
+        },
+
+
+        {
+
+            title: "Cancelados",
+
+            value: stats.cancelados,
+
+            color: "border-red-500"
+
+        },
+
+
+        {
+
+            title: "Toneladas",
+
+            value: `${stats.toneladas.toLocaleString("pt-BR")} t`,
+
+            color: "border-purple-500"
+
+        },
+
+
+        {
+
+            title: "Tempo médio de carregamento",
+
+            value: formatarTempo(
+                stats.tempo_operacao.media_segundos
+            ),
+
+            color: "border-indigo-500"
+
+        },
+
+
+        {
+
+            title: "Pedidos analisados",
+
+            value: stats.tempo_operacao.total_analisados,
+
+            color: "border-orange-500"
+
+        },
+
+    ];    return (
 
         <>
 
             <Head title="Dashboard" />
 
 
+
             <div className="p-6">
 
 
+
                 <div className="mb-8">
+
 
                     <h1 className="text-3xl font-bold">
 
@@ -142,87 +329,56 @@ export default function Dashboard({
                     </h1>
 
 
-                    <p className="text-gray-500">
 
-                        Visão geral da operação.
+                    <p className="mt-1 text-gray-500">
+
+                        Visão geral da operação do CargaFlow.
 
                     </p>
 
-                </div>
 
 
 
+                    <div className="
+    mt-5
+    flex
+    flex-col
+    gap-3
+    md:flex-row
+    md:items-center
+">
 
 
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                        <div className="flex items-center gap-2">
+
+                            <label className="text-sm text-gray-500 whitespace-nowrap">
+
+                                Data inicial
+
+                            </label>
 
 
-                    <Card
-                        title="📦 Total pedidos"
-                        value={stats.pedidos}
-                    />
+                            <input
 
+                                type="date"
 
-                    <Card
-                        title="📅 Agendados"
-                        value={stats.programados}
-                    />
+                                value={dataInicial}
 
+                                onChange={(e) =>
+                                    setDataInicial(e.target.value)
+                                }
 
-                    <Card
-                        title="🔄 Em carregamento"
-                        value={stats.carregados}
-                    />
+                                className="
+    bg-red-500 w-[220px]
+    rounded-md
+    border
+    px-3
+    py-2
+    text-sm
+    dark:bg-neutral-900
+"
 
-
-                    <Card
-                        title="🧾 Faturados"
-                        value={stats.faturados}
-                    />
-
-
-                    <Card
-                        title="❌ Cancelados"
-                        value={stats.cancelados}
-                    />
-
-
-                    <Card
-                        title="⚖️ Toneladas"
-                        value={stats.toneladas}
-                    />
-
-
-                </div>                <div className="mt-6 rounded-xl border bg-white p-6 shadow-sm dark:bg-neutral-900">
-
-
-                    <h2 className="mb-5 text-xl font-bold">
-
-                        🚛 Pontualidade
-
-                    </h2>
-
-
-
-
-                    <div className="grid gap-4 md:grid-cols-4">
-
-
-
-                        <div className="rounded-lg border p-4">
-
-                            <p className="text-sm text-gray-500">
-
-                                🟢 No horário
-
-                            </p>
-
-
-                            <p className="mt-2 text-3xl font-bold text-green-500">
-
-                                {stats.pontualidade.no_horario}
-
-                            </p>
+                            />
 
                         </div>
 
@@ -230,81 +386,36 @@ export default function Dashboard({
 
 
 
-                        <div className="rounded-lg border p-4">
+                        <div className="flex items-center gap-2">
 
-                            <p className="text-sm text-gray-500">
+                            <label className="text-sm text-gray-500 whitespace-nowrap">
 
-                                🔴 Atrasados
+                                Data final
 
-                            </p>
-
-
-                            <p className="mt-2 text-3xl font-bold text-red-500">
-
-                                {stats.pontualidade.atrasados}
-
-                            </p>
-
-                        </div>
+                            </label>
 
 
+                            <input
 
+                                type="date"
 
+                                value={dataFinal}
 
-                        <div className="rounded-lg border p-4">
+                                onChange={(e) =>
+                                    setDataFinal(e.target.value)
+                                }
 
+                                className="
+            w-[220px]
+            rounded-md
+            border
+            px-3
+            py-2
+            text-sm
+            dark:bg-neutral-900
+        "
 
-                            <p className="text-sm text-gray-500">
-
-                                📊 Eficiência
-
-                            </p>
-
-
-                            <p className="mt-2 text-3xl font-bold">
-
-                                {stats.pontualidade.eficiencia}%
-
-                            </p>
-
-
-
-                            <div className="mt-3 h-3 w-full rounded-full bg-gray-200 dark:bg-neutral-700">
-
-
-                                <div
-
-                                    className={`
-
-                                        h-3
-
-                                        rounded-full
-
-                                        ${
-                                            stats.pontualidade.eficiencia >= 90
-
-                                                ? "bg-green-500"
-
-                                                : stats.pontualidade.eficiencia >= 70
-
-                                                    ? "bg-yellow-500"
-
-                                                    : "bg-red-500"
-                                        }
-
-                                    `}
-
-                                    style={{
-
-                                        width: `${stats.pontualidade.eficiencia}%`
-
-                                    }}
-
-                                />
-
-
-                            </div>
-
+                            />
 
                         </div>
 
@@ -312,25 +423,54 @@ export default function Dashboard({
 
 
 
-                        <div className="rounded-lg border p-4">
+                        <div className="flex gap-2 md:w-auto">
 
 
-                            <p className="text-sm text-gray-500">
+                            <button
 
-                                ⏱ Média atraso
+                                onClick={filtrarPeriodo}
 
-                            </p>
+                                className="
+                                    rounded-md
+                                    bg-blue-600
+                                    px-4
+                                    py-2
+                                    text-sm
+                                    text-white
+                                    hover:bg-blue-700
+                                "
+
+                            >
+
+                                Filtrar
+
+                            </button>
 
 
-                            <p className="mt-2 text-3xl font-bold">
 
-                                +{stats.pontualidade.media_atraso} min
 
-                            </p>
+                            <button
+
+                                onClick={limparPeriodo}
+
+                                className="
+                                    rounded-md
+                                    bg-gray-500
+                                    px-4
+                                    py-2
+                                    text-sm
+                                    text-white
+                                    hover:bg-gray-600
+                                "
+
+                            >
+
+                                Limpar
+
+                            </button>
 
 
                         </div>
-
 
 
                     </div>
@@ -342,7 +482,88 @@ export default function Dashboard({
 
 
 
-                <div className="mt-6 rounded-xl border bg-white p-6 shadow-sm dark:bg-neutral-900">
+
+
+                {/* CARDS PRINCIPAIS */}
+
+
+
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+
+                    {cards.map((card) => (
+
+
+
+                        <div
+
+                            key={card.title}
+
+                            className={`
+
+                                rounded-xl
+
+                                border-l-4
+
+                                ${card.color}
+
+                                bg-white
+
+                                p-4 md:p-5
+
+                                shadow-md
+
+                                dark:bg-neutral-900
+
+                            `}
+
+                        >
+
+
+
+                            <p className="text-sm text-gray-400">
+
+                                {card.title}
+
+                            </p>
+
+
+
+
+
+                            <p className="mt-3 text-4xl font-bold">
+
+                                {card.value}
+
+                            </p>
+
+
+
+                        </div>
+
+
+
+                    ))}
+
+
+
+                </div>                {/* PERFORMANCE */}
+
+
+                <div
+
+                    className="
+                        mt-8
+                        rounded-xl
+                        border
+                        bg-white
+                        p-6
+                        shadow-md
+                        dark:bg-neutral-900
+                    "
+
+                >
+
 
 
                     <h2 className="mb-5 text-xl font-bold">
@@ -354,59 +575,87 @@ export default function Dashboard({
 
 
 
+
                     <div className="grid gap-4 md:grid-cols-3">
 
 
-                        <div className="rounded-lg border p-4">
 
+                        <PerformanceCard
 
-                            <p className="text-sm text-gray-500">
+                            title="Menor tempo de carregamento"
 
-                                ⏱ Tempo médio carregamento
+                            value={
 
-                            </p>
+                                formatarTempo(
+                                    stats.tempo_operacao.menor_tempo
+                                )
 
+                            }
 
-                            <p className="mt-2 text-3xl font-bold">
-
-                                {formatarTempo(
-    stats.tempo_operacao.media_segundos
-)}
-
-                            </p>
-
-
-                        </div>
+                        />
 
 
 
 
+                        <PerformanceCard
 
-                        <div className="rounded-lg border p-4">
+                            title="Maior tempo de carregamento"
 
+                            value={
 
-                            <p className="text-sm text-gray-500">
+                                formatarTempo(
+                                    stats.tempo_operacao.maior_tempo
+                                )
 
-                                🚚 Carregamentos analisados
+                            }
 
-                            </p>
-
-
-                            <p className="mt-2 text-3xl font-bold">
-
-                                {stats.tempo_operacao.total_analisados}
-
-                            </p>
+                        />
 
 
-                        </div>
+
+
+
+                        <PerformanceCard
+
+                            title="Carregamentos analisados"
+
+                            value={
+                                stats.tempo_operacao.total_analisados
+                            }
+
+                        />
 
 
 
                     </div>
 
 
-                </div>                <div className="mt-8 rounded-xl border bg-white p-6 shadow-sm dark:bg-neutral-900">
+                </div>
+
+
+
+
+
+
+
+                {/* ÚLTIMOS PEDIDOS */}
+
+
+
+                <div
+
+                    className="
+                        mt-8
+                        rounded-xl
+                        border
+                        bg-white
+                        p-6
+                        shadow-md
+                        dark:bg-neutral-900
+                    "
+
+                >
+
 
 
                     <h2 className="mb-5 text-xl font-bold">
@@ -414,6 +663,8 @@ export default function Dashboard({
                         📋 Últimos pedidos
 
                     </h2>
+
+
 
 
 
@@ -430,143 +681,143 @@ export default function Dashboard({
                     ) : (
 
 
-                        <div className="space-y-3">
+                        <div className="overflow-x-auto">
 
+    <table className="min-w-[700px] w-full text-sm">
 
-                            {ultimos.map((pedido) => (
 
+                                <thead>
 
-                                <div
 
-                                    key={pedido.id}
+                                    <tr className="border-b text-left">
 
-                                    className="rounded-lg border p-4"
 
-                                >
+                                        <th className="p-3">
+                                            Pedido
+                                        </th>
 
 
-                                    <div className="flex flex-col gap-3 md:flex-row md:justify-between">
+                                        <th className="p-3">
+                                            Cliente
+                                        </th>
 
 
-                                        <div>
+                                        <th className="p-3">
+                                            Produto
+                                        </th>
 
 
-                                            <p className="font-bold">
+                                        <th className="p-3">
+                                            Peso
+                                        </th>
 
-                                                Pedido #
 
-                                                {pedido.numero_pedido ?? pedido.codigo}
+                                        <th className="p-3">
+                                            Status
+                                        </th>
 
-                                            </p>
 
+                                    </tr>
 
 
-                                            <p className="text-sm text-gray-500">
+                                </thead>
 
-                                                Cliente: {pedido.cliente}
 
-                                            </p>
 
 
 
-                                            <p className="text-sm text-gray-500">
+                                <tbody>
 
-                                                Destino: {pedido.destino}
 
-                                            </p>
+                                    {ultimos.slice(0,5).map((pedido)=>(
 
 
+                                        <tr
 
-                                            <p className="text-sm text-gray-500">
+                                            key={pedido.id}
 
-                                                Produto: {pedido.produto?.descricao ?? "-"}
+                                            className="border-b"
 
-                                            </p>
+                                        >
 
 
 
-                                            <p className="text-sm text-gray-500">
+                                            <td className="p-3 font-semibold">
 
-                                                Peso: {(Number(pedido.peso) / 1000).toLocaleString("pt-BR", {
+                                                #{pedido.numero_pedido ?? pedido.codigo}
 
-                                                    minimumFractionDigits: 3,
+                                            </td>
 
-                                                    maximumFractionDigits: 3,
 
-                                                })} T
 
-                                            </p>
+                                            <td className="p-3">
 
+                                                {pedido.cliente}
 
-                                        </div>
+                                            </td>
 
 
 
+                                            <td className="p-3">
 
+                                                {pedido.produto?.descricao ?? "-"}
 
-                                        <div className="self-start md:self-auto">
+                                            </td>
 
 
-                                            <span
 
-                                                className={`
+                                            <td className="p-3">
 
-                                                    rounded-full
+                                                {(Number(pedido.peso) / 1000)
+                                                    .toLocaleString(
+                                                        "pt-BR",
+                                                        {
+                                                            minimumFractionDigits:3,
+                                                            maximumFractionDigits:3
+                                                        }
+                                                    )
+                                                } t
 
-                                                    px-3
+                                            </td>
 
-                                                    py-1
 
-                                                    text-sm
 
-                                                    font-semibold
 
+                                            <td className="p-3">
 
-                                                    ${
 
-                                                        pedido.status === "Agendado"
+                                                <span
 
-                                                            ? "bg-yellow-100 text-yellow-700"
+                                                    className="
+                                                        rounded-full
+                                                        bg-blue-100
+                                                        px-3
+                                                        py-1
+                                                        text-xs
+                                                        font-semibold
+                                                        text-blue-700
+                                                    "
 
+                                                >
 
-                                                        : pedido.status === "Em Carregamento"
+                                                    {pedido.status}
 
-                                                            ? "bg-blue-100 text-blue-700"
+                                                </span>
 
 
-                                                        : pedido.status === "Faturado"
+                                            </td>
 
-                                                            ? "bg-green-100 text-green-700"
 
+                                        </tr>
 
-                                                        : pedido.status === "Cancelado"
 
-                                                            ? "bg-red-100 text-red-700"
+                                    ))}
 
 
-                                                        : "bg-gray-100 text-gray-700"
+                                </tbody>
 
-                                                    }
 
-                                                `}
-
-                                            >
-
-                                                {pedido.status}
-
-                                            </span>
-
-
-                                        </div>
-
-
-                                    </div>
-
-
-                                </div>
-
-
-                            ))}
+                            </table>
 
 
                         </div>
@@ -575,7 +826,11 @@ export default function Dashboard({
                     )}
 
 
+
                 </div>
+
+
+
 
 
             </div>
@@ -592,9 +847,7 @@ export default function Dashboard({
 
 
 
-
-
-function Card({
+function PerformanceCard({
 
     title,
 
@@ -602,16 +855,27 @@ function Card({
 
 }: {
 
-    title: string;
+    title:string;
 
-    value: number;
+    value:string | number;
 
 }) {
 
 
     return (
 
-        <div className="rounded-xl border bg-white p-5 shadow-sm dark:bg-neutral-900">
+        <div
+
+            className="
+                rounded-xl
+                border
+                bg-neutral-50
+                p-5
+                shadow-sm
+                dark:bg-neutral-800
+            "
+
+        >
 
 
             <p className="text-sm text-gray-500">
@@ -622,7 +886,9 @@ function Card({
 
 
 
-            <p className="mt-3 text-3xl font-bold">
+
+
+            <p className="mt-3 text-4xl font-bold">
 
                 {value}
 

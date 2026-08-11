@@ -38,18 +38,25 @@ export default function CarregarPedidoModal({
 
 
         if (!pedido) {
+
             return;
+
         }
 
 
 
         if (!placa) {
 
+
             alert("Informe a placa do veículo.");
+
 
             return;
 
+
         }
+
+
 
 
 
@@ -57,43 +64,60 @@ export default function CarregarPedidoModal({
 
 
 
+
         setProcessing(true);
+
 
 
 
         router.put(`/pedidos/${pedido.id}/carregar`, {
 
+
             placa,
+
 
             data_carregamento:
                 agora.toISOString().split("T")[0],
 
+
             hora_carregamento:
                 agora.toTimeString().slice(0,5),
 
+
+
         }, {
+
 
 
             preserveScroll: true,
 
 
+
             onSuccess: () => {
+
 
                 setPlaca("");
 
+
                 onClose();
 
+
             },
+
 
 
             onFinish: () => {
 
+
                 setProcessing(false);
+
 
             },
 
 
+
         });
+
 
 
     }
@@ -102,7 +126,11 @@ export default function CarregarPedidoModal({
 
 
 
+
+
     return (
+
+
 
         <Modal
 
@@ -114,61 +142,110 @@ export default function CarregarPedidoModal({
 
         >
 
+
+
             <div className="space-y-4">
 
 
+
+
+
+
                 <div>
 
+
                     <p className="text-sm text-gray-500">
+
                         Pedido
+
                     </p>
 
+
+
                     <p className="font-bold">
+
                         {pedido?.numero_pedido ?? pedido?.codigo}
+
                     </p>
+
 
                 </div>
 
 
 
 
+
+
+
                 <div>
+
 
                     <p className="text-sm text-gray-500">
+
                         Transportadora
+
                     </p>
 
+
+
                     <p className="font-bold">
+
                         {pedido?.transportadora ?? "-"}
+
                     </p>
+
 
                 </div>
 
 
 
 
+
+
+
+
                 <div>
+
 
                     <label className="mb-2 block text-sm font-medium">
+
                         Placa
+
                     </label>
+
+
 
 
                     <input
 
+
                         type="text"
+
 
                         value={placa}
 
+
                         onChange={(e) =>
+
                             setPlaca(e.target.value)
+
                         }
 
-                        className="w-full rounded-lg border px-4 py-3"
+
+                        className="
+                            w-full
+                            rounded-lg
+                            border
+                            px-4
+                            py-3
+                        "
+
 
                         placeholder="Digite a placa"
 
+
                     />
+
 
                 </div>
 
@@ -176,51 +253,120 @@ export default function CarregarPedidoModal({
 
 
 
-                <div className="flex justify-end gap-3 mt-6">
+
+
+                <div>
+
+
+                    <p className="text-sm text-gray-500">
+
+                        Observação do pedido
+
+                    </p>
+
+
+
+                    <p
+                        className="
+                            rounded-md
+                            border
+                            bg-gray-50
+                            p-3
+                            text-sm
+                            dark:bg-neutral-800
+                        "
+                    >
+
+                        {pedido?.observacoes ?? "-"}
+
+
+                    </p>
+
+
+                </div>
+
+
+
+
+
+
+
+
+                <div className="mt-6 flex justify-end gap-3">
+
 
 
                     <Button
 
+
                         type="button"
+
 
                         variant="secondary"
 
+
                         onClick={onClose}
+
 
                     >
 
                         Cancelar
 
+
                     </Button>
+
+
+
+
 
 
 
                     <Button
 
+
                         type="button"
+
 
                         variant="success"
 
+
                         disabled={processing}
+
 
                         onClick={carregar}
 
+
                     >
 
+
                         {processing
+
                             ? "Iniciando..."
-                            : "Iniciar Carregamento"}
+
+                            : "Iniciar Carregamento"
+
+                        }
+
 
                     </Button>
+
+
+
 
 
                 </div>
 
 
+
+
+
             </div>
 
 
+
         </Modal>
+
+
 
     );
 

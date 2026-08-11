@@ -1,5 +1,6 @@
 export interface Pedido {
 
+
     id: number;
 
 
@@ -10,11 +11,27 @@ export interface Pedido {
 
 
 
+
     data: string;
 
 
 
-    cliente: string;
+
+    cliente_id?: number | string;
+
+
+
+
+
+    cliente:
+        | string
+        | {
+            id: number;
+            nome: string;
+        };
+
+
+
 
 
 
@@ -22,14 +39,28 @@ export interface Pedido {
 
 
 
+
+
+
     produto_id: number;
 
 
 
+
+
+
     produto?: {
+
         id: number;
+
         descricao: string;
+
     };
+
+
+
+
+
 
 
 
@@ -37,7 +68,17 @@ export interface Pedido {
 
 
 
+
+
+
+
+
     tipo_frete: 'CIF' | 'FOB';
+
+
+
+
+
 
 
 
@@ -45,16 +86,37 @@ export interface Pedido {
 
 
 
+
+
+
+
+
     observacoes?: string;
 
 
 
+
+
+
+
+
     status:
+
         | 'Pedido'
+
         | 'Agendado'
+
         | 'Em Carregamento'
+
         | 'Faturado'
+
         | 'Cancelado';
+
+
+
+
+
+
 
 
 
@@ -62,7 +124,17 @@ export interface Pedido {
 
 
 
+
+
+
+
+
     motorista?: string;
+
+
+
+
+
 
 
 
@@ -70,21 +142,66 @@ export interface Pedido {
 
 
 
+
+
+
+
+
+
     data_agendamento?: string;
+
 
     hora_agendamento?: string;
 
 
 
+
+
+
+
+
+
     data_carregamento?: string;
+
 
     hora_carregamento?: string;
 
 
 
+
+
+
+
+
+
+    inicio_carregamento_at?: string;
+
+
+    fim_carregamento_at?: string;
+
+
+
+
+
+
+
+
+
     numero_nfe?: string;
 
+
+
+
+
+
+
+
     hora_faturamento?: string;
+
+
+
+
+
 
 
 
@@ -92,7 +209,18 @@ export interface Pedido {
 
 
 
+
+
+
+
+
     proxima_acao: string;
+
+
+
+
+
+
 
 
 
@@ -100,6 +228,12 @@ export interface Pedido {
 
 
 
+
+
+
+
+
     updated_at: string;
+
 
 }

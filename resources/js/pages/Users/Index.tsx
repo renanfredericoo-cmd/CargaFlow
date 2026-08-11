@@ -103,9 +103,9 @@ export default function Users({ users }: Props) {
         <>
             <Head title="Usuários" />
 
-            <div className="p-6">
+            <div className="p-4 md:p-6">
 
-                <div className="mb-8 flex justify-between">
+                <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
                     <div>
                         <h1 className="text-3xl font-bold">
@@ -128,16 +128,16 @@ export default function Users({ users }: Props) {
 
                 <div className="overflow-hidden rounded-xl border bg-white dark:bg-neutral-900">
 
-                    <table className="w-full">
+                    <table className="w-full text-sm">
 
                         <thead className="border-b bg-gray-50 dark:bg-neutral-800">
 
                             <tr>
-                                <th className="p-4 text-left">Nome</th>
-                                <th className="p-4 text-left">Email</th>
-                                <th className="p-4 text-left">Perfil</th>
-                                <th className="p-4 text-left">Status</th>
-                                <th className="p-4 text-right">Ações</th>
+                                <th className="p-3 text-left">Nome</th>
+                                <th className="p-3 text-left">Email</th>
+                                <th className="p-3 text-left">Perfil</th>
+                                <th className="p-3 text-left">Status</th>
+                                <th className="p-3 text-right">Ações</th>
                             </tr>
 
                         </thead>
@@ -149,7 +149,7 @@ export default function Users({ users }: Props) {
 
                             <tr key={user.id} className="border-b">
 
-                                <td className="p-4">
+                                <td className="p-3">
                                     {user.name}
                                 </td>
 
