@@ -185,6 +185,33 @@ export default function Detalhes({ pedido }: Props) {
                         </div>
 
 
+                        <div>
+    <strong>Início do carregamento:</strong>
+
+    <br />
+
+    {pedido.inicio_carregamento_at
+        ? new Date(pedido.inicio_carregamento_at).toLocaleTimeString(
+            "pt-BR",
+            {
+                hour: "2-digit",
+                minute: "2-digit",
+            }
+        )
+        : "-"}
+</div>
+
+<div>
+    <strong>Hora do faturamento:</strong>
+
+    <br />
+
+    {pedido.hora_faturamento
+    ? String(pedido.hora_faturamento).substring(0, 5)
+    : "-"}
+</div>
+
+
 
                     </div>
 

@@ -171,10 +171,11 @@ class PedidoController extends Controller
         ]);
 
         $pedido->update([
-            'numero_nfe' => $dados['numero_nfe'],
-            'status' => Pedido::STATUS_FATURADO,
-            'fim_carregamento_at' => now(),
-        ]);
+    'numero_nfe' => $dados['numero_nfe'],
+    'status' => Pedido::STATUS_FATURADO,
+    'fim_carregamento_at' => now(),
+    'hora_faturamento' => now(),
+]);
 
         return back()->with(
             'success',
