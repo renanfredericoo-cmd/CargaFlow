@@ -12,7 +12,10 @@ export default function usePedidoForm() {
 
 
 
-        data: "",
+        data: new Date().toISOString().split("T")[0],
+
+
+        data_entrega: "",
 
 
 
@@ -141,8 +144,7 @@ export default function usePedidoForm() {
 
     function editar(id: number, onSuccess?: () => void) {
 
-        console.log("EDITANDO PEDIDO:", id);
-    console.log("DADOS:", form.data);
+        
 
 
 

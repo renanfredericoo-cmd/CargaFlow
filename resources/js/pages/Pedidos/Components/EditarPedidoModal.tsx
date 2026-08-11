@@ -50,7 +50,17 @@ export default function EditarPedidoModal({
 
     setData("numero_pedido", pedido.numero_pedido ?? "");
 
+
     setData("data", pedido.data ?? "");
+
+setData(
+    "data_entrega",
+    pedido.data_entrega
+        ? pedido.data_entrega.substring(0, 10)
+        : ""
+);
+
+    
 
     setData(
         "cliente_id",
@@ -155,26 +165,24 @@ export default function EditarPedidoModal({
 
 
                     <Input
+    label="Data de Entrega"
 
-                        label="Data"
+    type="date"
 
-                        type="date"
+    value={data.data_entrega}
 
-                        value={data.data}
+    error={errors.data_entrega}
 
-                        error={errors.data}
-
-                        onChange={(e) =>
-                            setData(
-                                "data",
-                                e.target.value
-                            )
-                        }
-
-                    />
+    onChange={(e) =>
+        setData(
+            "data_entrega",
+            e.target.value
+        )
+    }
+/>
 
 
-
+                   
 
                     <Input
 

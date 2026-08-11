@@ -226,34 +226,18 @@ export default function PedidoModal({
 
 
 
-
-
-
-
-                    <Input
-
-                        label="Data de Entrega"
-
-                        type="date"
-
-                        value={data.data}
-
-                        error={errors.data}
-
-                        onChange={(e) =>
-
-                            setData(
-
-                                "data",
-
-                                e.target.value
-
-                            )
-
-                        }
-
-                    />
-
+<Input
+    label="Data de Entrega"
+    type="date"
+    value={data.data_entrega}
+    error={errors.data_entrega}
+    onChange={(e) =>
+        setData(
+            "data_entrega",
+            e.target.value
+        )
+    }
+/>
 
 
 

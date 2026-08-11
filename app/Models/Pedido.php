@@ -50,6 +50,9 @@ class Pedido extends Model
         'data',
 
 
+        'data_entrega',
+
+
         'cliente_id',
 
 
@@ -166,6 +169,9 @@ class Pedido extends Model
 
 
             'data' => 'date',
+
+
+            'data_entrega' => 'date',
 
 
             'data_agendamento' => 'date',

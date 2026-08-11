@@ -52,6 +52,14 @@ class PedidoRequest extends FormRequest
 
             ],
 
+            'data_entrega' => [
+            
+            'required',
+            
+            'date',
+            
+            ],
+
 
 
 
@@ -168,6 +176,10 @@ class PedidoRequest extends FormRequest
 
 
             'data.required' => 'Informe a data do pedido.',
+
+
+            
+            'data_entrega.required' => 'Informe a data de entrega.',
 
 
 
