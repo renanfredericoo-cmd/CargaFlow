@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import Modal from "@/components/Modal";
 import Button from "@/components/Button";
@@ -7,40 +7,26 @@ import Select from "@/components/Select";
 
 import usePedidoForm from "../Hooks/usePedidoForm";
 
+import type { Pedido } from "@/types/pedido";
 
 
 interface Produto {
-
     id: number;
-
     descricao: string;
-
     ativo: boolean;
-
 }
-
-
 
 
 interface Cliente {
-
     id: number;
-
     nome: string;
-
     cidade: string;
-
     estado: string;
-
     ativo: boolean;
-
 }
 
 
-
-
 interface Props {
-
     show: boolean;
 
     onClose: () => void;
@@ -49,11 +35,8 @@ interface Props {
 
     clientes?: Cliente[];
 
+    pedidoReplicar?: Pedido | null;
 }
-
-
-
-
 
 
 export default function PedidoModal({
@@ -66,119 +49,144 @@ export default function PedidoModal({
 
     clientes = [],
 
+    pedidoReplicar = null,
+
 }: Props) {
 
 
-
     const {
-
         data,
-
         setData,
-
         salvar,
-
         processing,
-
         errors,
-
-    } = usePedidoForm();
-
+    } = usePedidoForm(pedidoReplicar);
 
 
+    useEffect(() => {
+
+        if (!pedidoReplicar) {
+            return;
+        }
 
 
+        setData(
+            "numero_pedido",
+            pedidoReplicar.numero_pedido ?? ""
+        );
+
+
+        setData(
+            "data",
+            pedidoReplicar.data ?? ""
+        );
+
+
+        setData(
+            "data_entrega",
+            pedidoReplicar.data_entrega ?? ""
+        );
+
+
+        setData(
+            "cliente_id",
+            pedidoReplicar.cliente_id?.toString() ?? ""
+        );
+
+
+        setData(
+            "cliente",
+            typeof pedidoReplicar.cliente === "object"
+                ? pedidoReplicar.cliente.nome
+                : pedidoReplicar.cliente ?? ""
+        );
+
+
+        setData(
+            "destino",
+            pedidoReplicar.destino ?? ""
+        );
+
+
+        setData(
+            "produto_id",
+            pedidoReplicar.produto_id?.toString() ?? ""
+        );
+
+
+        setData(
+            "peso",
+            pedidoReplicar.peso?.toString() ?? ""
+        );
+
+
+        setData(
+            "tipo_frete",
+            pedidoReplicar.tipo_frete ?? "CIF"
+        );
+
+
+        setData(
+            "vendedor",
+            pedidoReplicar.vendedor ?? ""
+        );
+
+
+        setData(
+            "observacoes",
+            pedidoReplicar.observacoes ?? ""
+        );
+
+
+    }, [pedidoReplicar]);
 
 
     function submit(e: React.FormEvent) {
 
-
         e.preventDefault();
-
 
 
         salvar(() => {
 
-
             onClose();
-
 
         });
 
-
     }
-
-
-
-
-
-
 
 
     function selecionarCliente(id: string) {
 
-
         const cliente = clientes.find(
-
             (item) => item.id === Number(id)
-
         );
-
-
 
 
         setData(
-
             "cliente_id",
-
             id
-
         );
-
-
-
 
 
         if (cliente) {
 
-
-
             setData(
-
                 "cliente",
-
                 cliente.nome
-
             );
-
-
-
 
 
             setData(
-
                 "destino",
-
                 `${cliente.cidade}/${cliente.estado}`
-
             );
-
 
         }
-
 
     }
 
 
-
-
-
-
-
-
-
     return (
-
 
         <Modal
 
@@ -186,20 +194,17 @@ export default function PedidoModal({
 
             onClose={onClose}
 
-            title="Novo Pedido"
+            title={
+                pedidoReplicar
+                    ? "Replicar Pedido"
+                    : "Novo Pedido"
+            }
 
         >
 
-
-
             <form onSubmit={submit}>
 
-
-
                 <div className="grid grid-cols-2 gap-4">
-
-
-
 
 
                     <Input
@@ -211,39 +216,33 @@ export default function PedidoModal({
                         error={errors.numero_pedido}
 
                         onChange={(e) =>
-
                             setData(
-
                                 "numero_pedido",
-
                                 e.target.value
-
                             )
-
                         }
 
                     />
 
 
+                    <Input
 
-<Input
-    label="Data de Entrega"
-    type="date"
-    value={data.data_entrega}
-    error={errors.data_entrega}
-    onChange={(e) =>
-        setData(
-            "data_entrega",
-            e.target.value
-        )
-    }
-/>
+                        label="Data de Entrega"
 
+                        type="date"
 
+                        value={data.data_entrega}
 
+                        error={errors.data_entrega}
 
+                        onChange={(e) =>
+                            setData(
+                                "data_entrega",
+                                e.target.value
+                            )
+                        }
 
-
+                    />
 
 
                     <Select
@@ -255,66 +254,36 @@ export default function PedidoModal({
                         error={errors.cliente_id}
 
                         onChange={(e) =>
-
                             selecionarCliente(
-
                                 e.target.value
-
                             )
-
                         }
 
                     >
 
-
-
                         <option value="">
-
                             Selecione o cliente
-
                         </option>
-
-
-
 
 
                         {clientes
 
                             .filter(
-
                                 (cliente) => cliente.ativo
-
                             )
 
                             .map((cliente) => (
 
-
                                 <option
-
                                     key={cliente.id}
-
                                     value={cliente.id}
-
                                 >
-
                                     {cliente.nome}
-
                                 </option>
-
-
 
                             ))}
 
-
-
                     </Select>
-
-
-
-
-
-
-
 
 
                     <Input
@@ -326,25 +295,13 @@ export default function PedidoModal({
                         error={errors.destino}
 
                         onChange={(e) =>
-
                             setData(
-
                                 "destino",
-
                                 e.target.value
-
                             )
-
                         }
 
                     />
-
-
-
-
-
-
-
 
 
                     <Select
@@ -356,73 +313,42 @@ export default function PedidoModal({
                         error={errors.produto_id}
 
                         onChange={(e) =>
-
                             setData(
-
                                 "produto_id",
-
                                 e.target.value
-
                             )
-
                         }
 
                     >
 
-
-
                         <option value="">
-
                             Selecione o produto
-
                         </option>
-
-
-
 
 
                         {produtos
 
                             .filter(
-
                                 (produto) => produto.ativo
-
                             )
 
                             .map((produto) => (
 
-
                                 <option
-
                                     key={produto.id}
-
                                     value={produto.id}
-
                                 >
-
                                     {produto.descricao}
-
                                 </option>
 
-
-
                             ))}
-
-
 
                     </Select>
 
 
-
-
-
-
-
-
-
                     <Input
 
-                        label="Peso (kg)"
+                        label="Peso (toneladas)"
 
                         type="number"
 
@@ -433,25 +359,13 @@ export default function PedidoModal({
                         error={errors.peso}
 
                         onChange={(e) =>
-
                             setData(
-
                                 "peso",
-
                                 e.target.value
-
                             )
-
                         }
 
                     />
-
-
-
-
-
-
-
 
 
                     <Select
@@ -463,52 +377,27 @@ export default function PedidoModal({
                         error={errors.tipo_frete}
 
                         onChange={(e) =>
-
-                            setData(
-
-                                "tipo_frete",
-
-                                e.target.value
-
-                            )
-
-                        }
+    setData(
+        "tipo_frete",
+        e.target.value as "CIF" | "FOB"
+    )
+}
 
                     >
 
-
-
                         <option value="CIF">
-
                             CIF
-
                         </option>
-
-
 
 
                         <option value="FOB">
-
                             FOB
-
                         </option>
-
-
 
                     </Select>
 
 
-
-
-
                 </div>
-
-
-
-
-
-
-
 
 
                 <Input
@@ -520,38 +409,22 @@ export default function PedidoModal({
                     error={errors.vendedor}
 
                     onChange={(e) =>
-
                         setData(
-
                             "vendedor",
-
                             e.target.value
-
                         )
-
                     }
 
                 />
 
 
-
-
-
-
-
-
-
                 <div className="mb-4">
-
-
 
                     <label className="mb-2 block text-sm text-gray-300 font-medium">
 
                         Observações
 
                     </label>
-
-
 
 
                     <textarea
@@ -561,15 +434,10 @@ export default function PedidoModal({
                         value={data.observacoes}
 
                         onChange={(e) =>
-
                             setData(
-
                                 "observacoes",
-
                                 e.target.value
-
                             )
-
                         }
 
                         className="
@@ -591,23 +459,10 @@ export default function PedidoModal({
 
                     />
 
-
-
-
                 </div>
 
 
-
-
-
-
-
-
-
                 <div className="mt-6 flex justify-end gap-3">
-
-
-
 
 
                     <Button
@@ -625,12 +480,6 @@ export default function PedidoModal({
                     </Button>
 
 
-
-
-
-
-
-
                     <Button
 
                         type="submit"
@@ -641,36 +490,20 @@ export default function PedidoModal({
 
                     >
 
-
                         {processing
-
                             ? "Salvando..."
-
                             : "Salvar Pedido"
-
                         }
 
-
-
                     </Button>
-
-
-
 
 
                 </div>
 
 
-
-
-
             </form>
 
-
-
-
         </Modal>
-
 
     );
 

@@ -84,8 +84,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Agendamento
 
 
-    Route::put('/pedidos/{pedido}/agendar', [PedidoController::class, 'agendar'])
-        ->name('pedidos.agendar');
+    // Agendamento
+
+Route::put('/pedidos/{pedido}/agendar', [PedidoController::class, 'agendar'])
+    ->name('pedidos.agendar');
+
+
+// Editar transportadora
+
+Route::patch('/pedidos/{pedido}/transportadora', [PedidoController::class, 'atualizarTransportadora'])
+    ->name('pedidos.atualizarTransportadora');
 
 
 

@@ -10,13 +10,11 @@ use Inertia\Inertia;
 
 class UserController extends Controller
 {
-
     public function index()
     {
         if (auth()->user()->role !== 'admin') {
             abort(403);
         }
-
 
         $users = User::select(
             'id',
@@ -29,13 +27,10 @@ class UserController extends Controller
         ->orderBy('name')
         ->get();
 
-
         return Inertia::render('Users/Index', [
             'users' => $users
         ]);
     }
-
-
 
     public function store(StoreUserRequest $request)
     {
@@ -43,31 +38,18 @@ class UserController extends Controller
             abort(403);
         }
 
-
         User::create([
-
             'name' => $request->name,
-
             'email' => $request->email,
-
             'password' => Hash::make($request->password),
-
-            // Admin escolhe se é admin ou funcionário
             'role' => $request->role,
-
             'active' => true,
-
         ]);
-
 
         return redirect()
             ->route('users.index')
             ->with('success', 'Usuário criado com sucesso.');
     }
-
-
-
-
 
     public function update(Request $request, User $user)
     {
@@ -75,9 +57,7 @@ class UserController extends Controller
             abort(403);
         }
 
-
         $validated = $request->validate([
-
             'name' => [
                 'required',
                 'string',
@@ -90,9 +70,9 @@ class UserController extends Controller
             ],
 
             'role' => [
-                'required',
-                'in:admin,funcionario'
-            ],
+    'required',
+    'in:admin,pedidos,agendamento,carregamento'
+],
 
             'active' => [
                 'required',
@@ -105,37 +85,22 @@ class UserController extends Controller
                 'min:6',
                 'confirmed'
             ],
-
         ]);
 
-
-
         if (!empty($validated['password'])) {
-
             $validated['password'] = Hash::make(
                 $validated['password']
             );
-
         } else {
-
             unset($validated['password']);
-
         }
 
-
-
         $user->update($validated);
-
-
 
         return redirect()
             ->route('users.index')
             ->with('success', 'Usuário atualizado com sucesso.');
     }
-
-
-
-
 
     public function destroy(User $user)
     {
@@ -143,18 +108,12 @@ class UserController extends Controller
             abort(403);
         }
 
-
         $user->delete();
-
 
         return redirect()
             ->route('users.index')
             ->with('success', 'Usuário removido com sucesso.');
     }
-
-
-
-
 
     public function toggleStatus(User $user)
     {
@@ -162,18 +121,12 @@ class UserController extends Controller
             abort(403);
         }
 
-
         $user->update([
-
             'active' => !$user->active
-
         ]);
-
-
 
         return redirect()
             ->route('users.index')
             ->with('success', 'Status atualizado com sucesso.');
     }
-
 }

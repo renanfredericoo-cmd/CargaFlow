@@ -11,6 +11,26 @@ use Inertia\Inertia;
 
 class PedidoController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Permissões
+    |--------------------------------------------------------------------------
+    */
+
+    private function permitir(array $roles): void
+    {
+        if (!in_array(auth()->user()->role, $roles, true)) {
+            abort(403);
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pedidos
+    |--------------------------------------------------------------------------
+    */
+
     public function index(Request $request)
     {
         $query = Pedido::with([
@@ -31,8 +51,8 @@ class PedidoController extends Controller
 
         $pedidos = $query
             ->reorder()
-            ->orderBy('created_at', 'desc')
-            ->orderBy('id', 'desc')
+            ->orderBy('data_entrega', 'asc')
+            ->orderBy('id', 'asc')
             ->get()
             ->append([
                 'atraso_carregamento',
@@ -53,8 +73,20 @@ class PedidoController extends Controller
         ]);
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Criar pedido
+    |--------------------------------------------------------------------------
+    */
+
     public function store(PedidoRequest $request)
     {
+        $this->permitir([
+            'admin',
+            'pedidos',
+        ]);
+
         $dados = $request->validated();
 
         $cliente = Cliente::find($dados['cliente_id']);
@@ -75,8 +107,20 @@ class PedidoController extends Controller
             );
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Editar pedido completo
+    |--------------------------------------------------------------------------
+    */
+
     public function update(PedidoRequest $request, Pedido $pedido)
     {
+        $this->permitir([
+            'admin',
+            'pedidos',
+        ]);
+
         $dados = $request->validated();
 
         if (isset($dados['cliente_id'])) {
@@ -95,12 +139,26 @@ class PedidoController extends Controller
         );
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Agendar pedido
+    |--------------------------------------------------------------------------
+    */
+
     public function agendar(Request $request, Pedido $pedido)
     {
+        $this->permitir([
+            'admin',
+            'pedidos',
+            'agendamento',
+        ]);
+
         $dados = $request->validate([
             'transportadora' => [
                 'required',
                 'string',
+                'max:255',
             ],
 
             'data_agendamento' => [
@@ -124,12 +182,62 @@ class PedidoController extends Controller
         );
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Editar transportadora
+    |--------------------------------------------------------------------------
+    */
+
+    public function atualizarTransportadora(
+        Request $request,
+        Pedido $pedido
+    ) {
+        $this->permitir([
+            'admin',
+            'pedidos',
+            'agendamento',
+            'carregamento',
+        ]);
+
+        $dados = $request->validate([
+            'transportadora' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+        ]);
+
+        $pedido->update([
+            'transportadora' => $dados['transportadora'],
+        ]);
+
+        return back()->with(
+            'success',
+            'Transportadora atualizada com sucesso.'
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Iniciar carregamento
+    |--------------------------------------------------------------------------
+    */
+
     public function carregar(Request $request, Pedido $pedido)
     {
+        $this->permitir([
+            'admin',
+            'pedidos',
+            'carregamento',
+        ]);
+
         $dados = $request->validate([
             'placa' => [
                 'required',
                 'string',
+                'max:255',
             ],
 
             'data_carregamento' => [
@@ -154,8 +262,21 @@ class PedidoController extends Controller
         );
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Faturar
+    |--------------------------------------------------------------------------
+    */
+
     public function faturar(Request $request, Pedido $pedido)
     {
+        $this->permitir([
+            'admin',
+            'pedidos',
+            'carregamento',
+        ]);
+
         if ($pedido->status === Pedido::STATUS_FATURADO) {
             return back()->with(
                 'error',
@@ -167,21 +288,29 @@ class PedidoController extends Controller
             'numero_nfe' => [
                 'required',
                 'string',
+                'max:255',
             ],
         ]);
 
         $pedido->update([
-    'numero_nfe' => $dados['numero_nfe'],
-    'status' => Pedido::STATUS_FATURADO,
-    'fim_carregamento_at' => now(),
-    'hora_faturamento' => now(),
-]);
+            'numero_nfe' => $dados['numero_nfe'],
+            'status' => Pedido::STATUS_FATURADO,
+            'fim_carregamento_at' => now(),
+            'hora_faturamento' => now(),
+        ]);
 
         return back()->with(
             'success',
             'Pedido faturado com sucesso.'
         );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Detalhes
+    |--------------------------------------------------------------------------
+    */
 
     public function detalhes(Pedido $pedido)
     {
@@ -195,8 +324,20 @@ class PedidoController extends Controller
         ]);
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cancelar
+    |--------------------------------------------------------------------------
+    */
+
     public function cancelar(Pedido $pedido)
     {
+        $this->permitir([
+            'admin',
+            'pedidos',
+        ]);
+
         if ($pedido->status === Pedido::STATUS_CANCELADO) {
             return back()->with(
                 'error',
@@ -214,11 +355,18 @@ class PedidoController extends Controller
         );
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Excluir
+    |--------------------------------------------------------------------------
+    */
+
     public function destroy(Pedido $pedido)
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403);
-        }
+        $this->permitir([
+            'admin',
+        ]);
 
         $pedido->delete();
 

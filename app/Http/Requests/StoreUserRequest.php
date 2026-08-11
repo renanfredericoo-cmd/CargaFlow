@@ -21,9 +21,23 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'min:8'],
-            'role' => ['required', 'in:admin,funcionario'],
+
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                'unique:users,email'
+            ],
+
+            'password' => [
+                'required',
+                'min:8'
+            ],
+
+            'role' => [
+                'required',
+                'in:admin,pedidos,agendamento,carregamento'
+            ],
         ];
     }
 
@@ -34,11 +48,17 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name.required' => 'Informe o nome.',
+
             'email.required' => 'Informe o e-mail.',
+
             'email.email' => 'Informe um e-mail válido.',
+
             'email.unique' => 'Este e-mail já está cadastrado.',
+
             'password.required' => 'Informe uma senha.',
+
             'password.min' => 'A senha deve possuir no mínimo 8 caracteres.',
+
             'role.required' => 'Selecione um perfil.',
         ];
     }

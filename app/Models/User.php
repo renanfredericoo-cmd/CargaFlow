@@ -10,7 +10,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-
 #[Fillable([
     'name',
     'email',
@@ -28,21 +27,14 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-
-
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-
             'password' => 'hashed',
-
             'active' => 'boolean',
         ];
     }
-
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -50,23 +42,40 @@ class User extends Authenticatable
     |--------------------------------------------------------------------------
     */
 
-
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
+    public function podePedidos(): bool
+    {
+        return in_array($this->role, [
+            'admin',
+            'pedidos',
+        ]);
+    }
 
+    public function podeAgendamento(): bool
+    {
+        return in_array($this->role, [
+            'admin',
+            'agendamento',
+        ]);
+    }
 
-
-
+    public function podeCarregamento(): bool
+    {
+        return in_array($this->role, [
+            'admin',
+            'carregamento',
+        ]);
+    }
 
     /*
     |--------------------------------------------------------------------------
     | Relacionamentos
     |--------------------------------------------------------------------------
     */
-
 
     public function completedTasks(): HasMany
     {
@@ -75,5 +84,4 @@ class User extends Authenticatable
             'completed_by'
         );
     }
-
 }

@@ -240,15 +240,7 @@ export default function Detalhes({ pedido }: Props) {
 
 
 
-                        <div>
-
-                            <strong>Motorista:</strong>
-
-                            <br />
-
-                            {pedido.motorista ?? "-"}
-
-                        </div>
+                        
 
 
 

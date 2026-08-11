@@ -27,7 +27,7 @@ export default function Users({ users }: Props) {
     email: '',
     password: '',
     password_confirmation: '',
-    role: 'funcionario',
+    role: 'pedidos',
     active: true,
 });
 
@@ -158,10 +158,16 @@ export default function Users({ users }: Props) {
                                 </td>
 
                                 <td className="p-4">
-                                    {user.role === 'admin'
-                                        ? 'Administrador'
-                                        : 'Funcionário'}
-                                </td>
+    {user.role === 'admin'
+        ? 'Administrador'
+        : user.role === 'pedidos'
+            ? 'Pedidos'
+            : user.role === 'agendamento'
+                ? 'Agendamento'
+                : user.role === 'carregamento'
+                    ? 'Carregamento'
+                    : 'Funcionário'}
+</td>
 
                                 <td className="p-4">
 
@@ -310,12 +316,20 @@ export default function Users({ users }: Props) {
                         >
 
                             <option value="admin">
-                                Administrador
-                            </option>
+    Administrador
+</option>
 
-                            <option value="funcionario">
-                                Funcionário
-                            </option>
+<option value="pedidos">
+    Pedidos
+</option>
+
+<option value="agendamento">
+    Agendamento
+</option>
+
+<option value="carregamento">
+    Carregamento
+</option>
 
                         </Select>
 

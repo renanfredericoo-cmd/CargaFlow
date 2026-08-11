@@ -301,12 +301,11 @@ setData(
                         error={errors.tipo_frete}
 
                         onChange={(e) =>
-                            setData(
-                                "tipo_frete",
-                                e.target.value
-                            )
-                        }
-
+    setData(
+        "observacoes",
+        e.currentTarget.value
+    )
+}
                     >
 
                         <option value="CIF">
@@ -329,21 +328,55 @@ setData(
 
 
                 <Input
+    label="Vendedor"
+    value={data.vendedor}
+    error={errors.vendedor}
+    onChange={(e) =>
+        setData(
+            "vendedor",
+            e.target.value
+        )
+    }
+/>
 
-                    label="Vendedor"
+<div className="mb-4">
+    <label className="mb-2 block text-sm text-gray-300 font-medium">
+        Observações
+    </label>
 
-                    value={data.vendedor}
+    <textarea
+        rows={4}
+        value={data.observacoes}
+        onChange={(e) =>
+            setData(
+                "observacoes",
+                e.target.value
+            )
+        }
+        className="
+            w-full
+            rounded-lg
+            border
+            bg-white
+            px-4
+            py-3
+            text-sm
+            text-gray-900
+            outline-none
+            transition
+            focus:border-blue-500
+            dark:bg-neutral-900
+            dark:border-neutral-700
+            dark:text-white
+        "
+    />
 
-                    error={errors.vendedor}
-
-                    onChange={(e) =>
-                        setData(
-                            "vendedor",
-                            e.target.value
-                        )
-                    }
-
-                />
+    {errors.observacoes && (
+        <p className="mt-1 text-sm text-red-500">
+            {errors.observacoes}
+        </p>
+    )}
+</div>
 
 
 

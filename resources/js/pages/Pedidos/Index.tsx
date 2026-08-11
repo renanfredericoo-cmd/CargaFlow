@@ -8,6 +8,7 @@ import EmptyState from "./Components/EmptyState";
 import PedidoTable from "./Components/PedidoTable";
 import PedidoModal from "./Components/PedidoModal";
 import EditarPedidoModal from "./Components/EditarPedidoModal";
+import EditarTransportadoraModal from "./Components/EditarTransportadoraModal";
 import AgendarPedidoModal from "./Components/AgendarPedidoModal";
 import CarregarPedidoModal from "./Components/CarregarPedidoModal";
 import FaturarPedidoModal from "./Components/FaturarPedidoModal";
@@ -91,6 +92,10 @@ export default function Index({
         useState<Pedido | null>(null);
 
 
+        const [pedidoEditandoTransportadora, setPedidoEditandoTransportadora] =
+    useState<Pedido | null>(null);
+
+
 
     const [pedidoAgendando, setPedidoAgendando] =
         useState<Pedido | null>(null);
@@ -104,6 +109,10 @@ export default function Index({
 
     const [pedidoFaturando, setPedidoFaturando] =
         useState<Pedido | null>(null);
+
+
+        const [pedidoReplicando, setPedidoReplicando] =
+    useState<Pedido | null>(null);
 
 
 
@@ -254,6 +263,13 @@ function limparPeriodo() {
 
     }
 
+    
+
+
+    function editarTransportadora(pedido: Pedido) {
+    setPedidoEditandoTransportadora(pedido);
+}
+
 
 
 
@@ -289,6 +305,13 @@ function limparPeriodo() {
         setPedidoFaturando(pedido);
 
     }
+
+
+    function replicarPedido(pedido: Pedido) {
+
+    setPedidoReplicando(pedido);
+
+}
 
 
 
@@ -557,7 +580,13 @@ function limparPeriodo() {
                         isAdmin={auth.user?.role === "admin"}
 
 
+                        userRole={auth.user?.role}
+
+
                         onEditar={editarPedido}
+
+
+                        onEditarTransportadora={editarTransportadora}
 
 
                         onAgendar={agendarPedido}
@@ -578,6 +607,9 @@ function limparPeriodo() {
                         onExcluir={excluirPedido}
 
 
+                        onReplicar={replicarPedido}
+
+
 
                     />
 
@@ -595,20 +627,20 @@ function limparPeriodo() {
 
                 <PedidoModal
 
+    show={showModal || pedidoReplicando !== null}
 
-                    show={showModal}
+    onClose={() => {
+        setShowModal(false);
+        setPedidoReplicando(null);
+    }}
 
+    produtos={produtos}
 
-                    onClose={() => setShowModal(false)}
+    clientes={clientes}
 
+    pedidoReplicar={pedidoReplicando}
 
-                    produtos={produtos}
-
-
-                    clientes={clientes}
-
-
-                />
+/>
 
 
 
@@ -684,6 +716,11 @@ function limparPeriodo() {
 
 
                 />
+
+                <EditarTransportadoraModal
+    pedido={pedidoEditandoTransportadora}
+    onClose={() => setPedidoEditandoTransportadora(null)}
+/>
 
 
 
