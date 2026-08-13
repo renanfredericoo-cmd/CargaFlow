@@ -26,12 +26,20 @@ class DashboardController extends Controller
 
         if ($dataInicial && $dataFinal) {
 
-            $query->whereBetween('data', [
-                $dataInicial,
-                $dataFinal,
-            ]);
+    $query->whereBetween('data_entrega', [
+        $dataInicial,
+        $dataFinal,
+    ]);
 
-        }
+} elseif ($dataInicial) {
+
+    $query->whereDate('data_entrega', $dataInicial);
+
+} elseif ($dataFinal) {
+
+    $query->whereDate('data_entrega', $dataFinal);
+
+}
 
 
 

@@ -64,10 +64,10 @@ export default function PedidoModal({
 
 
     useEffect(() => {
-
-        if (!pedidoReplicar) {
-            return;
-        }
+    if (!pedidoReplicar) {
+        setData("tipo_frete", "");
+        return;
+    }
 
 
         setData(
@@ -83,9 +83,11 @@ export default function PedidoModal({
 
 
         setData(
-            "data_entrega",
-            pedidoReplicar.data_entrega ?? ""
-        );
+    "data_entrega",
+    pedidoReplicar.data_entrega
+        ? pedidoReplicar.data_entrega.substring(0, 10)
+        : ""
+);
 
 
         setData(
@@ -122,7 +124,7 @@ export default function PedidoModal({
 
         setData(
             "tipo_frete",
-            pedidoReplicar.tipo_frete ?? "CIF"
+            pedidoReplicar?.tipo_frete ?? ""
         );
 
 
@@ -369,32 +371,28 @@ export default function PedidoModal({
 
 
                     <Select
+    label="Tipo de Frete"
+    value={data.tipo_frete}
+    error={errors.tipo_frete}
+    onChange={(e) =>
+        setData(
+            "tipo_frete",
+            e.target.value as "CIF" | "FOB" | ""
+        )
+    }
+>
+    <option value="">
+        Selecione o tipo de frete
+    </option>
 
-                        label="Tipo de Frete"
+    <option value="CIF">
+        CIF
+    </option>
 
-                        value={data.tipo_frete}
-
-                        error={errors.tipo_frete}
-
-                        onChange={(e) =>
-    setData(
-        "tipo_frete",
-        e.target.value as "CIF" | "FOB"
-    )
-}
-
-                    >
-
-                        <option value="CIF">
-                            CIF
-                        </option>
-
-
-                        <option value="FOB">
-                            FOB
-                        </option>
-
-                    </Select>
+    <option value="FOB">
+        FOB
+    </option>
+</Select>
 
 
                 </div>

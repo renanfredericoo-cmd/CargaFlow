@@ -173,28 +173,33 @@ export default function Index({
 
         const buscaOk =
 
+    pedido.numero_pedido
+        ?.toString()
+        .includes(busca)
 
-            pedido.numero_pedido
-                ?.toString()
-                .includes(busca)
+    ||
 
-            ||
+    pedido.codigo
+        ?.toString()
+        .includes(busca)
 
-            pedido.codigo
-                ?.toString()
-                .includes(busca)
+    ||
 
-            ||
+    nomeCliente
+        .toLowerCase()
+        .includes(busca.toLowerCase())
 
-            nomeCliente
-                .toLowerCase()
-                .includes(busca.toLowerCase())
+    ||
 
-            ||
+    pedido.destino
+        ?.toLowerCase()
+        .includes(busca.toLowerCase())
 
-            pedido.destino
-                ?.toLowerCase()
-                .includes(busca.toLowerCase());
+    ||
+
+    pedido.vendedor
+        ?.toLowerCase()
+        .includes(busca.toLowerCase());
 
 
 
@@ -546,7 +551,7 @@ function limparPeriodo() {
                     onChange={(e) => setBusca(e.target.value)}
 
 
-                    placeholder="🔎 Buscar pedido, cliente ou destino..."
+                    placeholder="🔎 Buscar pedido, cliente, vendedor ou destino..."
 
 
                     className="

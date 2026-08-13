@@ -88,12 +88,15 @@ class PedidoController extends Controller
         ]);
 
         $dados = $request->validated();
+          
 
         $cliente = Cliente::find($dados['cliente_id']);
 
         $dados['cliente'] = $cliente->nome;
 
-        $dados['status'] = Pedido::STATUS_PEDIDO;
+        $dados['status'] = $dados['tipo_frete'] === 'FOB'
+    ? Pedido::STATUS_AGENDADO
+    : Pedido::STATUS_PEDIDO;
 
         $dados['user_id'] = auth()->id();
 
@@ -115,29 +118,42 @@ class PedidoController extends Controller
     */
 
     public function update(PedidoRequest $request, Pedido $pedido)
-    {
-        $this->permitir([
-            'admin',
-            'pedidos',
-        ]);
+{
+    $this->permitir([
+        'admin',
+        'pedidos',
+    ]);
 
-        $dados = $request->validated();
+    $dados = $request->validated();
 
-        if (isset($dados['cliente_id'])) {
-            $cliente = Cliente::find($dados['cliente_id']);
+    if (isset($dados['cliente_id'])) {
+        $cliente = Cliente::find($dados['cliente_id']);
 
-            if ($cliente) {
-                $dados['cliente'] = $cliente->nome;
-            }
+        if ($cliente) {
+            $dados['cliente'] = $cliente->nome;
         }
-
-        $pedido->update($dados);
-
-        return back()->with(
-            'success',
-            'Pedido atualizado com sucesso.'
-        );
     }
+
+if ($pedido->status === Pedido::STATUS_PEDIDO) {
+
+    if (($dados['tipo_frete'] ?? null) === 'FOB') {
+        $dados['status'] = Pedido::STATUS_AGENDADO;
+    }
+
+    if (($dados['tipo_frete'] ?? null) === 'CIF') {
+        $dados['status'] = Pedido::STATUS_PEDIDO;
+    }
+}
+
+    
+
+    $pedido->update($dados);
+
+    return back()->with(
+        'success',
+        'Pedido atualizado com sucesso.'
+    );
+}
 
 
     /*

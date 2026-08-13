@@ -149,7 +149,7 @@ export default function PedidoTable({
 
                                 {/* DATA */}
                                 <td className="px-3 py-1">
-                                    {formatarData(pedido.data)}
+                                    {formatarData(pedido.data_entrega)}
                                 </td>
 
                                 {/* CLIENTE */}

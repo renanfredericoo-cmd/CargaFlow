@@ -72,6 +72,13 @@ export default function StatusPedidoModal({
                             font-weight: bold;
                         }
 
+                        .observacoes {
+                            margin-top: 20px;
+                            padding: 15px;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                        }
+
                         .status {
                             margin-top: 30px;
                             padding: 15px;
@@ -139,7 +146,7 @@ export default function StatusPedidoModal({
                         <div class="campo">
                             <div class="label">Frete</div>
                             <div class="valor">
-                                ${pedido.tipo_frete}
+                                ${pedido.tipo_frete ?? "-"}
                             </div>
                         </div>
 
@@ -157,6 +164,14 @@ export default function StatusPedidoModal({
                             </div>
                         </div>
 
+                    </div>
+
+                    <div class="observacoes">
+                        <strong>Observações</strong>
+
+                        <p>
+                            ${pedido.observacoes ?? "-"}
+                        </p>
                     </div>
 
                     <div class="status">
@@ -243,7 +258,7 @@ export default function StatusPedidoModal({
                         </p>
 
                         <p className="font-semibold">
-                            {pedido.destino}
+                            {pedido.destino ?? "-"}
                         </p>
                     </div>
 
@@ -287,7 +302,7 @@ export default function StatusPedidoModal({
                                     : "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300"
                             }`}
                         >
-                            {pedido.tipo_frete}
+                            {pedido.tipo_frete ?? "-"}
                         </span>
                     </div>
 
@@ -313,6 +328,21 @@ export default function StatusPedidoModal({
 
                 </div>
 
+                {/* OBSERVAÇÕES */}
+
+                <div className="rounded-xl border p-4 dark:border-neutral-700">
+
+                    <p className="mb-2 font-semibold">
+                        Observações
+                    </p>
+
+                    <p className="whitespace-pre-wrap text-sm text-gray-600 dark:text-gray-300">
+                        {pedido.observacoes || "-"}
+                    </p>
+
+                </div>
+
+                {/* ANDAMENTO */}
 
                 <div className="rounded-xl border p-4 dark:border-neutral-700">
 
@@ -377,7 +407,6 @@ export default function StatusPedidoModal({
                     </div>
 
                 </div>
-
 
                 <div className="flex justify-end gap-3">
 

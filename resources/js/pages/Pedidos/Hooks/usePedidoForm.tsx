@@ -30,10 +30,10 @@ export default function usePedidoForm(pedidoReplicar?: Pedido | null) {
             pedidoReplicar?.peso?.toString() ?? "",
 
         tipo_frete:
-            pedidoReplicar?.tipo_frete ?? "CIF",
+            pedidoReplicar?.tipo_frete ?? "",
 
         vendedor:
-            pedidoReplicar?.vendedor ?? "",
+            pedidoReplicar?.vendedor ?? "NB MINERAIS",
 
         observacoes:
             pedidoReplicar?.observacoes ?? "",
