@@ -8,7 +8,6 @@ import {
     X,
     Trash2,
     FileText,
-    Printer,
     Copy,
 } from "lucide-react";
 
@@ -42,34 +41,20 @@ interface Props {
 
 export default function PedidoTable({
     pedidos,
-
     isAdmin,
-
     userRole,
-
     onEditar,
-
     onEditarTransportadora,
-
     onAgendar,
-
     onCarregar,
-
     onFaturar,
-
     onDetalhes,
-
     onCancelar,
-
     onExcluir,
-
     onReplicar,
-
 }: Props) {
 
-
     function formatarData(data?: string) {
-
         if (!data) {
             return "-";
         }
@@ -78,7 +63,6 @@ export default function PedidoTable({
     }
 
     return (
-
         <div className="overflow-hidden rounded-xl border bg-white shadow-sm dark:bg-neutral-900">
 
             <div className="overflow-x-auto">
@@ -89,44 +73,57 @@ export default function PedidoTable({
 
                         <tr>
 
+                            {/* DATA */}
                             <th className="px-3 py-1 font-semibold">
-                                Pedido
+                                Data
                             </th>
 
-                            
-
+                            {/* CLIENTE */}
                             <th className="px-3 py-1 font-semibold">
                                 Cliente
                             </th>
 
+                            {/* DESTINO */}
                             <th className="px-3 py-1 font-semibold">
                                 Destino
                             </th>
 
+                            {/* PRODUTO */}
                             <th className="px-3 py-1 font-semibold">
-    Produto
-</th>
-
-<th className="px-3 py-1 font-semibold">
-    Toneladas
-</th>
-
-<th className="px-3 py-1 font-semibold">
-    Transportadora
-</th>
-
-                            <th className="px-3 py-1 font-semibold">
-                                Data de Entrega
+                                Produto
                             </th>
 
+                            {/* TONELADA */}
                             <th className="px-3 py-1 font-semibold">
-                                Status
+                                Tonelada
                             </th>
 
+                            {/* FRETE */}
+                            <th className="px-3 py-1 font-semibold">
+                                Frete
+                            </th>
+
+                            {/* PEDIDO */}
+                            <th className="px-3 py-1 font-semibold">
+                                Pedido
+                            </th>
+
+                            {/* TRANSPORTADORA */}
+                            <th className="px-3 py-1 font-semibold">
+                                Transportadora
+                            </th>
+
+                            {/* NF-e */}
                             <th className="px-3 py-1 font-semibold">
                                 NF-e
                             </th>
 
+                            {/* STATUS */}
+                            <th className="px-3 py-1 font-semibold">
+                                Status
+                            </th>
+
+                            {/* AÇÕES */}
                             <th className="px-3 py-1 text-right font-semibold">
                                 Ações
                             </th>
@@ -139,27 +136,23 @@ export default function PedidoTable({
 
                         {pedidos.map((pedido) => (
 
-                            
+                            <tr
+                                key={pedido.id}
+                                className={`border-b last:border-none ${
+                                    pedido.status === "Faturado"
+                                        ? "bg-green-100 hover:bg-green-200 dark:bg-green-900/40 dark:hover:bg-green-900/60"
+                                        : pedido.status === "Cancelado"
+                                            ? "bg-red-300 hover:bg-red-400 dark:bg-red-900/70 dark:hover:bg-red-900/80"
+                                            : "hover:bg-gray-50 dark:hover:bg-neutral-800"
+                                }`}
+                            >
 
-                           <tr
-    key={pedido.id}
-    className={`border-b last:border-none ${
-        pedido.status === "Faturado"
-            ? "bg-green-100 hover:bg-green-200 dark:bg-green-900/40 dark:hover:bg-green-900/60"
-            : pedido.status === "Cancelado"
-                ? "bg-red-300 hover:bg-red-400 dark:bg-red-900/70 dark:hover:bg-red-900/80"
-                : "hover:bg-gray-50 dark:hover:bg-neutral-800"
-    }`}
->
-
-                                <td className="px-3 py-1 font-bold">
-
-                                    {pedido.numero_pedido ?? pedido.codigo}
-
+                                {/* DATA */}
+                                <td className="px-3 py-1">
+                                    {formatarData(pedido.data)}
                                 </td>
 
-                                
-
+                                {/* CLIENTE */}
                                 <td className="px-3 py-1">
 
                                     {pedido.cliente &&
@@ -169,36 +162,94 @@ export default function PedidoTable({
 
                                 </td>
 
+                                {/* DESTINO */}
                                 <td className="px-3 py-1">
-
                                     {pedido.destino}
+                                </td>
+
+                                {/* PRODUTO */}
+                                <td className="px-3 py-1">
+                                    {pedido.produto?.descricao ?? "-"}
+                                </td>
+
+                                {/* TONELADA */}
+                                <td className="px-3 py-1">
+
+                                    {pedido.peso != null
+                                        ? `${Number(pedido.peso).toLocaleString(
+                                              "pt-BR",
+                                              {
+                                                  minimumFractionDigits: 2,
+                                                  maximumFractionDigits: 2,
+                                              }
+                                          )} t`
+                                        : "-"
+                                    }
 
                                 </td>
 
-                                <td className="px-3 py-1">
-    {pedido.produto?.descricao ?? "-"}
-</td>
-
-<td className="px-3 py-1">
-    {pedido.peso != null
-        ? `${Number(pedido.peso).toLocaleString("pt-BR", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })} t`
-        : "-"
-    }
-</td>
-
-<td className="px-3 py-1">
-    {pedido.transportadora ?? "-"}
-</td>
-
+                                {/* FRETE */}
                                 <td className="px-3 py-1">
 
-                                    {formatarData(pedido.data_entrega)}
+                                    <span
+                                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                            pedido.tipo_frete === "CIF"
+                                                ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                                                : "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300"
+                                        }`}
+                                    >
+                                        {pedido.tipo_frete}
+                                    </span>
 
                                 </td>
 
+                                {/* PEDIDO */}
+                                <td className="px-3 py-1 text-center font-bold align-middle">
+
+    <button
+        type="button"
+        onClick={() => onDetalhes(pedido)}
+        className="inline-flex flex-col items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+        title="Visualizar pedido"
+    >
+        {(() => {
+            const valor = String(
+                pedido.numero_pedido ?? pedido.codigo ?? ""
+            );
+
+            const partes = valor.split(" - ");
+
+            if (partes.length > 1) {
+                return (
+                    <>
+                        <span className="font-bold">
+                            {partes[0]}
+                        </span>
+
+                        <span className="whitespace-nowrap text-xs font-medium">
+                            {partes.slice(1).join(" - ")}
+                        </span>
+                    </>
+                );
+            }
+
+            return valor;
+        })()}
+    </button>
+
+</td>
+
+                                {/* TRANSPORTADORA */}
+                                <td className="px-3 py-1">
+                                    {pedido.transportadora ?? "-"}
+                                </td>
+
+                                {/* NF-e */}
+                                <td className="px-3 py-1">
+                                    {pedido.numero_nfe ?? "-"}
+                                </td>
+
+                                {/* STATUS */}
                                 <td className="px-3 py-1">
 
                                     <StatusBadge
@@ -207,136 +258,146 @@ export default function PedidoTable({
 
                                 </td>
 
-                                <td className="px-3 py-1">
-
-                                    {pedido.numero_nfe ?? "-"}
-
-                                </td>
-
+                                {/* AÇÕES */}
                                 <td className="px-3 py-1 text-right">
 
                                     <div className="flex justify-end gap-1">
 
-        {pedido.status === "Agendado" && (
-    <>
-        {(userRole === "admin" ||
-            userRole === "pedidos" ||
-            userRole === "agendamento" ||
-            userRole === "carregamento") && (
-            <Button
-                variant="primary"
-                title="Editar transportadora"
-                onClick={() => onEditarTransportadora(pedido)}
-            >
-                <Pencil size={20} />
-            </Button>
-        )}
+                                        {/* AGENDADO */}
+                                        {pedido.status === "Agendado" && (
+                                            <>
+                                                {(userRole === "admin" ||
+                                                    userRole === "pedidos" ||
+                                                    userRole === "agendamento" ||
+                                                    userRole === "carregamento") && (
 
-        {(userRole === "admin" ||
-            userRole === "pedidos" ||
-            userRole === "carregamento") && (
-            <Button
-                variant="success"
-                title="Iniciar carregamento"
-                onClick={() => onCarregar(pedido)}
-            >
-                <Truck size={20} />
-            </Button>
-        )}
-    </>
-)}
+                                                    <Button
+                                                        variant="primary"
+                                                        title="Editar transportadora"
+                                                        onClick={() =>
+                                                            onEditarTransportadora(
+                                                                pedido
+                                                            )
+                                                        }
+                                                    >
+                                                        <Pencil size={20} />
+                                                    </Button>
 
+                                                )}
 
+                                                {(userRole === "admin" ||
+                                                    userRole === "pedidos" ||
+                                                    userRole === "carregamento") && (
 
+                                                    <Button
+                                                        variant="success"
+                                                        title="Iniciar carregamento"
+                                                        onClick={() =>
+                                                            onCarregar(pedido)
+                                                        }
+                                                    >
+                                                        <Truck size={20} />
+                                                    </Button>
 
+                                                )}
+                                            </>
+                                        )}
 
+                                        {/* PEDIDO */}
+                                        {pedido.status === "Pedido" && (
+                                            <>
+                                                {(userRole === "admin" ||
+                                                    userRole === "pedidos") && (
+                                                    <>
+                                                        <Button
+                                                            variant="primary"
+                                                            title="Editar pedido"
+                                                            onClick={() =>
+                                                                onEditar(pedido)
+                                                            }
+                                                        >
+                                                            <Pencil size={20} />
+                                                        </Button>
 
-{pedido.status === "Pedido" && (
-    <>
-        {(userRole === "admin" || userRole === "pedidos") && (
-            <>
-                <Button
-                    variant="primary"
-                    title="Editar pedido"
-                    onClick={() => onEditar(pedido)}
-                >
-                    <Pencil size={20} />
-                </Button>
+                                                        <Button
+                                                            variant="warning"
+                                                            title="Agendar carregamento"
+                                                            onClick={() =>
+                                                                onAgendar(pedido)
+                                                            }
+                                                        >
+                                                            <Calendar size={20} />
+                                                        </Button>
 
-                <Button
-                    variant="warning"
-                    title="Agendar carregamento"
-                    onClick={() => onAgendar(pedido)}
-                >
-                    <Calendar size={20} />
-                </Button>
+                                                        <Button
+                                                            variant="danger"
+                                                            title="Cancelar pedido"
+                                                            onClick={() =>
+                                                                onCancelar(pedido)
+                                                            }
+                                                        >
+                                                            <X size={20} />
+                                                        </Button>
+                                                    </>
+                                                )}
 
-                <Button
-                    variant="danger"
-                    title="Cancelar pedido"
-                    onClick={() => onCancelar(pedido)}
-                >
-                    <X size={20} />
-                </Button>
-            </>
-        )}
+                                                {userRole === "agendamento" && (
+                                                    <Button
+                                                        variant="warning"
+                                                        title="Agendar carregamento"
+                                                        onClick={() =>
+                                                            onAgendar(pedido)
+                                                        }
+                                                    >
+                                                        <Calendar size={20} />
+                                                    </Button>
+                                                )}
+                                            </>
+                                        )}
 
-        {userRole === "agendamento" && (
-            <Button
-                variant="warning"
-                title="Agendar carregamento"
-                onClick={() => onAgendar(pedido)}
-            >
-                <Calendar size={20} />
-            </Button>
-        )}
-    </>
-)}
-
+                                        {/* EM CARREGAMENTO */}
                                         {pedido.status === "Em Carregamento" &&
-    (userRole === "admin" || userRole === "carregamento") && (
+                                            (userRole === "admin" ||
+                                                userRole === "carregamento") && (
+
+                                                <Button
+                                                    variant="success"
+                                                    title="Faturar pedido"
+                                                    onClick={() =>
+                                                        onFaturar(pedido)
+                                                    }
+                                                >
+                                                    <FileText size={20} />
+                                                </Button>
+
+                                            )}
+
+                                        {/* REPLICAR */}
+                                        {(userRole === "admin" ||
+                                            userRole === "pedidos") && (
 
                                             <Button
-    variant="success"
-    title="Faturar pedido"
-    onClick={() => onFaturar(pedido)}
->
-                                                <FileText size={20} />
+                                                variant="secondary"
+                                                title="Replicar pedido"
+                                                onClick={() =>
+                                                    onReplicar(pedido)
+                                                }
+                                            >
+                                                <Copy size={18} />
                                             </Button>
 
                                         )}
 
-                                        {pedido.status === "Faturado" && (
-
-                                            <Button
-    variant="primary"
-    title="Ver detalhes do pedido"
-    onClick={() => onDetalhes(pedido)}
->
-                                                <Printer size={16} />
-                                            </Button>
-
-                                        )}
-
-                                        {(userRole === "admin" || userRole === "pedidos") && (
-    <Button
-        variant="secondary"
-        title="Replicar pedido"
-        onClick={() => onReplicar(pedido)}
-    >
-        <Copy size={18} />
-    </Button>
-)}
-
-
-
+                                        {/* EXCLUIR */}
                                         {isAdmin && (
 
                                             <Button
-    variant="danger"
-    title="Excluir pedido"
-    onClick={() => onExcluir(pedido)}
->
+                                                variant="danger"
+                                                title="Excluir pedido"
+                                                onClick={() =>
+                                                    onExcluir(pedido)
+                                                }
+                                            >
                                                 <Trash2 size={16} />
                                             </Button>
 
@@ -357,6 +418,5 @@ export default function PedidoTable({
             </div>
 
         </div>
-
     );
 }

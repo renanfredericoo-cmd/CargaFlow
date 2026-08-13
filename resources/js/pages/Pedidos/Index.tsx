@@ -12,6 +12,7 @@ import EditarTransportadoraModal from "./Components/EditarTransportadoraModal";
 import AgendarPedidoModal from "./Components/AgendarPedidoModal";
 import CarregarPedidoModal from "./Components/CarregarPedidoModal";
 import FaturarPedidoModal from "./Components/FaturarPedidoModal";
+import StatusPedidoModal from "./Components/StatusPedidoModal";
 
 import type { Pedido } from "@/types/pedido";
 
@@ -109,6 +110,10 @@ export default function Index({
 
     const [pedidoFaturando, setPedidoFaturando] =
         useState<Pedido | null>(null);
+
+
+        const [pedidoVisualizando, setPedidoVisualizando] =
+    useState<Pedido | null>(null);
 
 
         const [pedidoReplicando, setPedidoReplicando] =
@@ -330,6 +335,10 @@ function limparPeriodo() {
 
 
     }
+
+    function visualizarPedido(pedido: Pedido) {
+    setPedidoVisualizando(pedido);
+}
 
 
 
@@ -598,7 +607,7 @@ function limparPeriodo() {
                         onFaturar={faturarPedido}
 
 
-                        onDetalhes={detalhesPedido}
+                        onDetalhes={visualizarPedido}
 
 
                         onCancelar={cancelarPedido}
@@ -720,6 +729,11 @@ function limparPeriodo() {
                 <EditarTransportadoraModal
     pedido={pedidoEditandoTransportadora}
     onClose={() => setPedidoEditandoTransportadora(null)}
+/>
+
+<StatusPedidoModal
+    pedido={pedidoVisualizando}
+    onClose={() => setPedidoVisualizando(null)}
 />
 
 

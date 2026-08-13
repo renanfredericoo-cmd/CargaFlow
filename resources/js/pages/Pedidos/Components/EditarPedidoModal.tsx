@@ -293,20 +293,16 @@ setData(
 
 
                     <Select
-
-                        label="Tipo de Frete"
-
-                        value={data.tipo_frete}
-
-                        error={errors.tipo_frete}
-
-                        onChange={(e) =>
-    setData(
-        "observacoes",
-        e.currentTarget.value
-    )
-}
-                    >
+    label="Tipo de Frete"
+    value={data.tipo_frete}
+    error={errors.tipo_frete}
+    onChange={(e) =>
+        setData(
+            "tipo_frete",
+            e.currentTarget.value as "CIF" | "FOB"
+        )
+    }
+>
 
                         <option value="CIF">
                             CIF
