@@ -13,7 +13,7 @@ export default function StatusBadge({ status }: Props) {
 
 
         Agendado:
-            "bg-yellow-100 text-yellow-800",
+            "bg-yellow-200 text-yellow-900",
 
 
         "Em Carregamento":

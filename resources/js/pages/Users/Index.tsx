@@ -165,8 +165,10 @@ export default function Users({ users }: Props) {
             : user.role === 'agendamento'
                 ? 'Agendamento'
                 : user.role === 'carregamento'
-                    ? 'Carregamento'
-                    : 'Funcionário'}
+    ? 'Carregamento'
+    : user.role === 'vendedor'
+        ? 'Vendedor'
+        : 'Funcionário'}
 </td>
 
                                 <td className="p-4">
@@ -329,6 +331,10 @@ export default function Users({ users }: Props) {
 
 <option value="carregamento">
     Carregamento
+</option>
+
+<option value="vendedor">
+    Vendedor
 </option>
 
                         </Select>

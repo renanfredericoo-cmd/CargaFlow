@@ -787,22 +787,29 @@ export default function Dashboard({
 
 
                                                 <span
-
-                                                    className="
-                                                        rounded-full
-                                                        bg-blue-100
-                                                        px-3
-                                                        py-1
-                                                        text-xs
-                                                        font-semibold
-                                                        text-blue-700
-                                                    "
-
-                                                >
-
-                                                    {pedido.status}
-
-                                                </span>
+    className={`
+        rounded-full
+        px-3
+        py-1
+        text-xs
+        font-semibold
+        ${
+            pedido.status === "Pedido"
+                ? "bg-blue-100 text-blue-700"
+                : pedido.status === "Agendado"
+                  ? "bg-yellow-200 text-yellow-900"
+                    : pedido.status === "Em Carregamento"
+                        ? "bg-cyan-100 text-cyan-700"
+                        : pedido.status === "Faturado"
+                            ? "bg-green-100 text-green-700"
+                            : pedido.status === "Cancelado"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-gray-100 text-gray-700"
+        }
+    `}
+>
+    {pedido.status}
+</span>
 
 
                                             </td>

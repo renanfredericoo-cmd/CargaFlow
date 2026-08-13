@@ -8,6 +8,7 @@ use App\Models\Produto;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\User;
 
 class PedidoController extends Controller
 {
@@ -39,6 +40,13 @@ class PedidoController extends Controller
             'cliente',
         ]);
 
+        if (auth()->user()->role === 'vendedor') {
+    $query->whereRaw(
+        'LOWER(vendedor) = LOWER(?)',
+        [auth()->user()->name]
+    );
+}
+
         if (
             $request->filled('data_inicial') &&
             $request->filled('data_final')
@@ -66,11 +74,21 @@ class PedidoController extends Controller
             ->orderBy('nome')
             ->get();
 
+        $vendedores = User::where('role', 'vendedor')
+    ->where('active', true)
+    ->orderBy('name')
+    ->get([
+        'id',
+        'name',
+    ]);
+
+
         return Inertia::render('Pedidos/Index', [
-            'pedidos' => $pedidos,
-            'produtos' => $produtos,
-            'clientes' => $clientes,
-        ]);
+    'pedidos' => $pedidos,
+    'produtos' => $produtos,
+    'clientes' => $clientes,
+    'vendedores' => $vendedores,
+]);
     }
 
 

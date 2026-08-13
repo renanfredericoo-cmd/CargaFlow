@@ -35,9 +35,9 @@ class StoreUserRequest extends FormRequest
             ],
 
             'role' => [
-                'required',
-                'in:admin,pedidos,agendamento,carregamento'
-            ],
+    'required',
+    'in:admin,pedidos,agendamento,carregamento,vendedor'
+],
         ];
     }
 

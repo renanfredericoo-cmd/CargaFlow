@@ -22,6 +22,13 @@ class DashboardController extends Controller
 
         $query = Pedido::query();
 
+        if ($user->role === 'vendedor') {
+    $query->whereRaw(
+        'LOWER(vendedor) = LOWER(?)',
+        [$user->name]
+    );
+}
+
 
 
         if ($dataInicial && $dataFinal) {

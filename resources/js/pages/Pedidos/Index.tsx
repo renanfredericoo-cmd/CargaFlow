@@ -46,6 +46,10 @@ interface Cliente {
 
 }
 
+interface Vendedor {
+    id: number;
+    name: string;
+}
 
 
 
@@ -58,6 +62,8 @@ interface Props {
 
     clientes: Cliente[];
 
+    vendedores: Vendedor[];
+
 }
 
 
@@ -68,13 +74,10 @@ interface Props {
 
 
 export default function Index({
-
     pedidos,
-
     produtos,
-
     clientes,
-
+    vendedores,
 }: Props) {
 
 
@@ -640,7 +643,6 @@ function limparPeriodo() {
 
 
                 <PedidoModal
-
     show={showModal || pedidoReplicando !== null}
 
     onClose={() => {
@@ -652,8 +654,9 @@ function limparPeriodo() {
 
     clientes={clientes}
 
-    pedidoReplicar={pedidoReplicando}
+    vendedores={vendedores}
 
+    pedidoReplicar={pedidoReplicando}
 />
 
 

@@ -71,7 +71,7 @@ class UserController extends Controller
 
             'role' => [
     'required',
-    'in:admin,pedidos,agendamento,carregamento'
+    'in:admin,pedidos,agendamento,carregamento,vendedor'
 ],
 
             'active' => [

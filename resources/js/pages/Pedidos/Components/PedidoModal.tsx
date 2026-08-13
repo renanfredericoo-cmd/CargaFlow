@@ -25,32 +25,39 @@ interface Cliente {
     ativo: boolean;
 }
 
+interface Vendedor {
+    id: number;
+    name: string;
+}
 
 interface Props {
     show: boolean;
-
     onClose: () => void;
-
     produtos?: Produto[];
-
     clientes?: Cliente[];
+    vendedores?: Vendedor[];
+    pedidoReplicar?: Pedido | null;
+}
 
+
+
+interface Props {
+    show: boolean;
+    onClose: () => void;
+    produtos?: Produto[];
+    clientes?: Cliente[];
+    vendedores?: Vendedor[];
     pedidoReplicar?: Pedido | null;
 }
 
 
 export default function PedidoModal({
-
     show,
-
     onClose,
-
     produtos = [],
-
     clientes = [],
-
+    vendedores = [],
     pedidoReplicar = null,
-
 }: Props) {
 
 
@@ -398,22 +405,33 @@ export default function PedidoModal({
                 </div>
 
 
-                <Input
+                <Select
+    label="Vendedor"
+    value={data.vendedor}
+    error={errors.vendedor}
+    onChange={(e) =>
+        setData("vendedor", e.target.value)
+    }
+>
+    <option value="">
+        Selecione o vendedor
+    </option>
 
-                    label="Vendedor"
+    <option value="NB MINERAIS">
+        NB MINERAIS
+    </option>
 
-                    value={data.vendedor}
-
-                    error={errors.vendedor}
-
-                    onChange={(e) =>
-                        setData(
-                            "vendedor",
-                            e.target.value
-                        )
-                    }
-
-                />
+    {vendedores
+        .filter((vendedor) => vendedor.name !== "NB MINERAIS")
+        .map((vendedor) => (
+            <option
+                key={vendedor.id}
+                value={vendedor.name}
+            >
+                {vendedor.name}
+            </option>
+        ))}
+</Select>
 
 
                 <div className="mb-4">
