@@ -6,32 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('pedidos', function (Blueprint $table) {
-
-            $table->foreignId('produto_id')
-                ->nullable()
-                ->after('destino');
-
-        });
+        if (!Schema::hasColumn('pedidos', 'produto_id')) {
+            Schema::table('pedidos', function (Blueprint $table) {
+                $table->foreignId('produto_id')
+                    ->nullable()
+                    ->after('destino');
+            });
+        }
     }
 
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('pedidos', function (Blueprint $table) {
-
-            $table->dropColumn('produto_id');
-
-        });
+        if (Schema::hasColumn('pedidos', 'produto_id')) {
+            Schema::table('pedidos', function (Blueprint $table) {
+                $table->dropColumn('produto_id');
+            });
+        }
     }
-
 };
