@@ -28,7 +28,9 @@ return new class extends Migration
 
             $table->string('destino');
 
-            $table->string('produto');
+            $table->foreignId('produto_id')
+    ->constrained('produtos')
+    ->cascadeOnDelete();
 
             $table->decimal('peso', 10, 2);
 
@@ -49,15 +51,17 @@ return new class extends Migration
 
             $table->enum('status', [
 
-                Pedido::STATUS_PROGRAMADO,
+    Pedido::STATUS_PEDIDO,
 
-                Pedido::STATUS_CARREGAMENTO,
+    Pedido::STATUS_AGENDADO,
 
-                Pedido::STATUS_FATURADO,
+    Pedido::STATUS_CARREGAMENTO,
 
-                Pedido::STATUS_CANCELADO,
+    Pedido::STATUS_FATURADO,
 
-            ])->default(Pedido::STATUS_PROGRAMADO);
+    Pedido::STATUS_CANCELADO,
+
+])->default(Pedido::STATUS_PEDIDO);
 
             /*
             |--------------------------------------------------------------------------
