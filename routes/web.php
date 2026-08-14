@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::inertia('/', 'welcome')
+Route::redirect('/', '/login');
     ->name('home');
 
 
