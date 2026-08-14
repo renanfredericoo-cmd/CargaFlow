@@ -276,12 +276,10 @@ $pedidos->getCollection()->each(
 
         Pedido::create($dados);
 
-        return redirect()
-            ->route('pedidos.index')
-            ->with(
-                'success',
-                'Pedido cadastrado com sucesso.'
-            );
+        return back()->with(
+    'success',
+    'Pedido cadastrado com sucesso.'
+);
     }
 
 

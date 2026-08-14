@@ -58,6 +58,7 @@ export default function PedidoModal({
     clientes = [],
     vendedores = [],
     pedidoReplicar = null,
+    filtroStatus = "Todos",
 }: Props) {
 
 

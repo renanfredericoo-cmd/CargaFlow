@@ -56,9 +56,9 @@ export default function usePedidoForm(pedidoReplicar?: Pedido | null) {
 
         form.post("/pedidos", {
 
-            preserveScroll: true,
+    preserveScroll: true,
 
-            onSuccess: () => {
+    onSuccess: () => {
 
                 form.reset();
 
@@ -88,19 +88,19 @@ export default function usePedidoForm(pedidoReplicar?: Pedido | null) {
 
     function agendar(id: number, onSuccess?: () => void) {
 
-        form.put(`/pedidos/${id}/agendar`, {
+    form.put(`/pedidos/${id}/agendar`, {
 
-            preserveScroll: true,
+        preserveScroll: true,
 
-            onSuccess: () => {
+        onSuccess: () => {
 
-                onSuccess?.();
+            onSuccess?.();
 
-            },
+        },
 
-        });
+    });
 
-    }
+}
 
     function programar(id: number, onSuccess?: () => void) {
 

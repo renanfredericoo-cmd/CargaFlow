@@ -136,6 +136,26 @@ export default function Index({
     return () => clearTimeout(timer);
 }, [busca]);
 
+useEffect(() => {
+    const intervalo = setInterval(() => {
+        carregarPedidos(
+            filtroStatus,
+            busca,
+            dataInicial,
+            dataFinal,
+            pedidos.current_page
+        );
+    }, 5000);
+
+    return () => clearInterval(intervalo);
+}, [
+    filtroStatus,
+    busca,
+    dataInicial,
+    dataFinal,
+    pedidos.current_page,
+]);
+
 
     /*
     |--------------------------------------------------------------------------
@@ -663,6 +683,7 @@ export default function Index({
                     pedidoReplicar={
                         pedidoReplicando
                     }
+
                 />
 
 
