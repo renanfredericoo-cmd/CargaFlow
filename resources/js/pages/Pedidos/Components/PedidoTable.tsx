@@ -74,9 +74,9 @@ export default function PedidoTable({
                         <tr>
 
                             {/* DATA */}
-                            <th className="px-3 py-1 font-semibold">
-                                Data
-                            </th>
+<th className="px-3 py-1 font-semibold">
+    Data de Entrega
+</th>
 
                             {/* CLIENTE */}
                             <th className="px-3 py-1 font-semibold">
@@ -138,7 +138,7 @@ export default function PedidoTable({
 
                             <tr
                                 key={pedido.id}
-                                className={`border-b last:border-none ${
+                                className={`border-b last:border-none leading-tight ${
                                     pedido.status === "Faturado"
                                         ? "bg-green-100 hover:bg-green-200 dark:bg-green-900/40 dark:hover:bg-green-900/60"
                                         : pedido.status === "Cancelado"
@@ -209,7 +209,7 @@ export default function PedidoTable({
     <button
         type="button"
         onClick={() => onDetalhes(pedido)}
-        className="inline-flex flex-col items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+        className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
         title="Visualizar pedido"
     >
         {(() => {
@@ -261,47 +261,60 @@ export default function PedidoTable({
                                 {/* AÇÕES */}
                                 <td className="px-3 py-1 text-right">
 
-                                    <div className="flex justify-end gap-1">
+                                    <div className="flex justify-end gap-1 [&>button]:!py-1">
 
                                         {/* AGENDADO */}
-                                        {pedido.status === "Agendado" && (
-                                            <>
-                                                {(userRole === "admin" ||
-                                                    userRole === "pedidos" ||
-                                                    userRole === "agendamento" ||
-                                                    userRole === "carregamento") && (
+{pedido.status === "Agendado" && (
+    <>
+        {(userRole === "admin" ||
+            userRole === "pedidos" ||
+            userRole === "agendamento" ||
+            userRole === "carregamento") && (
 
-                                                    <Button
-                                                        variant="primary"
-                                                        title="Editar transportadora"
-                                                        onClick={() =>
-                                                            onEditarTransportadora(
-                                                                pedido
-                                                            )
-                                                        }
-                                                    >
-                                                        <Pencil size={20} />
-                                                    </Button>
+            <Button
+                variant="primary"
+                title="Editar transportadora"
+                onClick={() =>
+                    onEditarTransportadora(pedido)
+                }
+            >
+                <Pencil size={20} />
+            </Button>
 
-                                                )}
+        )}
 
-                                                {(userRole === "admin" ||
-                                                    userRole === "pedidos" ||
-                                                    userRole === "carregamento") && (
+        {(userRole === "admin" ||
+            userRole === "pedidos" ||
+            userRole === "carregamento") && (
 
-                                                    <Button
-                                                        variant="success"
-                                                        title="Iniciar carregamento"
-                                                        onClick={() =>
-                                                            onCarregar(pedido)
-                                                        }
-                                                    >
-                                                        <Truck size={20} />
-                                                    </Button>
+            <Button
+                variant="success"
+                title="Iniciar carregamento"
+                onClick={() =>
+                    onCarregar(pedido)
+                }
+            >
+                <Truck size={20} />
+            </Button>
 
-                                                )}
-                                            </>
-                                        )}
+        )}
+
+        {(userRole === "admin" ||
+            userRole === "pedidos") && (
+
+            <Button
+                variant="danger"
+                title="Cancelar pedido"
+                onClick={() =>
+                    onCancelar(pedido)
+                }
+            >
+                <X size={20} />
+            </Button>
+
+        )}
+    </>
+)}
 
                                         {/* PEDIDO */}
                                         {pedido.status === "Pedido" && (

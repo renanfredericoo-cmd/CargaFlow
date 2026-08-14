@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Head, router, usePage } from "@inertiajs/react";
 
@@ -17,34 +17,21 @@ import StatusPedidoModal from "./Components/StatusPedidoModal";
 import type { Pedido } from "@/types/pedido";
 
 
-
 interface Produto {
-
     id: number;
-
     descricao: string;
-
     ativo: boolean;
-
 }
-
-
-
 
 
 interface Cliente {
-
     id: number;
-
     nome: string;
-
     cidade: string;
-
     estado: string;
-
     ativo: boolean;
-
 }
+
 
 interface Vendedor {
     id: number;
@@ -52,25 +39,31 @@ interface Vendedor {
 }
 
 
-
-
-interface Props {
-
-    pedidos: Pedido[];
-
-    produtos: Produto[];
-
-    clientes: Cliente[];
-
-    vendedores: Vendedor[];
-
+interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
 }
 
 
+interface PaginatedPedidos {
+    data: Pedido[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+    links: PaginationLink[];
+}
 
 
-
-
+interface Props {
+    pedidos: PaginatedPedidos;
+    produtos: Produto[];
+    clientes: Cliente[];
+    vendedores: Vendedor[];
+}
 
 
 export default function Index({
@@ -80,344 +73,286 @@ export default function Index({
     vendedores,
 }: Props) {
 
-
-
     const { auth } = usePage().props as any;
 
 
-
-
-
     const [showModal, setShowModal] = useState(false);
-
 
 
     const [pedidoEditando, setPedidoEditando] =
         useState<Pedido | null>(null);
 
 
-        const [pedidoEditandoTransportadora, setPedidoEditandoTransportadora] =
-    useState<Pedido | null>(null);
-
+    const [pedidoEditandoTransportadora, setPedidoEditandoTransportadora] =
+        useState<Pedido | null>(null);
 
 
     const [pedidoAgendando, setPedidoAgendando] =
         useState<Pedido | null>(null);
 
 
-
     const [pedidoCarregando, setPedidoCarregando] =
         useState<Pedido | null>(null);
-
 
 
     const [pedidoFaturando, setPedidoFaturando] =
         useState<Pedido | null>(null);
 
 
-        const [pedidoVisualizando, setPedidoVisualizando] =
-    useState<Pedido | null>(null);
-
-
-        const [pedidoReplicando, setPedidoReplicando] =
-    useState<Pedido | null>(null);
-
-
-
-
-
-    const [filtroStatus, setFiltroStatus] = useState("Todos");
-
-
-
-    const [busca, setBusca] = useState("");
-
-    const [dataInicial, setDataInicial] = useState("");
-
-    const [dataFinal, setDataFinal] = useState("");
-
-
-
-
-
-
-
-
-
-    const pedidosFiltrados = pedidos.filter((pedido) => {
-
-
-
-        const statusOk =
-
-            filtroStatus === "Todos" ||
-
-            pedido.status === filtroStatus;
-
-
-
-
-
-
-
-        const nomeCliente =
-
-            typeof pedido.cliente === "object"
-
-                ? pedido.cliente?.nome ?? ""
-
-                : pedido.cliente ?? "";
-
-
-
-
-
-
-
-        const buscaOk =
-
-    pedido.numero_pedido
-        ?.toString()
-        .includes(busca)
-
-    ||
-
-    pedido.codigo
-        ?.toString()
-        .includes(busca)
-
-    ||
-
-    nomeCliente
-        .toLowerCase()
-        .includes(busca.toLowerCase())
-
-    ||
-
-    pedido.destino
-        ?.toLowerCase()
-        .includes(busca.toLowerCase())
-
-    ||
-
-    pedido.vendedor
-        ?.toLowerCase()
-        .includes(busca.toLowerCase());
-
-
-
-
-
-
-
-        return statusOk && buscaOk;
-
-
-
-    });
-
-
-function filtrarPeriodo() {
-
-    router.get(
-        "/pedidos",
-        {
-            data_inicial: dataInicial,
-            data_final: dataFinal,
-        },
-        {
-            preserveState: true,
-            replace: true,
-        }
-    );
-
-}
-
-
-
-
-function limparPeriodo() {
-
-    setDataInicial("");
-
-    setDataFinal("");
-
-    router.get(
-        "/pedidos",
-        {},
-        {
-            preserveState: true,
-            replace: true,
-        }
-    );
-
-}
-
-
-
-
-
-
-    function abrirModal() {
-
-        setShowModal(true);
-
+    const [pedidoVisualizando, setPedidoVisualizando] =
+        useState<Pedido | null>(null);
+
+
+    const [pedidoReplicando, setPedidoReplicando] =
+        useState<Pedido | null>(null);
+
+
+    const [filtroStatus, setFiltroStatus] =
+        useState("Todos");
+
+
+    const [busca, setBusca] =
+        useState("");
+
+
+    const [dataInicial, setDataInicial] =
+        useState("");
+
+
+    const [dataFinal, setDataFinal] =
+        useState("");
+
+        useEffect(() => {
+    const timer = setTimeout(() => {
+        carregarPedidos(
+            filtroStatus,
+            busca,
+            dataInicial,
+            dataFinal,
+            1
+        );
+    }, 500);
+
+    return () => clearTimeout(timer);
+}, [busca]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Carregar pedidos com filtros
+    |--------------------------------------------------------------------------
+    */
+
+    function carregarPedidos(
+        status = filtroStatus,
+        termo = busca,
+        inicial = dataInicial,
+        final = dataFinal,
+        page = 1
+    ) {
+
+        router.get(
+            "/pedidos",
+            {
+                status,
+                busca: termo,
+                data_inicial: inicial,
+                data_final: final,
+                page,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            }
+        );
     }
 
 
-
-
-
-
-
-    function editarPedido(pedido: Pedido) {
-
-        setPedidoEditando(pedido);
-
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Busca
+    |--------------------------------------------------------------------------
+    */
 
     
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Filtro de status
+    |--------------------------------------------------------------------------
+    */
+
+    function alterarStatus(status: string) {
+
+        setFiltroStatus(status);
+
+        carregarPedidos(
+            status,
+            busca,
+            dataInicial,
+            dataFinal,
+            1
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Filtro de período
+    |--------------------------------------------------------------------------
+    */
+
+    function filtrarPeriodo() {
+
+        carregarPedidos(
+            filtroStatus,
+            busca,
+            dataInicial,
+            dataFinal,
+            1
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Limpar filtros
+    |--------------------------------------------------------------------------
+    */
+
+    function limparPeriodo() {
+
+        setDataInicial("");
+        setDataFinal("");
+
+        carregarPedidos(
+            filtroStatus,
+            busca,
+            "",
+            "",
+            1
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Ações
+    |--------------------------------------------------------------------------
+    */
+
+    function abrirModal() {
+        setShowModal(true);
+    }
+
+
+    function editarPedido(pedido: Pedido) {
+        setPedidoEditando(pedido);
+    }
+
+
     function editarTransportadora(pedido: Pedido) {
-    setPedidoEditandoTransportadora(pedido);
-}
-
-
-
-
-
+        setPedidoEditandoTransportadora(pedido);
+    }
 
 
     function agendarPedido(pedido: Pedido) {
-
         setPedidoAgendando(pedido);
-
     }
-
-
-
-
-
 
 
     function carregarPedido(pedido: Pedido) {
-
         setPedidoCarregando(pedido);
-
     }
 
 
-
-
-
-
-
     function faturarPedido(pedido: Pedido) {
-
         setPedidoFaturando(pedido);
-
     }
 
 
     function replicarPedido(pedido: Pedido) {
-
-    setPedidoReplicando(pedido);
-
-}
-
-
-
-
-
+        setPedidoReplicando(pedido);
+    }
 
 
     function detalhesPedido(pedido: Pedido) {
 
-
         router.get(
-
             `/pedidos/${pedido.id}/detalhes`
-
         );
-
-
     }
 
+
     function visualizarPedido(pedido: Pedido) {
-    setPedidoVisualizando(pedido);
-}
-
-
-
-
-
+        setPedidoVisualizando(pedido);
+    }
 
 
     function cancelarPedido(pedido: Pedido) {
 
-
-        if (!confirm("Deseja cancelar este pedido?")) {
-
-            return;
-
-        }
-
-
-        router.patch(
-
-            `/pedidos/${pedido.id}/cancelar`
-
-        );
-
-
+    if (!confirm("Deseja cancelar este pedido?")) {
+        return;
     }
 
-
-
-
-
+    router.patch(
+        `/pedidos/${pedido.id}/cancelar`,
+        {},
+        {
+            onSuccess: () => {
+                router.reload({
+                    only: ["pedidos"],
+                });
+            },
+        }
+    );
+}
 
 
     function excluirPedido(pedido: Pedido) {
 
-
         if (!confirm("Deseja realmente excluir este pedido?")) {
-
             return;
-
         }
 
-
         router.delete(
-
             `/pedidos/${pedido.id}`
-
         );
-
-
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Paginação
+    |--------------------------------------------------------------------------
+    */
 
+    function irParaPagina(url: string | null) {
 
+        if (!url) {
+            return;
+        }
 
-
-
+        router.get(
+            url,
+            {},
+            {
+                preserveState: true,
+                preserveScroll: false,
+                replace: true,
+            }
+        );
+    }
 
 
     return (
-
         <>
-
             <Head title="Pedidos" />
 
 
-
             <div className="p-2">
-
-
-
 
 
                 <div className="
@@ -431,326 +366,398 @@ function limparPeriodo() {
                 ">
 
 
-
                     <div>
 
-
                         <h1 className="text-xl font-bold">
-
                             📦 Pedidos
-
                         </h1>
 
 
                         <p className="text-xs text-gray-500">
-
                             Gerencie todos os pedidos de carregamento.
-
                         </p>
-
 
                     </div>
 
 
-
-
-
                     <Button
-
                         variant="primary"
-
                         onClick={() => setShowModal(true)}
-
                     >
-
                         + Novo Pedido
-
                     </Button>
-
 
 
                 </div>
 
-<div className="mb-3 flex flex-col gap-3 md:flex-row md:flex-wrap">
 
-    <select
-        value={filtroStatus}
-        onChange={(e) => setFiltroStatus(e.target.value)}
-        className="rounded-md border px-3 py-2 dark:bg-neutral-900"
-    >
-        <option value="Todos">
-            Todos
-        </option>
+                <div className="mb-3 flex flex-col gap-3 md:flex-row md:flex-wrap">
 
-        <option value="Pedido">
-            Pedido
-        </option>
 
-        <option value="Agendado">
-            Agendado
-        </option>
+                    <select
+                        value={filtroStatus}
+                        onChange={(e) =>
+                            alterarStatus(e.target.value)
+                        }
+                        className="rounded-md border px-3 py-2 dark:bg-neutral-900"
+                    >
 
-        <option value="Em Carregamento">
-            Em Carregamento
-        </option>
+                        <option value="Todos">
+                            Todos
+                        </option>
 
-        <option value="Faturado">
-            Faturado
-        </option>
+                        <option value="Pedido">
+                            Pedido
+                        </option>
 
-        <option value="Cancelado">
-            Cancelado
-        </option>
+                        <option value="Agendado">
+                            Agendado
+                        </option>
 
-    </select>
+                        <option value="Em Carregamento">
+                            Em Carregamento
+                        </option>
 
+                        <option value="Faturado">
+                            Faturado
+                        </option>
 
-    <input
-    type="date"
-    value={dataInicial}
-    onChange={(e) => setDataInicial(e.target.value)}
-    className="rounded-md border px-3 py-2 bg-white dark:bg-neutral-900"
-/>
+                        <option value="Cancelado">
+                            Cancelado
+                        </option>
 
+                    </select>
 
-    <input
-    type="date"
-    value={dataFinal}
-    onChange={(e) => setDataFinal(e.target.value)}
-    className="rounded-md border px-3 py-2 bg-white dark:bg-neutral-900"
-/>
 
-
-    <Button
-        variant="primary"
-        onClick={filtrarPeriodo}
-    >
-        Filtrar
-    </Button>
-
-
-    <Button
-        variant="secondary"
-        onClick={limparPeriodo}
-    >
-        Limpar
-    </Button>
-
-</div>
-
-
-
-
-
-                <input
-
-
-                    type="text"
-
-
-                    value={busca}
-
-
-                    onChange={(e) => setBusca(e.target.value)}
-
-
-                    placeholder="🔎 Buscar pedido, cliente, vendedor ou destino..."
-
-
-                    className="
-                        w-full
-                        rounded-md
-                        border
-                        px-3
-                        py-2
-                        text-sm
-                        dark:bg-neutral-900
-                    "
-
-
-                />
-
-
-
-
-
-
-
-
-                {pedidosFiltrados.length === 0 ? (
-
-
-                    <EmptyState />
-
-
-
-                ) : (
-
-
-
-                    <PedidoTable
-
-
-                        pedidos={pedidosFiltrados}
-
-
-                        isAdmin={auth.user?.role === "admin"}
-
-
-                        userRole={auth.user?.role}
-
-
-                        onEditar={editarPedido}
-
-
-                        onEditarTransportadora={editarTransportadora}
-
-
-                        onAgendar={agendarPedido}
-
-
-                        onCarregar={carregarPedido}
-
-
-                        onFaturar={faturarPedido}
-
-
-                        onDetalhes={visualizarPedido}
-
-
-                        onCancelar={cancelarPedido}
-
-
-                        onExcluir={excluirPedido}
-
-
-                        onReplicar={replicarPedido}
-
-
-
+                    <input
+                        type="date"
+                        value={dataInicial}
+                        onChange={(e) =>
+                            setDataInicial(e.target.value)
+                        }
+                        className="rounded-md border px-3 py-2 bg-white dark:bg-neutral-900"
                     />
 
 
+                    <input
+                        type="date"
+                        value={dataFinal}
+                        onChange={(e) =>
+                            setDataFinal(e.target.value)
+                        }
+                        className="rounded-md border px-3 py-2 bg-white dark:bg-neutral-900"
+                    />
+
+
+                    <Button
+                        variant="primary"
+                        onClick={filtrarPeriodo}
+                    >
+                        Filtrar
+                    </Button>
+
+
+                    <Button
+                        variant="secondary"
+                        onClick={limparPeriodo}
+                    >
+                        Limpar
+                    </Button>
+
+                </div>
+
+
+                <div className="mb-3">
+
+                    <input
+                        type="text"
+                        value={busca}
+                        onChange={(e) =>
+                            setBusca(e.target.value)
+                        }
+                        placeholder="🔎 Buscar pedido, cliente, vendedor ou destino..."
+                        className="
+                            w-full
+                            rounded-md
+                            border
+                            px-3
+                            py-2
+                            text-sm
+                            dark:bg-neutral-900
+                        "
+                    />
+
+                </div>
+
+
+                {pedidos.data.length === 0 ? (
+
+                    <EmptyState />
+
+                ) : (
+
+                    <PedidoTable
+                        pedidos={pedidos.data}
+
+                        isAdmin={
+                            auth.user?.role === "admin"
+                        }
+
+                        userRole={
+                            auth.user?.role
+                        }
+
+                        onEditar={editarPedido}
+
+                        onEditarTransportadora={
+                            editarTransportadora
+                        }
+
+                        onAgendar={
+                            agendarPedido
+                        }
+
+                        onCarregar={
+                            carregarPedido
+                        }
+
+                        onFaturar={
+                            faturarPedido
+                        }
+
+                        onDetalhes={
+                            visualizarPedido
+                        }
+
+                        onCancelar={
+                            cancelarPedido
+                        }
+
+                        onExcluir={
+                            excluirPedido
+                        }
+
+                        onReplicar={
+                            replicarPedido
+                        }
+                    />
 
                 )}
 
 
+                {pedidos.last_page > 1 && (
+
+                    <div className="
+                        mt-4
+                        flex
+                        flex-col
+                        gap-3
+                        border-t
+                        pt-4
+                        md:flex-row
+                        md:items-center
+                        md:justify-between
+                    ">
 
 
+                        <div className="text-sm text-gray-500">
+
+                            Mostrando{" "}
+                            <strong>
+                                {pedidos.from ?? 0}
+                            </strong>
+                            {" "}até{" "}
+                            <strong>
+                                {pedidos.to ?? 0}
+                            </strong>
+                            {" "}de{" "}
+                            <strong>
+                                {pedidos.total}
+                            </strong>
+                            {" "}pedidos
+
+                        </div>
 
 
+                        <div className="flex items-center gap-2">
 
+
+                            <Button
+                                variant="secondary"
+                                disabled={
+                                    !pedidos.links[0]?.url
+                                }
+                                onClick={() =>
+                                    irParaPagina(
+                                        pedidos.links[0]?.url ?? null
+                                    )
+                                }
+                            >
+                                ← Anterior
+                            </Button>
+
+
+                            <span className="
+                                rounded-md
+                                border
+                                px-3
+                                py-2
+                                text-sm
+                            ">
+
+                                Página{" "}
+                                <strong>
+                                    {pedidos.current_page}
+                                </strong>
+                                {" "}de{" "}
+                                <strong>
+                                    {pedidos.last_page}
+                                </strong>
+
+                            </span>
+
+
+                            <Button
+                                variant="secondary"
+                                disabled={
+                                    !pedidos.links[
+                                        pedidos.links.length - 1
+                                    ]?.url
+                                }
+                                onClick={() =>
+                                    irParaPagina(
+                                        pedidos.links[
+                                            pedidos.links.length - 1
+                                        ]?.url ?? null
+                                    )
+                                }
+                            >
+                                Próxima →
+                            </Button>
+
+
+                        </div>
+
+                    </div>
+
+                )}
 
 
                 <PedidoModal
-    show={showModal || pedidoReplicando !== null}
+                    show={
+                        showModal ||
+                        pedidoReplicando !== null
+                    }
 
-    onClose={() => {
-        setShowModal(false);
-        setPedidoReplicando(null);
-    }}
-
-    produtos={produtos}
-
-    clientes={clientes}
-
-    vendedores={vendedores}
-
-    pedidoReplicar={pedidoReplicando}
-/>
-
-
-
-
-
-
-
-
-                <EditarPedidoModal
-
-
-                    pedido={pedidoEditando}
-
+                    onClose={() => {
+                        setShowModal(false);
+                        setPedidoReplicando(null);
+                    }}
 
                     produtos={produtos}
 
+                    clientes={clientes}
 
-                    onClose={() => setPedidoEditando(null)}
+                    vendedores={vendedores}
 
-
+                    pedidoReplicar={
+                        pedidoReplicando
+                    }
                 />
 
 
+                <EditarPedidoModal
+                    show={
+                        pedidoEditando !== null
+                    }
+
+                    pedido={
+                        pedidoEditando
+                    }
+
+                    produtos={
+                        produtos
+                    }
+
+                    vendedores={
+                        vendedores
+
+                    }
 
 
-
-
+                    onClose={() =>
+                        setPedidoEditando(null)
+                    }
+                />
 
 
                 <AgendarPedidoModal
+                    show={
+                        pedidoAgendando !== null
+                    }
 
+                    pedido={
+                        pedidoAgendando
+                    }
 
-                    pedido={pedidoAgendando}
-
-
-                    onClose={() => setPedidoAgendando(null)}
-
-
+                    onClose={() =>
+                        setPedidoAgendando(null)
+                    }
                 />
-
-
-
-
-
-
 
 
                 <CarregarPedidoModal
+                    show={
+                        pedidoCarregando !== null
+                    }
 
+                    pedido={
+                        pedidoCarregando
+                    }
 
-                    pedido={pedidoCarregando}
-
-
-                    onClose={() => setPedidoCarregando(null)}
-
-
+                    onClose={() =>
+                        setPedidoCarregando(null)
+                    }
                 />
-
-
-
-
-
-
 
 
                 <FaturarPedidoModal
+                    show={
+                        pedidoFaturando !== null
+                    }
 
+                    pedido={
+                        pedidoFaturando
+                    }
 
-                    pedido={pedidoFaturando}
-
-
-                    onClose={() => setPedidoFaturando(null)}
-
-
+                    onClose={() =>
+                        setPedidoFaturando(null)
+                    }
                 />
 
+
                 <EditarTransportadoraModal
-    pedido={pedidoEditandoTransportadora}
-    onClose={() => setPedidoEditandoTransportadora(null)}
-/>
+                    pedido={
+                        pedidoEditandoTransportadora
+                    }
 
-<StatusPedidoModal
-    pedido={pedidoVisualizando}
-    onClose={() => setPedidoVisualizando(null)}
-/>
+                    onClose={() =>
+                        setPedidoEditandoTransportadora(null)
+                    }
+                />
 
 
+                <StatusPedidoModal
+                    pedido={
+                        pedidoVisualizando
+                    }
+
+                    onClose={() =>
+                        setPedidoVisualizando(null)
+                    }
+                />
 
             </div>
-
-
         </>
-
     );
-
 }

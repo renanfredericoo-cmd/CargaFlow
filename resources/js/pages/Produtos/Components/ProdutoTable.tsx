@@ -102,7 +102,7 @@ export default function ProdutoTable({
 
 
 
-                                <td className="px-6 py-4 font-bold">
+                                <td className="px-6 py-1 font-bold">
 
                                     {produto.id}
 
@@ -111,7 +111,7 @@ export default function ProdutoTable({
 
 
 
-                                <td className="px-3 py-3 md:px-6 md:py-4">
+                                <td className="px-3 py-1 md:px-6 md:py-1">
 
                                     {produto.descricao}
 
@@ -120,7 +120,7 @@ export default function ProdutoTable({
 
 
 
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-1">
 
 
                                     {produto.ativo ? (
@@ -166,7 +166,7 @@ export default function ProdutoTable({
 
 
 
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-1">
 
 
                                     <div className="flex justify-end gap-2">

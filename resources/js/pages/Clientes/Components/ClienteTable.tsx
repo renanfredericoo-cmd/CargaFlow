@@ -66,7 +66,7 @@ export default function ClienteTable({
                 <tr>
 
 
-                    <th className="p-3 text-left">
+                    <th className="px-3 py-1 text-left">
 
                         Cliente
 
@@ -141,7 +141,7 @@ export default function ClienteTable({
 
 
 
-                        <td className="p-3">
+                        <td className="px-3 py-1">
 
 
                             <div className="font-medium">
@@ -232,7 +232,7 @@ export default function ClienteTable({
                         <td className="p-3">
 
 
-                            <div className="flex justify-end gap-2">
+                            <div className="flex justify-end gap-2 [&>button]:!py-1">
 
 
 

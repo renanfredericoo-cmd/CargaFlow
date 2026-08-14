@@ -20,6 +20,10 @@ interface Produto {
 interface Props {
     pedido: Pedido | null;
     produtos?: Produto[];
+    vendedores?: {
+        id: number;
+        name: string;
+    }[];
     onClose: () => void;
 }
 
@@ -28,6 +32,7 @@ interface Props {
 export default function EditarPedidoModal({
     pedido,
     produtos = [],
+    vendedores = [],
     onClose,
 }: Props) {
 
@@ -323,7 +328,7 @@ setData(
 
 
 
-                <Input
+                <Select
     label="Vendedor"
     value={data.vendedor}
     error={errors.vendedor}
@@ -333,7 +338,27 @@ setData(
             e.target.value
         )
     }
-/>
+>
+    <option value="">
+        Selecione o vendedor
+    </option>
+
+    <option value="NB MINERAIS">
+    NB MINERAIS
+</option>
+
+{vendedores.map((vendedor) => (
+    <option
+        key={vendedor.id}
+        value={vendedor.name}
+    >
+        {vendedor.name}
+    </option>
+))}
+
+
+    {/* lista de vendedores */}
+</Select>
 
 <div className="mb-4">
     <label className="mb-2 block text-sm text-gray-300 font-medium">

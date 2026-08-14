@@ -133,11 +133,11 @@ export default function Users({ users }: Props) {
                         <thead className="border-b bg-gray-50 dark:bg-neutral-800">
 
                             <tr>
-                                <th className="p-3 text-left">Nome</th>
-                                <th className="p-3 text-left">Email</th>
-                                <th className="p-3 text-left">Perfil</th>
-                                <th className="p-3 text-left">Status</th>
-                                <th className="p-3 text-right">Ações</th>
+                                <th className="px-3 py-1 text-left">Nome</th>
+                                <th className="px-3 py-1 text-left">Email</th>
+                                <th className="px-3 py-1 text-left">Perfil</th>
+                                <th className="px-3 py-1 text-left">Status</th>
+                                <th className="px-3 py-1 text-right">Ações</th>
                             </tr>
 
                         </thead>
@@ -149,15 +149,15 @@ export default function Users({ users }: Props) {
 
                             <tr key={user.id} className="border-b">
 
-                                <td className="p-3">
+                                <td className="px-3 py-1">
                                     {user.name}
                                 </td>
 
-                                <td className="p-4">
+                                <td className="px-3 py-1">
                                     {user.email}
                                 </td>
 
-                                <td className="p-4">
+                                <td className="px-3 py-1">
     {user.role === 'admin'
         ? 'Administrador'
         : user.role === 'pedidos'
@@ -182,7 +182,7 @@ export default function Users({ users }: Props) {
 
                                 <td className="p-4">
 
-                                    <div className="flex justify-end gap-2">
+                                    <div className="flex justify-end gap-2 [&>button]:!py-1">
 
 
                                         <Button

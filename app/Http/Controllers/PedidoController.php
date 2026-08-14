@@ -40,12 +40,28 @@ class PedidoController extends Controller
             'cliente',
         ]);
 
+        /*
+        |--------------------------------------------------------------------------
+        | Vendedor
+        |--------------------------------------------------------------------------
+        |
+        | Vendedor continua vendo somente os próprios pedidos.
+        |
+        */
+
         if (auth()->user()->role === 'vendedor') {
-    $query->whereRaw(
-        'LOWER(vendedor) = LOWER(?)',
-        [auth()->user()->name]
-    );
-}
+            $query->whereRaw(
+                'LOWER(vendedor) = LOWER(?)',
+                [auth()->user()->name]
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filtro de período
+        |--------------------------------------------------------------------------
+        */
 
         if (
             $request->filled('data_inicial') &&
@@ -55,40 +71,181 @@ class PedidoController extends Controller
                 $request->data_inicial . ' 00:00:00',
                 $request->data_final . ' 23:59:59',
             ]);
+
+        } elseif ($request->filled('data_inicial')) {
+
+            $query->where(
+                'created_at',
+                '>=',
+                $request->data_inicial . ' 00:00:00'
+            );
+
+        } elseif ($request->filled('data_final')) {
+
+            $query->where(
+                'created_at',
+                '<=',
+                $request->data_final . ' 23:59:59'
+            );
         }
 
-        $pedidos = $query
-            ->reorder()
-            ->orderBy('data_entrega', 'asc')
-            ->orderBy('id', 'asc')
-            ->get()
-            ->append([
-                'atraso_carregamento',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filtro de status
+        |--------------------------------------------------------------------------
+        |
+        | "Todos" mostra somente pedidos em andamento.
+        | Faturado e Cancelado aparecem somente nos seus próprios filtros.
+        |
+        */
+
+        $status = $request->input('status', 'Todos');
+
+        if ($status === 'Todos') {
+
+            $query->whereIn('status', [
+                Pedido::STATUS_PEDIDO,
+                Pedido::STATUS_AGENDADO,
+                Pedido::STATUS_CARREGAMENTO,
             ]);
+
+        } elseif (in_array($status, [
+            Pedido::STATUS_PEDIDO,
+            Pedido::STATUS_AGENDADO,
+            Pedido::STATUS_CARREGAMENTO,
+            Pedido::STATUS_FATURADO,
+            Pedido::STATUS_CANCELADO,
+        ], true)) {
+
+            $query->where(
+                'status',
+                $status
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Busca
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('busca')) {
+
+    $busca = trim(
+        $request->input('busca')
+    );
+
+    if ($busca !== '') {
+
+        $termo = '%' . $busca . '%';
+
+        $query->where(function ($q) use ($termo) {
+
+            $q->where(
+                'numero_pedido',
+                'ILIKE',
+                $termo
+            )
+
+            ->orWhere(
+                'cliente',
+                'ILIKE',
+                $termo
+            )
+
+            ->orWhere(
+                'vendedor',
+                'ILIKE',
+                $termo
+            )
+
+            ->orWhere(
+                'destino',
+                'ILIKE',
+                $termo
+            );
+
+        });
+    }
+}
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Paginação
+        |--------------------------------------------------------------------------
+        |
+        | 600 pedidos por página.
+        |
+        */
+
+        $pedidos = $query
+    ->reorder()
+    ->orderBy('data_entrega', 'asc')
+    ->orderBy('id', 'asc')
+    ->paginate(600)
+    ->withQueryString();
+
+$pedidos->getCollection()->each(
+    function ($pedido) {
+        $pedido->append([
+            'atraso_carregamento',
+        ]);
+    }
+);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Produtos
+        |--------------------------------------------------------------------------
+        */
 
         $produtos = Produto::where('ativo', true)
             ->orderBy('descricao')
             ->get();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Clientes
+        |--------------------------------------------------------------------------
+        */
+
         $clientes = Cliente::where('ativo', true)
             ->orderBy('nome')
             ->get();
 
-        $vendedores = User::where('role', 'vendedor')
-    ->where('active', true)
-    ->orderBy('name')
-    ->get([
-        'id',
-        'name',
-    ]);
 
+        /*
+        |--------------------------------------------------------------------------
+        | Vendedores
+        |--------------------------------------------------------------------------
+        */
+
+        $vendedores = User::where('role', 'vendedor')
+            ->where('active', true)
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+            ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Retorno
+        |--------------------------------------------------------------------------
+        */
 
         return Inertia::render('Pedidos/Index', [
-    'pedidos' => $pedidos,
-    'produtos' => $produtos,
-    'clientes' => $clientes,
-    'vendedores' => $vendedores,
-]);
+            'pedidos' => $pedidos,
+            'produtos' => $produtos,
+            'clientes' => $clientes,
+            'vendedores' => $vendedores,
+        ]);
     }
 
 
@@ -106,15 +263,14 @@ class PedidoController extends Controller
         ]);
 
         $dados = $request->validated();
-          
 
         $cliente = Cliente::find($dados['cliente_id']);
 
         $dados['cliente'] = $cliente->nome;
 
         $dados['status'] = $dados['tipo_frete'] === 'FOB'
-    ? Pedido::STATUS_AGENDADO
-    : Pedido::STATUS_PEDIDO;
+            ? Pedido::STATUS_AGENDADO
+            : Pedido::STATUS_PEDIDO;
 
         $dados['user_id'] = auth()->id();
 
@@ -136,42 +292,40 @@ class PedidoController extends Controller
     */
 
     public function update(PedidoRequest $request, Pedido $pedido)
-{
-    $this->permitir([
-        'admin',
-        'pedidos',
-    ]);
+    {
+        $this->permitir([
+            'admin',
+            'pedidos',
+        ]);
 
-    $dados = $request->validated();
+        $dados = $request->validated();
 
-    if (isset($dados['cliente_id'])) {
-        $cliente = Cliente::find($dados['cliente_id']);
+        if (isset($dados['cliente_id'])) {
+            $cliente = Cliente::find($dados['cliente_id']);
 
-        if ($cliente) {
-            $dados['cliente'] = $cliente->nome;
+            if ($cliente) {
+                $dados['cliente'] = $cliente->nome;
+            }
         }
+
+        if ($pedido->status === Pedido::STATUS_PEDIDO) {
+
+            if (($dados['tipo_frete'] ?? null) === 'FOB') {
+                $dados['status'] = Pedido::STATUS_AGENDADO;
+            }
+
+            if (($dados['tipo_frete'] ?? null) === 'CIF') {
+                $dados['status'] = Pedido::STATUS_PEDIDO;
+            }
+        }
+
+        $pedido->update($dados);
+
+        return back()->with(
+            'success',
+            'Pedido atualizado com sucesso.'
+        );
     }
-
-if ($pedido->status === Pedido::STATUS_PEDIDO) {
-
-    if (($dados['tipo_frete'] ?? null) === 'FOB') {
-        $dados['status'] = Pedido::STATUS_AGENDADO;
-    }
-
-    if (($dados['tipo_frete'] ?? null) === 'CIF') {
-        $dados['status'] = Pedido::STATUS_PEDIDO;
-    }
-}
-
-    
-
-    $pedido->update($dados);
-
-    return back()->with(
-        'success',
-        'Pedido atualizado com sucesso.'
-    );
-}
 
 
     /*

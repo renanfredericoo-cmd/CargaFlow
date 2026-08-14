@@ -147,6 +147,6 @@ Login.layout = {
 
     title: 'Bem-vindo ao CargaFlow',
 
-    description: 'Gerencie tarefas, equipes e resultados em um só lugar',
+    description: 'Gestão inteligente de cargas, equipes e resultados. Tudo em um só lugar',
 
 };
