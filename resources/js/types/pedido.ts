@@ -69,7 +69,16 @@ export interface Pedido {
 
     proxima_acao: string;
 
-    created_at: string;
+        created_at: string;
 
     updated_at: string;
+
+    alterado_por_id?: number | null;
+
+    alterado_em?: string | null;
+
+    alterado_por?: {
+        id: number;
+        name: string;
+    } | null;
 }

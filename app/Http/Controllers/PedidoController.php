@@ -33,12 +33,13 @@ class PedidoController extends Controller
     */
 
     public function index(Request $request)
-    {
-        $query = Pedido::with([
-            'user',
-            'produto',
-            'cliente',
-        ]);
+{
+    $query = Pedido::with([
+        'user',
+        'produto',
+        'cliente',
+        'alteradoPor',
+    ]);
 
         /*
         |--------------------------------------------------------------------------
@@ -501,9 +502,10 @@ $pedidos->getCollection()->each(
     public function detalhes(Pedido $pedido)
     {
         $pedido->load([
-            'cliente',
-            'produto',
-        ]);
+    'cliente',
+    'produto',
+    'alteradoPor',
+]);
 
         return Inertia::render('Pedidos/Detalhes', [
             'pedido' => $pedido,

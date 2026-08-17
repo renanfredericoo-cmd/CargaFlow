@@ -321,12 +321,24 @@ export default function StatusPedidoModal({
                                     `;
                                 })
                                 .join("")}
-                        </p>
+                                                </p>
 
                         <strong>
                             Status atual: ${pedido.status}
                         </strong>
 
+                    </div>
+
+                    <div class="alteracao">
+                        <strong>Alterado por:</strong>
+                        ${pedido.alterado_por?.name ?? "-"}
+                        <br />
+                        <strong>Data/Hora:</strong>
+                        ${
+                            pedido.alterado_em
+                                ? new Date(pedido.alterado_em).toLocaleString("pt-BR")
+                                : "-"
+                        }
                     </div>
 
                 </body>

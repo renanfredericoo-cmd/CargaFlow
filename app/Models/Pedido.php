@@ -11,6 +11,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Pedido extends Model
 {
 
+protected static function booted(): void
+{
+    static::updating(function (Pedido $pedido) {
+        if (auth()->check()) {
+            $pedido->alterado_por_id = auth()->id();
+            $pedido->alterado_em = now();
+        }
+    });
+}
+
 
     /*
     |--------------------------------------------------------------------------
@@ -122,6 +132,9 @@ class Pedido extends Model
 
         'user_id',
 
+        'alterado_por_id',
+        'alterado_em',
+
 
     ];
 
@@ -163,37 +176,21 @@ class Pedido extends Model
 
 
     protected function casts(): array
-    {
+{
+    return [
+        'data' => 'date',
+        'data_entrega' => 'date',
+        'data_agendamento' => 'date',
+        'data_carregamento' => 'date',
 
-        return [
+        'hora_agendamento' => 'datetime:H:i',
+        'hora_carregamento' => 'datetime:H:i',
 
+        'alterado_em' => 'datetime',
 
-            'data' => 'date',
-
-
-            'data_entrega' => 'date',
-
-
-            'data_agendamento' => 'date',
-
-
-            'data_carregamento' => 'date',
-
-
-
-            'hora_agendamento' => 'datetime:H:i',
-
-
-            'hora_carregamento' => 'datetime:H:i',
-
-
-
-            'peso' => 'decimal:2',
-
-
-        ];
-
-    }
+        'peso' => 'decimal:2',
+    ];
+}
 
 
 
@@ -214,6 +211,11 @@ class Pedido extends Model
         return $this->belongsTo(User::class);
 
     }
+
+    public function alteradoPor(): BelongsTo
+{
+    return $this->belongsTo(User::class, 'alterado_por_id');
+}
 
 
 
