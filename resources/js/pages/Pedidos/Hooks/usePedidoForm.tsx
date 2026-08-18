@@ -57,12 +57,13 @@ export default function usePedidoForm(pedidoReplicar?: Pedido | null) {
         form.post("/pedidos", {
 
     preserveScroll: true,
+    preserveState: false,
 
     onSuccess: () => {
 
-                form.reset();
-
                 onSuccess?.();
+
+                form.reset();
 
             },
 

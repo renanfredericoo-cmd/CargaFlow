@@ -9,6 +9,7 @@ import {
     Trash2,
     FileText,
     Copy,
+    MessageCircle,
 } from "lucide-react";
 
 import type { Pedido } from "@/types/pedido";
@@ -207,10 +208,15 @@ export default function PedidoTable({
                                 <td className="px-3 py-1 text-center font-bold align-middle">
 
     <button
-        type="button"
-        onClick={() => onDetalhes(pedido)}
-        className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-        title="Visualizar pedido"
+    type="button"
+    onClick={() => onDetalhes(pedido)}
+    className={`inline-flex items-center ${
+        pedido.observacoes?.trim()
+            ? "text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+            : "text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+    }`}
+    title="Visualizar pedido"
+
     >
         {(() => {
             const valor = String(
@@ -222,9 +228,22 @@ export default function PedidoTable({
             if (partes.length > 1) {
                 return (
                     <>
-                        <span className="font-bold">
-                            {partes[0]}
-                        </span>
+                        <span
+    className={`font-bold ${
+        pedido.observacoes?.trim()
+            ? "text-red-600"
+            : "text-blue-600"
+    }`}
+>
+    {partes[0]}
+</span>
+
+{pedido.observacoes?.trim() && (
+    <MessageCircle
+        size={16}
+        className="ml-1 inline-block text-red-600"
+    />
+)}
 
                         <span className="whitespace-nowrap text-xs font-medium">
                             {partes.slice(1).join(" - ")}
@@ -370,8 +389,9 @@ export default function PedidoTable({
 
                                         {/* EM CARREGAMENTO */}
                                         {pedido.status === "Em Carregamento" &&
-                                            (userRole === "admin" ||
-                                                userRole === "carregamento") && (
+    (userRole === "admin" ||
+        userRole === "pedidos" ||
+        userRole === "carregamento") && (
 
                                                 <Button
                                                     variant="success"
