@@ -51,35 +51,35 @@ export default function CarregarPedidoModal({
         setProcessing(true);
 
 
-        router.put(`/pedidos/${pedido.id}/carregar`, {
+        router.put(
+            `/pedidos/${pedido.id}/carregar`,
+            {
+                placa,
 
-            placa,
+                data_carregamento:
+                    agora.toISOString().split("T")[0],
 
-            data_carregamento:
-                agora.toISOString().split("T")[0],
-
-            hora_carregamento:
-                agora.toTimeString().slice(0, 5),
-
-        }, {
-
-            preserveScroll: true,
-
-            onSuccess: () => {
-
-                setPlaca("");
-
-                onClose();
-
+                hora_carregamento:
+                    agora.toTimeString().slice(0, 5),
             },
+            {
+                preserveScroll: true,
 
-            onFinish: () => {
+                onSuccess: () => {
 
-                setProcessing(false);
+                    setPlaca("");
 
-            },
+                    onClose();
 
-        });
+                },
+
+                onFinish: () => {
+
+                    setProcessing(false);
+
+                },
+            }
+        );
 
     }
 
