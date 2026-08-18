@@ -65,30 +65,30 @@ class PedidoController extends Controller
         */
 
         if (
-            $request->filled('data_inicial') &&
-            $request->filled('data_final')
-        ) {
-            $query->whereBetween('created_at', [
-                $request->data_inicial . ' 00:00:00',
-                $request->data_final . ' 23:59:59',
-            ]);
+    $request->filled('data_inicial') &&
+    $request->filled('data_final')
+) {
+    $query->whereBetween('data_entrega', [
+        $request->data_inicial,
+        $request->data_final,
+    ]);
 
-        } elseif ($request->filled('data_inicial')) {
+} elseif ($request->filled('data_inicial')) {
 
-            $query->where(
-                'created_at',
-                '>=',
-                $request->data_inicial . ' 00:00:00'
-            );
+    $query->where(
+        'data_entrega',
+        '>=',
+        $request->data_inicial
+    );
 
-        } elseif ($request->filled('data_final')) {
+} elseif ($request->filled('data_final')) {
 
-            $query->where(
-                'created_at',
-                '<=',
-                $request->data_final . ' 23:59:59'
-            );
-        }
+    $query->where(
+        'data_entrega',
+        '<=',
+        $request->data_final
+    );
+}
 
 
         /*
@@ -103,27 +103,27 @@ class PedidoController extends Controller
 
         $status = $request->input('status', 'Todos');
 
-        if ($status === 'Todos') {
+if ($status === 'Todos') {
 
-            $query->whereIn('status', [
-                Pedido::STATUS_PEDIDO,
-                Pedido::STATUS_AGENDADO,
-                Pedido::STATUS_CARREGAMENTO,
-            ]);
+    $query->whereIn('status', [
+        Pedido::STATUS_PEDIDO,
+        Pedido::STATUS_AGENDADO,
+        Pedido::STATUS_CARREGAMENTO,
+    ]);
 
-        } elseif (in_array($status, [
-            Pedido::STATUS_PEDIDO,
-            Pedido::STATUS_AGENDADO,
-            Pedido::STATUS_CARREGAMENTO,
-            Pedido::STATUS_FATURADO,
-            Pedido::STATUS_CANCELADO,
-        ], true)) {
+} elseif (in_array($status, [
+    Pedido::STATUS_PEDIDO,
+    Pedido::STATUS_AGENDADO,
+    Pedido::STATUS_CARREGAMENTO,
+    Pedido::STATUS_FATURADO,
+    Pedido::STATUS_CANCELADO,
+], true)) {
 
-            $query->where(
-                'status',
-                $status
-            );
-        }
+    $query->where(
+        'status',
+        $status
+    );
+}
 
 
         /*
