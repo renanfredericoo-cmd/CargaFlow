@@ -105,6 +105,10 @@ class DashboardController extends Controller
                 ->where('status', 'Faturado')
                 ->count(),
 
+                'toneladas_faturadas' => $pedidos
+    ->where('status', 'Faturado')
+    ->sum('peso'),
+
 
 
             'cancelados' => $pedidos
@@ -179,6 +183,15 @@ class DashboardController extends Controller
 
 
 
+return Inertia::render('dashboard', [
+    'stats' => $stats,
+    'role' => $user->role,
+    'ultimos' => $ultimos,
+    'filtro' => [
+        'data_inicial' => $dataInicial,
+        'data_final' => $dataFinal,
+    ],
+]);
 
         return Inertia::render('dashboard', [
 

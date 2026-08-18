@@ -44,6 +44,8 @@ interface Props {
 
         faturados: number;
 
+        toneladas_faturadas: number;
+
         cancelados: number;
 
         toneladas: number;
@@ -254,10 +256,8 @@ export default function Dashboard({
         {
 
             title: "Faturados",
-
-            value: stats.faturados,
-
-            color: "border-green-500"
+    value: `${(stats.toneladas_faturadas ?? 0).toLocaleString("pt-BR")} t`,
+    color: "border-green-500"
 
         },
 
