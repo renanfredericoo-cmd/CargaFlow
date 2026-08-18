@@ -8,12 +8,12 @@
 <meta property="og:description" content="Gestão inteligente de cargas, equipes e resultados.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://cargaflow.app.br">
-<meta property="og:image" content="https://cargaflow.app.br/images/cargaflow-share-v2.png">
+<meta property="og:image" content="https://cargaflow.app.br/images/cargaflow-share-v2.jpg">
 
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CargaFlow">
 <meta name="twitter:description" content="Gestão inteligente de cargas, equipes e resultados.">
-<meta name="twitter:image" content="https://cargaflow.app.br/images/cargaflow-share-v2.png">
+<meta name="twitter:image" content="https://cargaflow.app.br/images/cargaflow-share-v2.jpg">
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
