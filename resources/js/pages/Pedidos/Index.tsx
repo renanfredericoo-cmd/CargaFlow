@@ -137,7 +137,23 @@ export default function Index({
 }, [busca]);
 
 useEffect(() => {
+
+    const algumModalAberto =
+        showModal ||
+        pedidoEditando !== null ||
+        pedidoEditandoTransportadora !== null ||
+        pedidoAgendando !== null ||
+        pedidoCarregando !== null ||
+        pedidoFaturando !== null ||
+        pedidoVisualizando !== null ||
+        pedidoReplicando !== null;
+
+    if (algumModalAberto) {
+        return;
+    }
+
     const intervalo = setInterval(() => {
+
         carregarPedidos(
             filtroStatus,
             busca,
@@ -145,15 +161,25 @@ useEffect(() => {
             dataFinal,
             pedidos.current_page
         );
+
     }, 5000);
 
     return () => clearInterval(intervalo);
+
 }, [
     filtroStatus,
     busca,
     dataInicial,
     dataFinal,
     pedidos.current_page,
+    showModal,
+    pedidoEditando,
+    pedidoEditandoTransportadora,
+    pedidoAgendando,
+    pedidoCarregando,
+    pedidoFaturando,
+    pedidoVisualizando,
+    pedidoReplicando,
 ]);
 
 
