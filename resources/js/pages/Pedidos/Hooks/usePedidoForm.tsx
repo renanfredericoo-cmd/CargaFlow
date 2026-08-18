@@ -54,22 +54,21 @@ export default function usePedidoForm(pedidoReplicar?: Pedido | null) {
 
     function salvar(onSuccess?: () => void) {
 
-        form.post("/pedidos", {
+    form.post("/pedidos", {
 
-    preserveScroll: true,
-    preserveState: false,
+        preserveScroll: true,
 
-    onSuccess: () => {
+        onSuccess: () => {
 
-                onSuccess?.();
+            onSuccess?.();
 
-                form.reset();
+            form.reset();
 
-            },
+        },
 
-        });
+    });
 
-    }
+}
 
     function editar(id: number, onSuccess?: () => void) {
 
