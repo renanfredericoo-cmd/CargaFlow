@@ -259,7 +259,7 @@ export default function StatusPedidoModal({
                       .substring(0, 10)
                       .split("-")
                       .reverse()
-                      .join("/")} ${String(
+                      .join("/")}, ${String(
                       pedido.hora_agendamento
                   ).substring(0, 5)}`
                 : "-"
