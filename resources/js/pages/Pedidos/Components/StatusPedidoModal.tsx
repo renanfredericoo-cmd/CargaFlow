@@ -40,107 +40,107 @@ export default function StatusPedidoModal({
                     <title>Pedido ${pedido.numero_pedido}</title>
 
                     <style>
-    body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
-        color: #111;
-        font-size: 13px;
-    }
+                        body {
+                            font-family: Arial, sans-serif;
+                            padding: 20px;
+                            color: #111;
+                            font-size: 13px;
+                        }
 
-    h1 {
-        margin-bottom: 14px;
-        font-size: 26px;
-    }
+                        h1 {
+                            margin-bottom: 14px;
+                            font-size: 26px;
+                        }
 
-    .dados {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px 12px;
-        margin-bottom: 16px;
-    }
+                        .dados {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 8px 12px;
+                            margin-bottom: 16px;
+                        }
 
-    .campo {
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 4px;
-    }
+                        .campo {
+                            border-bottom: 1px solid #ddd;
+                            padding-bottom: 4px;
+                        }
 
-    .label {
-        font-size: 10px;
-        color: #666;
-        margin-bottom: 2px;
-    }
+                        .label {
+                            font-size: 10px;
+                            color: #666;
+                            margin-bottom: 2px;
+                        }
 
-    .valor {
-        font-size: 14px;
-        font-weight: bold;
-    }
+                        .valor {
+                            font-size: 14px;
+                            font-weight: bold;
+                        }
 
-    .observacoes {
-        margin-top: 12px;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-    }
+                        .observacoes {
+                            margin-top: 12px;
+                            padding: 10px;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                        }
 
-    .observacoes p {
-        margin: 6px 0 0;
-    }
+                        .observacoes p {
+                            margin: 6px 0 0;
+                        }
 
-    .status {
-        margin-top: 14px;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-    }
+                        .status {
+                            margin-top: 14px;
+                            padding: 10px;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                        }
 
-    .status p {
-        margin: 6px 0;
-    }
+                        .status p {
+                            margin: 6px 0;
+                        }
 
-    .status div {
-        margin: 5px 0 !important;
-    }
+                        .status div {
+                            margin: 5px 0 !important;
+                        }
 
-    @media print {
-        @page {
-            size: A4 portrait;
-            margin: 10mm;
-        }
+                        @media print {
+                            @page {
+                                size: A4 portrait;
+                                margin: 10mm;
+                            }
 
-        body {
-            padding: 0;
-            font-size: 13px;
-        }
+                            body {
+                                padding: 0;
+                                font-size: 13px;
+                            }
 
-        h1 {
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
+                            h1 {
+                                margin-bottom: 10px;
+                                font-size: 24px;
+                            }
 
-        .dados {
-            gap: 6px 10px;
-            margin-bottom: 12px;
-        }
+                            .dados {
+                                gap: 6px 10px;
+                                margin-bottom: 12px;
+                            }
 
-        .campo {
-            padding-bottom: 3px;
-        }
+                            .campo {
+                                padding-bottom: 3px;
+                            }
 
-        .observacoes {
-            margin-top: 10px;
-            padding: 8px;
-        }
+                            .observacoes {
+                                margin-top: 10px;
+                                padding: 8px;
+                            }
 
-        .status {
-            margin-top: 10px;
-            padding: 8px;
-        }
+                            .status {
+                                margin-top: 10px;
+                                padding: 8px;
+                            }
 
-        .status div {
-            margin: 3px 0 !important;
-        }
-    }
-</style>
+                            .status div {
+                                margin: 3px 0 !important;
+                            }
+                        }
+                    </style>
                 </head>
 
                 <body>
@@ -208,65 +208,82 @@ export default function StatusPedidoModal({
                         </div>
 
                         <div class="campo">
-    <div class="label">Transportadora</div>
-    <div class="valor">
-        ${pedido.transportadora ?? "-"}
-    </div>
-</div>
-
-<div class="campo">
-    <div class="label">Placa</div>
-    <div class="valor">
-        ${pedido.placa ?? "-"}
-    </div>
-</div>
-
-<div class="campo">
-    <div class="label">NF-e</div>
+                            <div class="label">Transportadora</div>
                             <div class="valor">
-                                ${pedido.numero_nfe ?? "-"}
+                                ${pedido.transportadora ?? "-"}
                             </div>
-
                         </div>
 
                         <div class="campo">
-    <div class="label">Horário do pedido</div>
-    <div class="valor">
-        ${
-            pedido.created_at
-                ? new Date(pedido.created_at).toLocaleTimeString(
-                      "pt-BR",
-                      {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      }
-                  )
-                : "-"
-        }
-    </div>
-</div>
+                            <div class="label">Placa</div>
+                            <div class="valor">
+                                ${pedido.placa ?? "-"}
+                            </div>
+                        </div>
 
                         <div class="campo">
-                            <div class="label">Horário agendado</div>
+                            <div class="label">NF-e</div>
+                            <div class="valor">
+                                ${pedido.numero_nfe ?? "-"}
+                            </div>
+                        </div>
+
+                        <div class="campo">
+                            <div class="label">Horário do pedido</div>
                             <div class="valor">
                                 ${
-                                    pedido.hora_agendamento
-                                        ? String(
-                                              pedido.hora_agendamento
-                                          ).substring(0, 5)
+                                    pedido.created_at
+                                        ? new Date(
+                                              pedido.created_at
+                                          ).toLocaleString(
+                                              "pt-BR",
+                                              {
+                                                  day: "2-digit",
+                                                  month: "2-digit",
+                                                  year: "numeric",
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                              }
+                                          )
                                         : "-"
                                 }
                             </div>
                         </div>
 
                         <div class="campo">
+    <div class="label">Horário agendado</div>
+    <div class="valor">
+        ${
+            pedido.data_agendamento && pedido.hora_agendamento
+                ? `${String(pedido.data_agendamento)
+                      .substring(0, 10)
+                      .split("-")
+                      .reverse()
+                      .join("/")} ${String(
+                      pedido.hora_agendamento
+                  ).substring(0, 5)}`
+                : "-"
+        }
+    </div>
+</div>
+
+                        <div class="campo">
                             <div class="label">Horário de carregamento</div>
                             <div class="valor">
                                 ${
-                                    pedido.hora_carregamento
-                                        ? String(
-                                              pedido.hora_carregamento
-                                          ).substring(0, 5)
+                                    pedido.inicio_carregamento_at
+                                        ? new Date(
+                                              pedido.inicio_carregamento_at
+                                          ).toLocaleString(
+                                              "pt-BR",
+                                              {
+                                                  day: "2-digit",
+                                                  month: "2-digit",
+                                                  year: "numeric",
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                              }
+                                          )
                                         : "-"
                                 }
                             </div>
@@ -276,10 +293,19 @@ export default function StatusPedidoModal({
                             <div class="label">Horário de faturamento</div>
                             <div class="valor">
                                 ${
-                                    pedido.hora_faturamento
-                                        ? String(
-                                              pedido.hora_faturamento
-                                          ).substring(0, 5)
+                                    pedido.fim_carregamento_at
+                                        ? new Date(
+                                              pedido.fim_carregamento_at
+                                          ).toLocaleString(
+                                              "pt-BR",
+                                              {
+                                                  day: "2-digit",
+                                                  month: "2-digit",
+                                                  year: "numeric",
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                              }
+                                          )
                                         : "-"
                                 }
                             </div>
@@ -321,7 +347,7 @@ export default function StatusPedidoModal({
                                     `;
                                 })
                                 .join("")}
-                                                </p>
+                        </p>
 
                         <strong>
                             Status atual: ${pedido.status}
@@ -330,15 +356,22 @@ export default function StatusPedidoModal({
                     </div>
 
                     <div class="alteracao">
+
                         <strong>Alterado por:</strong>
                         ${pedido.alterado_por?.name ?? "-"}
+
                         <br />
+
                         <strong>Data/Hora:</strong>
+
                         ${
                             pedido.alterado_em
-                                ? new Date(pedido.alterado_em).toLocaleString("pt-BR")
+                                ? new Date(
+                                      pedido.alterado_em
+                                  ).toLocaleString("pt-BR")
                                 : "-"
                         }
+
                     </div>
 
                 </body>
