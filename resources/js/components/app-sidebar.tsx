@@ -36,13 +36,23 @@ function getMainNavItems(role: string): NavItem[] {
             href: '/pedidos',
             icon: ClipboardList,
         },
+    ];
 
-        {
+    /*
+    |--------------------------------------------------------------------------
+    | Análise de Pedidos
+    |--------------------------------------------------------------------------
+    | Somente Admin e Pedidos possuem acesso.
+    |--------------------------------------------------------------------------
+    */
+
+    if (role === 'admin' || role === 'pedidos') {
+        items.push({
             title: 'Análise de Pedidos',
             href: '/analise-pedidos',
             icon: BarChart3,
-        },
-    ];
+        });
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -92,9 +102,9 @@ export function AppSidebar() {
 
     return (
         <Sidebar
-    collapsible="offcanvas"
-    variant="sidebar"
->
+            collapsible="offcanvas"
+            variant="sidebar"
+        >
             <SidebarHeader>
             </SidebarHeader>
 
