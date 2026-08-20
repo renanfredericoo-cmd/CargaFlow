@@ -7,6 +7,7 @@ use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AnalisePedidosController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -30,7 +31,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+  
+        // Análise de Pedidos
 
+    Route::get('/analise-pedidos', [AnalisePedidosController::class, 'index'])
+    ->middleware('analise.pedidos')
+    ->name('analise-pedidos.index');
 
 
 

@@ -6,6 +6,7 @@ import {
     Package,
     Users,
     Building2,
+    BarChart3,
 } from 'lucide-react';
 
 import { NavMain } from '@/components/nav-main';
@@ -22,11 +23,8 @@ import { dashboard } from '@/routes';
 
 import type { NavItem } from '@/types';
 
-
 function getMainNavItems(role: string): NavItem[] {
-
     const items: NavItem[] = [
-
         {
             title: 'Dashboard',
             href: dashboard(),
@@ -39,8 +37,12 @@ function getMainNavItems(role: string): NavItem[] {
             icon: ClipboardList,
         },
 
+        {
+            title: 'Análise de Pedidos',
+            href: '/analise-pedidos',
+            icon: BarChart3,
+        },
     ];
-
 
     /*
     |--------------------------------------------------------------------------
@@ -51,9 +53,7 @@ function getMainNavItems(role: string): NavItem[] {
     */
 
     if (role === 'admin' || role === 'pedidos') {
-
         items.push(
-
             {
                 title: 'Produtos',
                 href: '/produtos',
@@ -65,11 +65,8 @@ function getMainNavItems(role: string): NavItem[] {
                 href: '/clientes',
                 icon: Building2,
             },
-
         );
-
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -78,54 +75,36 @@ function getMainNavItems(role: string): NavItem[] {
     */
 
     if (role === 'admin') {
-
         items.push({
-
             title: 'Usuários',
             href: '/users',
             icon: Users,
-
         });
-
     }
-
 
     return items;
 }
 
-
 export function AppSidebar() {
-
     const { auth } = usePage().props as any;
 
     const mainNavItems = getMainNavItems(auth.user.role);
 
-
     return (
-
         <Sidebar
-            collapsible="offcanvas"
-            variant="inset"
-        >
-
+    collapsible="offcanvas"
+    variant="sidebar"
+>
             <SidebarHeader>
             </SidebarHeader>
 
-
             <SidebarContent>
-
                 <NavMain items={mainNavItems} />
-
             </SidebarContent>
 
-
             <SidebarFooter>
-
                 <NavUser />
-
             </SidebarFooter>
-
         </Sidebar>
-
     );
 }
