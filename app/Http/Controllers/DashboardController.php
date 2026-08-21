@@ -17,6 +17,11 @@ class DashboardController extends Controller
         $dataInicial = $request->data_inicial;
         $dataFinal = $request->data_final;
 
+if (!$dataInicial && !$dataFinal) {
+    $dataInicial = Carbon::now()->startOfMonth()->toDateString();
+    $dataFinal = Carbon::now()->endOfMonth()->toDateString();
+}
+
         $query = Pedido::query();
 
         if ($user->role === 'vendedor') {

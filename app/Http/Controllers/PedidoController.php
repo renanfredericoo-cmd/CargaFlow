@@ -9,6 +9,7 @@ use App\Models\Cliente;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\User;
+use App\Models\PedidoHistorico;
 
 class PedidoController extends Controller
 {
@@ -35,11 +36,12 @@ class PedidoController extends Controller
     public function index(Request $request)
 {
     $query = Pedido::with([
-        'user',
-        'produto',
-        'cliente',
-        'alteradoPor',
-    ]);
+    'user',
+    'produto',
+    'cliente',
+    'alteradoPor',
+    'historicos.usuario',
+]);
 
         /*
         |--------------------------------------------------------------------------
@@ -275,9 +277,17 @@ $pedidos->getCollection()->each(
 
         $dados['user_id'] = auth()->id();
 
-        Pedido::create($dados);
+$pedido = Pedido::create($dados);
 
-        return back()->with(
+
+PedidoHistorico::create([
+    'pedido_id' => $pedido->id,
+    'user_id' => auth()->id(),
+    'acao' => 'Pedido criado',
+    'detalhes' => 'Pedido cadastrado no sistema.',
+]);
+
+return back()->with(
     'success',
     'Pedido cadastrado com sucesso.'
 );
@@ -334,41 +344,55 @@ $pedidos->getCollection()->each(
     */
 
     public function agendar(Request $request, Pedido $pedido)
-    {
-        $this->permitir([
-            'admin',
-            'pedidos',
-            'agendamento',
-        ]);
+{
+    $this->permitir([
+        'admin',
+        'pedidos',
+        'agendamento',
+    ]);
 
-        $dados = $request->validate([
-            'transportadora' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+    $dados = $request->validate([
+        'transportadora' => [
+            'required',
+            'string',
+            'max:255',
+        ],
 
-            'data_agendamento' => [
-                'required',
-                'date',
-            ],
+        'data_agendamento' => [
+            'required',
+            'date',
+        ],
 
-            'hora_agendamento' => [
-                'required',
-            ],
-        ]);
+        'hora_agendamento' => [
+            'required',
+        ],
+    ]);
 
-        $pedido->update([
-            ...$dados,
-            'status' => Pedido::STATUS_AGENDADO,
-        ]);
+    $pedido->update([
+    ...$dados,
+    'status' => Pedido::STATUS_AGENDADO,
+]);
 
-        return back()->with(
-            'success',
-            'Pedido agendado com sucesso.'
-        );
-    }
+$historico = PedidoHistorico::create([
+    'pedido_id' => $pedido->id,
+    'user_id' => auth()->user()->id,
+    'acao' => 'Pedido agendado',
+    'detalhes' => 'Pedido agendado para ' .
+        $dados['data_agendamento'] . ' as ' .
+        substr($dados['hora_agendamento'], 0, 5) . '.',
+]);
 
+\Log::info('HISTORICO AGENDAMENTO CRIADO', [
+    'historico_id' => $historico->id,
+    'pedido_id' => $pedido->id,
+    'user_id' => auth()->user()->id,
+]);
+
+    return back()->with(
+        'success',
+        'Pedido agendado com sucesso.'
+    );
+}
 
     /*
     |--------------------------------------------------------------------------
@@ -413,42 +437,51 @@ $pedidos->getCollection()->each(
     */
 
     public function carregar(Request $request, Pedido $pedido)
-    {
-        $this->permitir([
-            'admin',
-            'pedidos',
-            'carregamento',
-        ]);
+{
+    $this->permitir([
+        'admin',
+        'pedidos',
+        'carregamento',
+    ]);
 
-        $dados = $request->validate([
-            'placa' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+    $dados = $request->validate([
+        'placa' => [
+            'required',
+            'string',
+            'max:255',
+        ],
 
-            'data_carregamento' => [
-                'required',
-                'date',
-            ],
+        'data_carregamento' => [
+            'required',
+            'date',
+        ],
 
-            'hora_carregamento' => [
-                'required',
-            ],
-        ]);
+        'hora_carregamento' => [
+            'required',
+        ],
+    ]);
 
-        $pedido->update([
-            ...$dados,
-            'status' => Pedido::STATUS_CARREGAMENTO,
-            'inicio_carregamento_at' => now(),
-        ]);
+    $pedido->update([
+        ...$dados,
+        'status' => Pedido::STATUS_CARREGAMENTO,
+        'inicio_carregamento_at' => now(),
+    ]);
 
-        return back()->with(
-            'success',
-            'Carregamento iniciado com sucesso.'
-        );
-    }
+    $historico = PedidoHistorico::create([
+        'pedido_id' => $pedido->id,
+        'user_id' => auth()->user()->id,
+        'acao' => 'Carregamento iniciado',
+        'detalhes' => 'Carregamento iniciado para o veiculo de placa ' .
+            $dados['placa'] . '.',
+    ]);
 
+    
+
+    return back()->with(
+        'success',
+        'Carregamento iniciado com sucesso.'
+    );
+}
 
     /*
     |--------------------------------------------------------------------------
@@ -480,16 +513,25 @@ $pedidos->getCollection()->each(
         ]);
 
         $pedido->update([
-            'numero_nfe' => $dados['numero_nfe'],
-            'status' => Pedido::STATUS_FATURADO,
-            'fim_carregamento_at' => now(),
-            'hora_faturamento' => now(),
-        ]);
+    'numero_nfe' => $dados['numero_nfe'],
+    'status' => Pedido::STATUS_FATURADO,
+    'fim_carregamento_at' => now(),
+    'hora_faturamento' => now(),
+]);
 
-        return back()->with(
-            'success',
-            'Pedido faturado com sucesso.'
-        );
+PedidoHistorico::create([
+    'pedido_id' => $pedido->id,
+    'user_id' => auth()->user()->id,
+    'acao' => 'Pedido faturado',
+    'detalhes' => 'Pedido faturado com NF-e ' .
+        $dados['numero_nfe'] . '.',
+]);
+
+return back()->with(
+    'success',
+    'Pedido faturado com sucesso.'
+);
+
     }
 
 

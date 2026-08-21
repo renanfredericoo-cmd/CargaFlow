@@ -12,7 +12,6 @@ export default function StatusPedidoModal({
     pedido,
     onClose,
 }: Props) {
-
     if (!pedido) {
         return null;
     }
@@ -26,79 +25,601 @@ export default function StatusPedidoModal({
 
     const statusIndex = etapas.indexOf(pedido.status);
 
-    function imprimir() {
+    const historicos =
+    (pedido as Pedido & {
+        historicos?: Array<{
+            id: number;
+            acao: string;
+            detalhes?: string | null;
+            created_at: string;
+            usuario?: {
+                id: number;
+                name: string;
+            } | null;
+        }>;
+    }).historicos ?? [];
 
+const historicoCriacao = historicos.find(
+    (item) => item.acao === "Pedido criado"
+);
+
+const usuarioCriacao =
+    pedido.user?.name ?? null;
+
+    function imprimir() {
         const janela = window.open("", "_blank");
 
         if (!janela) {
             return;
         }
 
+        const cliente =
+            typeof pedido.cliente === "object"
+                ? pedido.cliente.nome
+                : pedido.cliente ?? "-";
+
+        const numeroPedido =
+            pedido.numero_pedido ?? pedido.codigo;
+
+        const formatarDataHora = (
+            valor: string | null | undefined
+        ) => {
+            if (!valor) {
+                return "-";
+            }
+
+            return new Date(valor).toLocaleString("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+        };
+
+        const formatarAgendamento = () => {
+            if (
+                !pedido.data_agendamento ||
+                !pedido.hora_agendamento
+            ) {
+                return null;
+            }
+
+            return `${String(pedido.data_agendamento)
+                .substring(0, 10)
+                .split("-")
+                .reverse()
+                .join("/")}, ${String(
+                pedido.hora_agendamento
+            ).substring(0, 5)}`;
+        };
+
+        const dataCriacao = formatarDataHora(
+            pedido.created_at
+        );
+
+        const dataCarregamento = formatarDataHora(
+            pedido.inicio_carregamento_at
+        );
+
+        const dataFaturamento = pedido.hora_faturamento
+            ? String(pedido.hora_faturamento).substring(0, 5)
+            : null;
+
+        const agendamento = formatarAgendamento();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Histórico operacional
+        |--------------------------------------------------------------------------
+        */
+
+        const historico: string[] = [];
+
+        historico.push(`
+            <div class="historico-item">
+                <div class="historico-ponto ativo">✓</div>
+
+                <div class="historico-conteudo">
+    <div class="historico-titulo">
+        Pedido criado
+    </div>
+
+    <div class="historico-data">
+        ${dataCriacao}
+    </div>
+
+    ${
+        usuarioCriacao
+            ? `
+                <div class="historico-detalhe">
+                    Usuário: ${usuarioCriacao}
+                </div>
+            `
+            : ""
+    }
+</div>
+            </div>
+        `);
+
+        if (agendamento) {
+    const historicoAgendamento = historicos.find(
+        (item) => item.acao === "Pedido agendado"
+    );
+
+    const usuarioAgendamento =
+        historicoAgendamento?.usuario?.name ?? null;
+
+    historico.push(`
+        <div class="historico-item">
+            <div class="historico-ponto ativo">✓</div>
+
+            <div class="historico-conteudo">
+                <div class="historico-titulo">
+                    Pedido agendado
+                </div>
+
+                <div class="historico-data">
+                    ${agendamento}
+                </div>
+
+                ${
+                    usuarioAgendamento
+                        ? `
+                            <div class="historico-detalhe">
+                                Usuário: ${usuarioAgendamento}
+                            </div>
+                        `
+                        : ""
+                }
+            </div>
+        </div>
+    `);
+}
+
+        if (pedido.inicio_carregamento_at) {
+    const historicoCarregamento = pedido.historicos?.find(
+        (item) => item.acao === 'Carregamento iniciado'
+    );
+
+    historico.push(`
+        <div class="historico-item">
+            <div class="historico-ponto ativo">✓</div>
+
+            <div class="historico-conteudo">
+                <div class="historico-titulo">
+                    Carregamento iniciado
+                </div>
+
+                <div class="historico-data">
+                    ${dataCarregamento}
+                </div>
+
+                ${
+                    historicoCarregamento?.usuario?.name
+                        ? `<div class="historico-usuario">
+                            Usuário: ${historicoCarregamento.usuario.name}
+                           </div>`
+                        : ''
+                }
+            </div>
+        </div>
+    `);
+}
+
+        if (pedido.status === "Faturado") {
+    const historicoFaturamento = historicos.find(
+        (item) => item.acao === "Pedido faturado"
+    );
+
+    const usuarioFaturamento =
+        historicoFaturamento?.usuario?.name ?? null;
+
+    historico.push(`
+        <div class="historico-item">
+            <div class="historico-ponto ativo">✓</div>
+
+            <div class="historico-conteudo">
+                <div class="historico-titulo">
+                    Pedido faturado
+                </div>
+
+                <div class="historico-data">
+                    ${
+                        dataFaturamento
+                            ? `Horário: ${dataFaturamento}`
+                            : "-"
+                    }
+                </div>
+
+                ${
+                    usuarioFaturamento
+                        ? `
+                            <div class="historico-detalhe">
+                                Usuário: ${usuarioFaturamento}
+                            </div>
+                        `
+                        : ""
+                }
+
+                ${
+                    pedido.numero_nfe
+                        ? `
+                            <div class="historico-detalhe">
+                                NF-e: ${pedido.numero_nfe}
+                            </div>
+                        `
+                        : ""
+                }
+            </div>
+        </div>
+    `);
+}
+        /*
+        |--------------------------------------------------------------------------
+        | Andamento visual
+        |--------------------------------------------------------------------------
+        */
+
+        const andamento = etapas
+            .map((etapa, index) => {
+                const concluida =
+                    index <= statusIndex &&
+                    pedido.status !== "Cancelado";
+
+                const atual =
+                    index === statusIndex;
+
+                return `
+                    <div class="etapa">
+                        <div class="etapa-circulo ${
+                            concluida
+                                ? "concluida"
+                                : "pendente"
+                        }">
+                            ${concluida ? "✓" : index + 1}
+                        </div>
+
+                        <div class="etapa-nome ${
+                            atual ? "atual" : ""
+                        }">
+                            ${etapa}
+                        </div>
+                    </div>
+                `;
+            })
+            .join("");
+
         janela.document.write(`
             <html>
                 <head>
-                    <title>Pedido ${pedido.numero_pedido}</title>
+                    <title>
+                        CargaFlow - Pedido ${numeroPedido}
+                    </title>
 
                     <style>
-                        body {
-                            font-family: Arial, sans-serif;
-                            padding: 20px;
-                            color: #111;
-                            font-size: 13px;
+                        * {
+                            box-sizing: border-box;
                         }
 
-                        h1 {
-                            margin-bottom: 14px;
-                            font-size: 26px;
+                        body {
+                            margin: 0;
+                            padding: 28px;
+                            background: #ffffff;
+                            color: #171717;
+                            font-family:
+                                Arial,
+                                Helvetica,
+                                sans-serif;
+                            font-size: 12px;
+                        }
+
+                        .documento {
+                            max-width: 900px;
+                            margin: 0 auto;
+                        }
+
+                        .cabecalho {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: flex-start;
+                            padding-bottom: 22px;
+                            border-bottom: 2px solid #171717;
+                        }
+
+                        .marca {
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                        }
+
+                        .marca-icone {
+                            width: 42px;
+                            height: 42px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border-radius: 10px;
+                            background: #171717;
+                            color: #ffffff;
+                            font-size: 20px;
+                        }
+
+                        .marca-nome {
+                            font-size: 23px;
+                            font-weight: 800;
+                            letter-spacing: -0.5px;
+                        }
+
+                        .marca-subtitulo {
+                            margin-top: 3px;
+                            font-size: 9px;
+                            color: #737373;
+                            text-transform: uppercase;
+                            letter-spacing: 1.5px;
+                        }
+
+                        .cabecalho-direita {
+                            text-align: right;
+                        }
+
+                        .pedido-label {
+                            font-size: 9px;
+                            color: #737373;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                        }
+
+                        .pedido-numero {
+                            margin-top: 3px;
+                            font-size: 24px;
+                            font-weight: 800;
+                        }
+
+                        .status-badge {
+                            display: inline-block;
+                            margin-top: 7px;
+                            padding: 6px 12px;
+                            border-radius: 999px;
+                            background: #e0f2fe;
+                            color: #0369a1;
+                            font-size: 10px;
+                            font-weight: 700;
+                        }
+
+                        .titulo-secao {
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            margin: 24px 0 12px;
+                        }
+
+                        .titulo-barra {
+                            width: 4px;
+                            height: 24px;
+                            border-radius: 5px;
+                            background: #2563eb;
+                        }
+
+                        .titulo-secao h2 {
+                            margin: 0;
+                            font-size: 15px;
+                        }
+
+                        .titulo-secao p {
+                            margin: 2px 0 0;
+                            font-size: 9px;
+                            color: #737373;
                         }
 
                         .dados {
                             display: grid;
                             grid-template-columns: 1fr 1fr;
-                            gap: 8px 12px;
-                            margin-bottom: 16px;
+                            border: 1px solid #e5e5e5;
+                            border-radius: 10px;
+                            overflow: hidden;
                         }
 
                         .campo {
-                            border-bottom: 1px solid #ddd;
-                            padding-bottom: 4px;
+                            padding: 11px 13px;
+                            border-right: 1px solid #e5e5e5;
+                            border-bottom: 1px solid #e5e5e5;
                         }
 
-                        .label {
+                        .campo:nth-child(even) {
+                            border-right: none;
+                        }
+
+                        .campo-label {
+                            font-size: 8px;
+                            font-weight: 700;
+                            color: #737373;
+                            text-transform: uppercase;
+                            letter-spacing: 0.8px;
+                        }
+
+                        .campo-valor {
+                            margin-top: 4px;
+                            font-size: 12px;
+                            font-weight: 700;
+                        }
+
+                        .andamento {
+                            padding: 18px;
+                            border: 1px solid #e5e5e5;
+                            border-radius: 10px;
+                        }
+
+                        .etapas {
+                            display: flex;
+                            align-items: flex-start;
+                        }
+
+                        .etapa {
+                            position: relative;
+                            flex: 1;
+                            text-align: center;
+                        }
+
+                        .etapa:not(:last-child)::after {
+                            content: "";
+                            position: absolute;
+                            top: 14px;
+                            left: 58%;
+                            width: 84%;
+                            height: 2px;
+                            background: #e5e5e5;
+                        }
+
+                        .etapa-circulo {
+                            position: relative;
+                            z-index: 2;
+                            width: 29px;
+                            height: 29px;
+                            margin: 0 auto;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border-radius: 50%;
                             font-size: 10px;
-                            color: #666;
-                            margin-bottom: 2px;
+                            font-weight: 700;
+                            border: 2px solid #d4d4d4;
+                            background: #ffffff;
+                            color: #a3a3a3;
                         }
 
-                        .valor {
-                            font-size: 14px;
-                            font-weight: bold;
+                        .etapa-circulo.concluida {
+                            border-color: #2563eb;
+                            background: #2563eb;
+                            color: #ffffff;
+                        }
+
+                        .etapa-nome {
+                            margin-top: 7px;
+                            font-size: 9px;
+                            color: #737373;
+                        }
+
+                        .etapa-nome.atual {
+                            color: #171717;
+                            font-weight: 700;
+                        }
+
+                        .status-atual {
+                            margin-top: 15px;
+                            padding-top: 12px;
+                            border-top: 1px solid #e5e5e5;
+                        }
+
+                        .status-atual-label {
+                            font-size: 8px;
+                            color: #737373;
+                            text-transform: uppercase;
+                            letter-spacing: 0.8px;
+                        }
+
+                        .status-atual-valor {
+                            margin-top: 3px;
+                            font-size: 12px;
+                            font-weight: 700;
                         }
 
                         .observacoes {
-                            margin-top: 12px;
-                            padding: 10px;
-                            border: 1px solid #ddd;
-                            border-radius: 8px;
+                            padding: 14px;
+                            border: 1px solid #e5e5e5;
+                            border-radius: 10px;
+                            background: #fafafa;
                         }
 
-                        .observacoes p {
-                            margin: 6px 0 0;
+                        .observacoes-titulo {
+                            font-size: 10px;
+                            font-weight: 700;
                         }
 
-                        .status {
-                            margin-top: 14px;
-                            padding: 10px;
-                            border: 1px solid #ddd;
-                            border-radius: 8px;
+                        .observacoes-texto {
+                            margin-top: 7px;
+                            white-space: pre-wrap;
+                            font-size: 11px;
+                            line-height: 1.5;
+                            color: #404040;
                         }
 
-                        .status p {
-                            margin: 6px 0;
+                        .historico {
+                            padding: 16px;
+                            border: 1px solid #e5e5e5;
+                            border-radius: 10px;
                         }
 
-                        .status div {
-                            margin: 5px 0 !important;
+                        .historico-item {
+                            position: relative;
+                            display: flex;
+                            gap: 12px;
+                            padding-bottom: 17px;
+                        }
+
+                        .historico-item:last-child {
+                            padding-bottom: 0;
+                        }
+
+                        .historico-item:not(:last-child)::after {
+                            content: "";
+                            position: absolute;
+                            left: 13px;
+                            top: 29px;
+                            bottom: 0;
+                            width: 1px;
+                            background: #d4d4d4;
+                        }
+
+                        .historico-ponto {
+                            position: relative;
+                            z-index: 2;
+                            width: 27px;
+                            height: 27px;
+                            flex-shrink: 0;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border-radius: 50%;
+                            background: #2563eb;
+                            color: #ffffff;
+                            font-size: 11px;
+                            font-weight: 700;
+                        }
+
+                        .historico-ponto.cancelado {
+                            background: #dc2626;
+                        }
+
+                        .historico-titulo {
+                            font-size: 11px;
+                            font-weight: 700;
+                        }
+
+                        .historico-data {
+                            margin-top: 3px;
+                            font-size: 9px;
+                            color: #737373;
+                        }
+
+                        .historico-detalhe {
+                            margin-top: 3px;
+                            font-size: 9px;
+                            color: #404040;
+                        }
+
+                        .cancelado-texto {
+                            color: #dc2626;
+                        }
+
+                        .rodape {
+                            display: flex;
+                            justify-content: space-between;
+                            margin-top: 25px;
+                            padding-top: 12px;
+                            border-top: 1px solid #e5e5e5;
+                            font-size: 8px;
+                            color: #737373;
                         }
 
                         @media print {
@@ -109,271 +630,257 @@ export default function StatusPedidoModal({
 
                             body {
                                 padding: 0;
-                                font-size: 13px;
+                                font-size: 11px;
                             }
 
-                            h1 {
-                                margin-bottom: 10px;
-                                font-size: 24px;
+                            .documento {
+                                max-width: none;
                             }
 
-                            .dados {
-                                gap: 6px 10px;
-                                margin-bottom: 12px;
+                            .titulo-secao {
+                                margin-top: 18px;
                             }
 
                             .campo {
-                                padding-bottom: 3px;
+                                padding: 9px 11px;
                             }
 
+                            .andamento,
+                            .historico,
                             .observacoes {
-                                margin-top: 10px;
-                                padding: 8px;
-                            }
-
-                            .status {
-                                margin-top: 10px;
-                                padding: 8px;
-                            }
-
-                            .status div {
-                                margin: 3px 0 !important;
+                                break-inside: avoid;
                             }
                         }
                     </style>
                 </head>
 
                 <body>
+                    <div class="documento">
 
-                    <h1>Pedido ${pedido.numero_pedido ?? pedido.codigo}</h1>
+                        <!-- CABEÇALHO -->
+                        <div class="cabecalho">
+                            <div class="marca">
+                                <div class="marca-icone">
+                                    📊
+                                </div>
 
-                    <div class="dados">
+                                <div>
+                                    <div class="marca-nome">
+                                        CARGAFLOW
+                                    </div>
 
-                        <div class="campo">
-                            <div class="label">Cliente</div>
-                            <div class="valor">
-                                ${
-                                    typeof pedido.cliente === "object"
-                                        ? pedido.cliente.nome
-                                        : pedido.cliente ?? "-"
-                                }
+                                    <div class="marca-subtitulo">
+                                        Gestão que flui.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="cabecalho-direita">
+                                <div class="pedido-label">
+                                    Comprovante de pedido
+                                </div>
+
+                                <div class="pedido-numero">
+                                    #${numeroPedido}
+                                </div>
+
+                                <div class="status-badge">
+                                    ${pedido.status}
+                                </div>
                             </div>
                         </div>
 
-                        <div class="campo">
-                            <div class="label">Vendedor</div>
-                            <div class="valor">
-                                ${pedido.vendedor ?? "-"}
+                        <!-- DADOS -->
+                        <div class="titulo-secao">
+                            <div class="titulo-barra"></div>
+
+                            <div>
+                                <h2>Dados do pedido</h2>
+
+                                <p>
+                                    Informações comerciais e operacionais
+                                </p>
                             </div>
                         </div>
 
-                        <div class="campo">
-                            <div class="label">Destino</div>
-                            <div class="valor">
-                                ${pedido.destino ?? "-"}
+                        <div class="dados">
+
+                            <div class="campo">
+                                <div class="campo-label">
+                                    Cliente
+                                </div>
+
+                                <div class="campo-valor">
+                                    ${cliente}
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <div class="campo-label">
+                                    Vendedor
+                                </div>
+
+                                <div class="campo-valor">
+                                    ${pedido.vendedor ?? "-"}
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <div class="campo-label">
+                                    Destino
+                                </div>
+
+                                <div class="campo-valor">
+                                    ${pedido.destino ?? "-"}
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <div class="campo-label">
+                                    Produto
+                                </div>
+
+                                <div class="campo-valor">
+                                    ${pedido.produto?.descricao ?? "-"}
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <div class="campo-label">
+                                    Toneladas
+                                </div>
+
+                                <div class="campo-valor">
+                                    ${
+                                        pedido.peso != null
+                                            ? `${Number(
+                                                  pedido.peso
+                                              ).toLocaleString(
+                                                  "pt-BR",
+                                                  {
+                                                      minimumFractionDigits: 2,
+                                                      maximumFractionDigits: 2,
+                                                  }
+                                              )} t`
+                                            : "-"
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <div class="campo-label">
+                                    Frete
+                                </div>
+
+                                <div class="campo-valor">
+                                    ${pedido.tipo_frete ?? "-"}
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <div class="campo-label">
+                                    Transportadora
+                                </div>
+
+                                <div class="campo-valor">
+                                    ${pedido.transportadora ?? "-"}
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <div class="campo-label">
+                                    Placa
+                                </div>
+
+                                <div class="campo-valor">
+                                    ${pedido.placa ?? "-"}
+                                </div>
+                            </div>
+
+                            
+
+                        </div>
+
+                        <!-- ANDAMENTO -->
+                        <div class="titulo-secao">
+                            <div
+                                class="titulo-barra"
+                                style="background:#10b981;"
+                            ></div>
+
+                            <div>
+                                <h2>Andamento do pedido</h2>
+
+                                <p>
+                                    Evolução operacional
+                                </p>
                             </div>
                         </div>
 
-                        <div class="campo">
-                            <div class="label">Produto</div>
-                            <div class="valor">
-                                ${pedido.produto?.descricao ?? "-"}
+                        <div class="andamento">
+                            <div class="etapas">
+                                ${andamento}
+                            </div>
+
+                            <div class="status-atual">
+                                <div class="status-atual-label">
+                                    Status atual
+                                </div>
+
+                                <div class="status-atual-valor">
+                                    ${pedido.status}
+                                </div>
                             </div>
                         </div>
 
-                        <div class="campo">
-                            <div class="label">Toneladas</div>
-                            <div class="valor">
-                                ${
-                                    pedido.peso != null
-                                        ? `${Number(
-                                              pedido.peso
-                                          ).toLocaleString(
-                                              "pt-BR",
-                                              {
-                                                  minimumFractionDigits: 2,
-                                                  maximumFractionDigits: 2,
-                                              }
-                                          )} t`
-                                        : "-"
-                                }
+                        <!-- OBSERVAÇÕES -->
+                        <div class="titulo-secao">
+                            <div
+                                class="titulo-barra"
+                                style="background:#f59e0b;"
+                            ></div>
+
+                            <div>
+                                <h2>Observações</h2>
                             </div>
                         </div>
 
-                        <div class="campo">
-                            <div class="label">Frete</div>
-                            <div class="valor">
-                                ${pedido.tipo_frete ?? "-"}
-                            </div>
-                        </div>
-
-                        <div class="campo">
-                            <div class="label">Transportadora</div>
-                            <div class="valor">
-                                ${pedido.transportadora ?? "-"}
-                            </div>
-                        </div>
-
-                        <div class="campo">
-                            <div class="label">Placa</div>
-                            <div class="valor">
-                                ${pedido.placa ?? "-"}
-                            </div>
-                        </div>
-
-                        <div class="campo">
-                            <div class="label">NF-e</div>
-                            <div class="valor">
-                                ${pedido.numero_nfe ?? "-"}
-                            </div>
-                        </div>
-
-                        <div class="campo">
-                            <div class="label">Horário do pedido</div>
-                            <div class="valor">
-                                ${
-                                    pedido.created_at
-                                        ? new Date(
-                                              pedido.created_at
-                                          ).toLocaleString(
-                                              "pt-BR",
-                                              {
-                                                  day: "2-digit",
-                                                  month: "2-digit",
-                                                  year: "numeric",
-                                                  hour: "2-digit",
-                                                  minute: "2-digit",
-                                              }
-                                          )
-                                        : "-"
-                                }
-                            </div>
-                        </div>
-
-                        <div class="campo">
-    <div class="label">Horário agendado</div>
-    <div class="valor">
-        ${
-            pedido.data_agendamento && pedido.hora_agendamento
-                ? `${String(pedido.data_agendamento)
-                      .substring(0, 10)
-                      .split("-")
-                      .reverse()
-                      .join("/")}, ${String(
-                      pedido.hora_agendamento
-                  ).substring(0, 5)}`
-                : "-"
-        }
-    </div>
+                        <div class="observacoes">
+    <div class="observacoes-texto">${pedido.observacoes ?? "Nenhuma observação registrada."}</div>
 </div>
 
-                        <div class="campo">
-                            <div class="label">Horário de carregamento</div>
-                            <div class="valor">
-                                ${
-                                    pedido.inicio_carregamento_at
-                                        ? new Date(
-                                              pedido.inicio_carregamento_at
-                                          ).toLocaleString(
-                                              "pt-BR",
-                                              {
-                                                  day: "2-digit",
-                                                  month: "2-digit",
-                                                  year: "numeric",
-                                                  hour: "2-digit",
-                                                  minute: "2-digit",
-                                              }
-                                          )
-                                        : "-"
-                                }
+                        <!-- HISTÓRICO -->
+                        <div class="titulo-secao">
+                            <div
+                                class="titulo-barra"
+                                style="background:#7c3aed;"
+                            ></div>
+
+                            <div>
+                                <h2>Histórico do pedido</h2>
+
+                                <p>
+                                    Evolução registrada no processo
+                                </p>
                             </div>
                         </div>
 
-                        <div class="campo">
-                            <div class="label">Horário de faturamento</div>
-                            <div class="valor">
-                                ${
-                                    pedido.fim_carregamento_at
-                                        ? new Date(
-                                              pedido.fim_carregamento_at
-                                          ).toLocaleString(
-                                              "pt-BR",
-                                              {
-                                                  day: "2-digit",
-                                                  month: "2-digit",
-                                                  year: "numeric",
-                                                  hour: "2-digit",
-                                                  minute: "2-digit",
-                                              }
-                                          )
-                                        : "-"
-                                }
-                            </div>
+                        <div class="historico">
+                            ${historico.join("")}
+                        </div>
+
+                        <!-- RODAPÉ -->
+                        <div class="rodape">
+                            <span>
+                                CargaFlow — Gestão que flui.
+                            </span>
+
+                            <span>
+                                Documento gerado pelo sistema
+                            </span>
                         </div>
 
                     </div>
-
-                    <div class="observacoes">
-
-                        <strong>Observações</strong>
-
-                        <p>
-                            ${pedido.observacoes ?? "-"}
-                        </p>
-
-                    </div>
-
-                    <div class="status">
-
-                        <strong>Andamento do pedido</strong>
-
-                        <p>
-                            ${etapas
-                                .map((etapa, index) => {
-
-                                    const concluida =
-                                        index <= statusIndex &&
-                                        pedido.status !== "Cancelado";
-
-                                    return `
-                                        <div style="margin: 12px 0;">
-                                            ${
-                                                concluida
-                                                    ? "✓"
-                                                    : "○"
-                                            }
-                                            ${etapa}
-                                        </div>
-                                    `;
-                                })
-                                .join("")}
-                        </p>
-
-                        <strong>
-                            Status atual: ${pedido.status}
-                        </strong>
-
-                    </div>
-
-                    <div class="alteracao">
-
-                        <strong>Alterado por:</strong>
-                        ${pedido.alterado_por?.name ?? "-"}
-
-                        <br />
-
-                        <strong>Data/Hora:</strong>
-
-                        ${
-                            pedido.alterado_em
-                                ? new Date(
-                                      pedido.alterado_em
-                                  ).toLocaleString("pt-BR")
-                                : "-"
-                        }
-
-                    </div>
-
                 </body>
             </html>
         `);
@@ -393,7 +900,6 @@ export default function StatusPedidoModal({
             onClose={onClose}
             title={`Pedido ${pedido.numero_pedido ?? pedido.codigo}`}
         >
-
             <div className="space-y-5">
 
                 <div className="grid grid-cols-2 gap-4">
@@ -561,7 +1067,6 @@ export default function StatusPedidoModal({
 
                                 </div>
                             );
-
                         })}
 
                     </div>
@@ -601,7 +1106,6 @@ export default function StatusPedidoModal({
                 </div>
 
             </div>
-
         </Modal>
     );
 }
