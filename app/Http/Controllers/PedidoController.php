@@ -353,7 +353,7 @@ return back()->with(
 
     $dados = $request->validate([
         'transportadora' => [
-            'required',
+            'nullable',
             'string',
             'max:255',
         ],
@@ -401,34 +401,33 @@ $historico = PedidoHistorico::create([
     */
 
     public function atualizarTransportadora(
-        Request $request,
-        Pedido $pedido
-    ) {
-        $this->permitir([
-            'admin',
-            'pedidos',
-            'agendamento',
-            'carregamento',
-        ]);
+    Request $request,
+    Pedido $pedido
+) {
+    $this->permitir([
+        'admin',
+        'pedidos',
+        'agendamento',
+        'carregamento',
+    ]);
 
-        $dados = $request->validate([
-            'transportadora' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-        ]);
+    $dados = $request->validate([
+        'transportadora' => [
+            'nullable',
+            'string',
+            'max:255',
+        ],
+    ]);
 
-        $pedido->update([
-            'transportadora' => $dados['transportadora'],
-        ]);
+    $pedido->update([
+        'transportadora' => $dados['transportadora'] ?? null,
+    ]);
 
-        return back()->with(
-            'success',
-            'Transportadora atualizada com sucesso.'
-        );
-    }
-
+    return back()->with(
+        'success',
+        'Transportadora atualizada com sucesso.'
+    );
+}
 
     /*
     |--------------------------------------------------------------------------
