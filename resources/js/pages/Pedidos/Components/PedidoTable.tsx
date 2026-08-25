@@ -291,14 +291,22 @@ export default function PedidoTable({
             userRole === "carregamento") && (
 
             <Button
-                variant="primary"
-                title="Editar transportadora"
-                onClick={() =>
-                    onEditarTransportadora(pedido)
-                }
-            >
-                <Pencil size={20} />
-            </Button>
+    variant="primary"
+    title={
+        userRole === "pedidos"
+            ? "Editar pedido"
+            : "Editar transportadora"
+    }
+    onClick={() => {
+        if (userRole === "pedidos") {
+            onEditar(pedido);
+        } else {
+            onEditarTransportadora(pedido);
+        }
+    }}
+>
+    <Pencil size={20} />
+</Button>
 
         )}
 
