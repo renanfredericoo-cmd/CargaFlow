@@ -461,7 +461,7 @@ useEffect(() => {
                         </option>
 
                         <option value="Em Carregamento">
-                            Em Carregamento
+                            Aguardando Carregamento
                         </option>
 
                         <option value="Faturado">

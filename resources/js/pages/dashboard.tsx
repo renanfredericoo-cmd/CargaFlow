@@ -121,7 +121,7 @@ export default function Dashboard({
         },
 
         {
-            title: "Em carregamento",
+            title: "Aguardando Carregamento",
             value: stats.carregados,
             color: "border-cyan-500",
         },
@@ -194,7 +194,7 @@ export default function Dashboard({
         },
 
         "Em Carregamento": {
-            label: "Em carregamento",
+            label: "Aguardando Carregamento",
             bar: "bg-cyan-500",
             badge: "bg-cyan-500",
         },
