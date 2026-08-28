@@ -51,9 +51,33 @@ export default function Detalhes({ pedido }: Props) {
           })
         : "-";
 
-    const horaFaturamento = pedido.hora_faturamento
-        ? String(pedido.hora_faturamento).substring(0, 5)
-        : "-";
+    const formatarDataHoraFaturamento = (
+    valor: string | null | undefined
+) => {
+    if (!valor) {
+        return "-";
+    }
+
+    const data = String(valor).replace("T", " ");
+
+    const [dataParte, horaParte] = data.split(" ");
+
+    if (!dataParte || !horaParte) {
+        return String(valor);
+    }
+
+    const [ano, mes, dia] = dataParte.split("-");
+
+    if (!ano || !mes || !dia) {
+        return String(valor);
+    }
+
+    return `${dia}/${mes}/${ano}, ${horaParte.substring(0, 5)}`;
+};
+
+const horaFaturamento = pedido.hora_faturamento
+    ? formatarDataHoraFaturamento(pedido.hora_faturamento)
+    : "-";
 
     const etapas = [
         {

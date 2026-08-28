@@ -546,6 +546,7 @@ return back()->with(
     'cliente',
     'produto',
     'alteradoPor',
+    'historicos.usuario',
 ]);
 
         return Inertia::render('Pedidos/Detalhes', [

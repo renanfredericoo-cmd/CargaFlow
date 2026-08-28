@@ -44,7 +44,9 @@ const historicoCriacao = historicos.find(
 );
 
 const usuarioCriacao =
-    pedido.user?.name ?? null;
+    historicoCriacao?.usuario?.name ??
+    pedido.user?.name ??
+    null;
 
     function imprimir() {
         const janela = window.open("", "_blank");
@@ -102,11 +104,44 @@ const usuarioCriacao =
             pedido.inicio_carregamento_at
         );
 
-        const dataFaturamento = pedido.hora_faturamento
-            ? String(pedido.hora_faturamento).substring(0, 5)
-            : null;
-
         const agendamento = formatarAgendamento();
+
+const historicoAgendamento = historicos.find(
+    (item) => item.acao === "Pedido agendado"
+);
+
+const historicoCarregamento = historicos.find(
+    (item) => item.acao === "Carregamento iniciado"
+);
+
+const historicoFaturamento = historicos.find(
+    (item) => item.acao === "Pedido faturado"
+);
+
+const dataAgendamentoHistorico = historicoAgendamento?.created_at
+    ? formatarDataHora(historicoAgendamento.created_at)
+    : agendamento;
+
+const dataCarregamentoHistorico = historicoCarregamento?.created_at
+    ? formatarDataHora(historicoCarregamento.created_at)
+    : dataCarregamento;
+
+const dataFaturamento = historicoFaturamento?.created_at
+    ? formatarDataHora(historicoFaturamento.created_at)
+    : pedido.data && pedido.hora_faturamento
+        ? `${String(pedido.data).substring(0, 10).split("-").reverse().join("/")}, ${String(pedido.hora_faturamento).substring(0, 5)}`
+        : null;
+
+const usuarioAgendamento =
+    historicoAgendamento?.usuario?.name ?? null;
+
+const usuarioCarregamento =
+    historicoCarregamento?.usuario?.name ?? null;
+
+const usuarioFaturamento =
+    historicoFaturamento?.usuario?.name ??
+    pedido.alterado_por?.name ??
+    null;
 
         /*
         |--------------------------------------------------------------------------
@@ -143,13 +178,6 @@ const usuarioCriacao =
         `);
 
         if (agendamento) {
-    const historicoAgendamento = historicos.find(
-        (item) => item.acao === "Pedido agendado"
-    );
-
-    const usuarioAgendamento =
-        historicoAgendamento?.usuario?.name ?? null;
-
     historico.push(`
         <div class="historico-item">
             <div class="historico-ponto ativo">✓</div>
@@ -160,7 +188,7 @@ const usuarioCriacao =
                 </div>
 
                 <div class="historico-data">
-                    ${agendamento}
+                    ${dataAgendamentoHistorico ?? agendamento}
                 </div>
 
                 ${
@@ -178,10 +206,6 @@ const usuarioCriacao =
 }
 
         if (pedido.inicio_carregamento_at) {
-    const historicoCarregamento = pedido.historicos?.find(
-        (item) => item.acao === 'Carregamento iniciado'
-    );
-
     historico.push(`
         <div class="historico-item">
             <div class="historico-ponto ativo">✓</div>
@@ -192,13 +216,13 @@ const usuarioCriacao =
                 </div>
 
                 <div class="historico-data">
-                    ${dataCarregamento}
+                    ${dataCarregamentoHistorico}
                 </div>
 
                 ${
-                    historicoCarregamento?.usuario?.name
-                        ? `<div class="historico-usuario">
-                            Usuário: ${historicoCarregamento.usuario.name}
+                    usuarioCarregamento
+                        ? `<div class="historico-detalhe">
+                            Usuário: ${usuarioCarregamento}
                            </div>`
                         : ''
                 }
@@ -208,12 +232,9 @@ const usuarioCriacao =
 }
 
         if (pedido.status === "Faturado") {
-    const historicoFaturamento = historicos.find(
-        (item) => item.acao === "Pedido faturado"
-    );
+    
 
-    const usuarioFaturamento =
-        historicoFaturamento?.usuario?.name ?? null;
+    
 
     historico.push(`
         <div class="historico-item">
