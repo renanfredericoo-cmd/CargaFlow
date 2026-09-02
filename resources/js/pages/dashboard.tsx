@@ -10,6 +10,7 @@ interface Props {
         toneladas_faturadas: number;
         cancelados: number;
         toneladas: number;
+        toneladas_nutricao: number;
 
         tempo_operacao: {
             media_segundos: number;
@@ -145,6 +146,12 @@ export default function Dashboard({
             value: `${stats.toneladas.toLocaleString("pt-BR")} t`,
             color: "border-purple-500",
         },
+
+        {
+    title: "Nutrição Animal",
+    value: `${stats.toneladas_nutricao.toLocaleString("pt-BR")} t`,
+    color: "border-emerald-500",
+},
 
         {
             title: "Tempo médio de carregamento",

@@ -44,6 +44,11 @@ if (!$dataInicial && !$dataFinal) {
 
         $pedidos = $query->get();
 
+        $produtosNutricao = [
+    5, 6, 7, 10, 11, 12, 13,
+    14, 15, 16, 17, 18, 21, 23,
+];
+
         $pedidosComTempo = $pedidos
             ->whereNotNull('inicio_carregamento_at')
             ->whereNotNull('fim_carregamento_at');
@@ -80,7 +85,13 @@ if (!$dataInicial && !$dataFinal) {
                 ->where('status', 'Cancelado')
                 ->count(),
 
-            'toneladas' => $pedidos->sum('peso'),
+            'toneladas' => $pedidos
+    ->whereNotIn('produto_id', $produtosNutricao)
+    ->sum('peso'),
+
+'toneladas_nutricao' => $pedidos
+    ->whereIn('produto_id', $produtosNutricao)
+    ->sum('peso'),
 
             'tempo_operacao' => [
                 'media_segundos' => round(
