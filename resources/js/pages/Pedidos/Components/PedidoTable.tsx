@@ -153,9 +153,11 @@ export default function PedidoTable({
 <td className="px-3 py-1">
     {(() => {
         const atrasado =
-            pedido.data_entrega &&
-            new Date(pedido.data_entrega) <
-                new Date(new Date().setHours(0, 0, 0, 0));
+    pedido.status !== "Faturado" &&
+    pedido.status !== "Cancelado" &&
+    pedido.data_entrega &&
+    new Date(pedido.data_entrega) <
+        new Date(new Date().setHours(0, 0, 0, 0));
 
         return (
             <div className="flex items-center gap-1.5">
