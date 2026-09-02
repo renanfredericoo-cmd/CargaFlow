@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import { router, usePage } from "@inertiajs/react";
+
 import Modal from "@/components/Modal";
 import Button from "@/components/Button";
 
@@ -12,7 +15,19 @@ export default function StatusPedidoModal({
     pedido,
     onClose,
 }: Props) {
-    if (!pedido) {
+    const { auth } = usePage().props as any;
+
+    const [editandoNfe, setEditandoNfe] = useState(false);
+const [novoNfe, setNovoNfe] = useState("");
+const [nfeAtual, setNfeAtual] = useState("");
+
+useEffect(() => {
+    setNovoNfe(pedido?.numero_nfe ?? "");
+    setNfeAtual(pedido?.numero_nfe ?? "");
+    setEditandoNfe(false);
+}, [pedido]);
+
+        if (!pedido) {
         return null;
     }
 
@@ -1014,14 +1029,80 @@ const usuarioFaturamento =
                     </div>
 
                     <div>
-                        <p className="text-xs text-gray-500">
-                            NF-e
-                        </p>
+    <p className="text-xs text-gray-500">
+        NF-e
+    </p>
 
-                        <p className="font-semibold">
-                            {pedido.numero_nfe ?? "-"}
-                        </p>
-                    </div>
+    {["admin", "pedidos"].includes(auth.user?.role) &&
+    pedido.status === "Faturado" ? (
+        <div className="mt-1 flex items-center gap-2">
+            {editandoNfe ? (
+                <>
+                    <input
+                        type="text"
+                        value={novoNfe}
+                        onChange={(e) => setNovoNfe(e.target.value)}
+                        className="w-40 rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800"
+                    />
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            router.patch(
+                                `/pedidos/${pedido.id}/nfe`,
+                                {
+                                    numero_nfe: novoNfe,
+                                },
+                                {
+                                    preserveScroll: true,
+                                    onSuccess: () => {
+                                        setNfeAtual(novoNfe);
+                                        setNovoNfe(novoNfe);
+                                        setEditandoNfe(false);
+
+
+                                    },
+                                }
+                            );
+                        }}
+                        className="rounded-md bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-700"
+                    >
+                        Salvar
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setNovoNfe(nfeAtual);
+                            setEditandoNfe(false);
+                        }}
+                        className="rounded-md border border-gray-300 px-3 py-1 text-xs dark:border-gray-600"
+                    >
+                        Cancelar
+                    </button>
+                </>
+            ) : (
+                <>
+                    <p className="font-semibold">
+                        {nfeAtual || "-"}
+                    </p>
+
+                    <button
+                        type="button"
+                        onClick={() => setEditandoNfe(true)}
+                        className="rounded-md border border-gray-300 px-2 py-1 text-xs dark:border-gray-600"
+                    >
+                        Editar
+                    </button>
+                </>
+            )}
+        </div>
+    ) : (
+        <p className="font-semibold">
+            {nfeAtual || "-"}
+        </p>
+    )}
+</div>
 
                 </div>
 

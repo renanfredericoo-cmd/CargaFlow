@@ -533,6 +533,52 @@ return back()->with(
 
     }
 
+    // Alterar NF-e de pedido já faturado
+public function atualizarNfe(Request $request, Pedido $pedido)
+{
+    $this->permitir([
+        'admin',
+        'pedidos',
+    ]);
+
+    if ($pedido->status !== Pedido::STATUS_FATURADO) {
+        return back()->with(
+            'error',
+            'Somente pedidos faturados podem ter a NF-e alterada.'
+        );
+    }
+
+    $dados = $request->validate([
+        'numero_nfe' => [
+            'required',
+            'string',
+            'max:255',
+        ],
+    ]);
+
+    $numeroNfeAnterior = $pedido->numero_nfe;
+
+    $pedido->update([
+        'numero_nfe' => $dados['numero_nfe'],
+    ]);
+
+    PedidoHistorico::create([
+        'pedido_id' => $pedido->id,
+        'user_id' => auth()->id(),
+        'acao' => 'NF-e alterada',
+        'detalhes' => 'NF-e alterada de "' .
+            ($numeroNfeAnterior ?? '-') .
+            '" para "' .
+            $dados['numero_nfe'] .
+            '".',
+    ]);
+
+    return back()->with(
+        'success',
+        'NF-e atualizada com sucesso.'
+    );
+}
+
 
     /*
     |--------------------------------------------------------------------------

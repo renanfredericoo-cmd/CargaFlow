@@ -119,6 +119,11 @@ Route::patch('/pedidos/{pedido}/transportadora', [PedidoController::class, 'atua
 Route::put('/pedidos/{pedido}/faturar', [PedidoController::class, 'faturar'])
     ->name('pedidos.faturar');
 
+    // Alterar NF-e de pedido já faturado
+
+Route::patch('/pedidos/{pedido}/nfe', [PedidoController::class, 'atualizarNfe'])
+    ->name('pedidos.atualizarNfe');
+
 
 
 

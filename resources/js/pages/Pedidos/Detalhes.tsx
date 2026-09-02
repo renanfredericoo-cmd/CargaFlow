@@ -1,14 +1,26 @@
-import { Head } from "@inertiajs/react";
+import { Head, router, usePage } from "@inertiajs/react";
 
 import Button from "@/components/Button";
 
 import type { Pedido } from "@/types/pedido";
+
+import { useState } from "react";
 
 interface Props {
     pedido: Pedido;
 }
 
 export default function Detalhes({ pedido }: Props) {
+    const { auth } = usePage().props as any;
+    console.log("ROLE:", auth.user?.role);
+
+    const podeAlterarNfe =
+        ["admin", "pedidos"].includes(auth.user?.role) &&
+        pedido.status === "Faturado";
+
+    const [editandoNfe, setEditandoNfe] = useState(false);
+    const [novoNfe, setNovoNfe] = useState(pedido.numero_nfe ?? "");
+
     function imprimir() {
         window.print();
     }
@@ -249,10 +261,78 @@ const horaFaturamento = pedido.hora_faturamento
                                     value={pedido.placa ?? "-"}
                                 />
 
-                                <Info
-                                    label="NF-e"
-                                    value={pedido.numero_nfe ?? "-"}
-                                />
+                                {podeAlterarNfe ? (
+    <div>
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+            NF-e
+        </div>
+
+        <div className="mt-1 flex items-center gap-2">
+            {editandoNfe ? (
+                <>
+                    <input
+                        type="text"
+                        value={novoNfe}
+                        onChange={(e) => setNovoNfe(e.target.value)}
+                        className="w-40 rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800"
+                    />
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            router.patch(
+                                `/pedidos/${pedido.id}/nfe`,
+                                {
+                                    numero_nfe: novoNfe,
+                                },
+                                {
+                                    preserveScroll: true,
+                                    onSuccess: () => {
+                                        setEditandoNfe(false);
+                                    },
+                                }
+                            );
+                        }}
+                        className="rounded-md bg-emerald-600 px-3 py-1 text-sm text-white hover:bg-emerald-700"
+                    >
+                        Salvar
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setNovoNfe(pedido.numero_nfe ?? "");
+                            setEditandoNfe(false);
+                        }}
+                        className="rounded-md border border-gray-300 px-3 py-1 text-sm dark:border-gray-600"
+                    >
+                        Cancelar
+                    </button>
+                </>
+            ) : (
+                <>
+                    <span className="text-sm font-medium">
+                        {pedido.numero_nfe ?? "-"}
+                    </span>
+
+                    <button
+                        type="button"
+                        onClick={() => setEditandoNfe(true)}
+                        className="rounded-md border border-gray-300 px-2 py-1 text-xs dark:border-gray-600"
+                    >
+                        Editar
+                    </button>
+                </>
+            )}
+        </div>
+    </div>
+) : (
+    <Info
+        label="NF-e"
+        value={pedido.numero_nfe ?? "-"}
+    />
+)}
+
 
                                 <Info
                                     label="Início do carregamento"
