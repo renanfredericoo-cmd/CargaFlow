@@ -168,7 +168,27 @@ if ($status === 'Todos') {
                 'destino',
                 'ILIKE',
                 $termo
-            );
+            )
+
+            ->orWhere(
+                'transportadora',
+                'ILIKE',
+                $termo
+            )
+
+            ->orWhere(
+                'numero_nfe',
+                'ILIKE',
+                $termo
+            )
+
+            ->orWhereHas('produto', function ($produto) use ($termo) {
+                $produto->where(
+                    'descricao',
+                    'ILIKE',
+                    $termo
+                );
+            });
 
         });
     }
