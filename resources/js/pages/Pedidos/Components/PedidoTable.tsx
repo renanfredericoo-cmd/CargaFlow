@@ -149,9 +149,36 @@ export default function PedidoTable({
                             >
 
                                 {/* DATA */}
-                                <td className="px-3 py-1">
-                                    {formatarData(pedido.data_entrega)}
-                                </td>
+{/* DATA */}
+<td className="px-3 py-1">
+    {(() => {
+        const atrasado =
+            pedido.data_entrega &&
+            new Date(pedido.data_entrega) <
+                new Date(new Date().setHours(0, 0, 0, 0));
+
+        return (
+            <div className="flex items-center gap-1.5">
+                {atrasado && (
+                    <span
+                        className="h-2 w-2 rounded-full bg-red-500"
+                        title="Pedido atrasado"
+                    />
+                )}
+
+                <span
+                    className={
+                        atrasado
+                            ? "text-red-400"
+                            : ""
+                    }
+                >
+                    {formatarData(pedido.data_entrega)}
+                </span>
+            </div>
+        );
+    })()}
+</td>
 
                                 {/* CLIENTE */}
                                 <td className="px-3 py-1">
