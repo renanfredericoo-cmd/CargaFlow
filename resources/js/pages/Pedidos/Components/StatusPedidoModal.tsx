@@ -1108,7 +1108,7 @@ const usuarioFaturamento =
 
                 {/* HISTÓRICO */}
 
-                {historicos.length > 0 && (
+                {pedido.status === "Cancelado" && historicos.length > 0 && (
                     <div className="rounded-xl border p-4 dark:border-neutral-700">
                         <p className="mb-4 font-semibold">
                             Histórico do pedido
