@@ -1,6 +1,3 @@
-import { useEffect, useState } from "react";
-import { router, usePage } from "@inertiajs/react";
-
 import Modal from "@/components/Modal";
 import Button from "@/components/Button";
 
@@ -15,19 +12,7 @@ export default function StatusPedidoModal({
     pedido,
     onClose,
 }: Props) {
-    const { auth } = usePage().props as any;
-
-    const [editandoNfe, setEditandoNfe] = useState(false);
-const [novoNfe, setNovoNfe] = useState("");
-const [nfeAtual, setNfeAtual] = useState("");
-
-useEffect(() => {
-    setNovoNfe(pedido?.numero_nfe ?? "");
-    setNfeAtual(pedido?.numero_nfe ?? "");
-    setEditandoNfe(false);
-}, [pedido]);
-
-        if (!pedido) {
+    if (!pedido) {
         return null;
     }
 
@@ -1029,80 +1014,14 @@ const usuarioFaturamento =
                     </div>
 
                     <div>
-    <p className="text-xs text-gray-500">
-        NF-e
-    </p>
+                        <p className="text-xs text-gray-500">
+                            NF-e
+                        </p>
 
-    {["admin", "pedidos"].includes(auth.user?.role) &&
-    pedido.status === "Faturado" ? (
-        <div className="mt-1 flex items-center gap-2">
-            {editandoNfe ? (
-                <>
-                    <input
-                        type="text"
-                        value={novoNfe}
-                        onChange={(e) => setNovoNfe(e.target.value)}
-                        className="w-40 rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800"
-                    />
-
-                    <button
-                        type="button"
-                        onClick={() => {
-                            router.patch(
-                                `/pedidos/${pedido.id}/nfe`,
-                                {
-                                    numero_nfe: novoNfe,
-                                },
-                                {
-                                    preserveScroll: true,
-                                    onSuccess: () => {
-                                        setNfeAtual(novoNfe);
-                                        setNovoNfe(novoNfe);
-                                        setEditandoNfe(false);
-
-
-                                    },
-                                }
-                            );
-                        }}
-                        className="rounded-md bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-700"
-                    >
-                        Salvar
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setNovoNfe(nfeAtual);
-                            setEditandoNfe(false);
-                        }}
-                        className="rounded-md border border-gray-300 px-3 py-1 text-xs dark:border-gray-600"
-                    >
-                        Cancelar
-                    </button>
-                </>
-            ) : (
-                <>
-                    <p className="font-semibold">
-                        {nfeAtual || "-"}
-                    </p>
-
-                    <button
-                        type="button"
-                        onClick={() => setEditandoNfe(true)}
-                        className="rounded-md border border-gray-300 px-2 py-1 text-xs dark:border-gray-600"
-                    >
-                        Editar
-                    </button>
-                </>
-            )}
-        </div>
-    ) : (
-        <p className="font-semibold">
-            {nfeAtual || "-"}
-        </p>
-    )}
-</div>
+                        <p className="font-semibold">
+                            {pedido.numero_nfe ?? "-"}
+                        </p>
+                    </div>
 
                 </div>
 
@@ -1186,6 +1105,80 @@ const usuarioFaturamento =
                     </div>
 
                 </div>
+
+                {/* HISTÓRICO */}
+
+                {historicos.length > 0 && (
+                    <div className="rounded-xl border p-4 dark:border-neutral-700">
+                        <p className="mb-4 font-semibold">
+                            Histórico do pedido
+                        </p>
+
+                        <div className="space-y-4">
+                            {historicos.map((historico) => {
+                                const cancelado =
+                                    historico.acao === "Pedido cancelado";
+
+                                const dataHistorico = historico.created_at
+                                    ? new Date(
+                                          historico.created_at
+                                      ).toLocaleString("pt-BR", {
+                                          day: "2-digit",
+                                          month: "2-digit",
+                                          year: "numeric",
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                      })
+                                    : "-";
+
+                                return (
+                                    <div
+                                        key={historico.id}
+                                        className="flex items-start gap-3"
+                                    >
+                                        <div
+                                            className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                                                cancelado
+                                                    ? "bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300"
+                                                    : "bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300"
+                                            }`}
+                                        >
+                                            {cancelado ? "✕" : "✓"}
+                                        </div>
+
+                                        <div className="min-w-0">
+                                            <p
+                                                className={`text-sm font-semibold ${
+                                                    cancelado
+                                                        ? "text-red-600 dark:text-red-300"
+                                                        : "text-gray-900 dark:text-white"
+                                                }`}
+                                            >
+                                                {historico.acao}
+                                            </p>
+
+                                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                {dataHistorico}
+                                            </p>
+
+                                            {historico.usuario?.name && (
+                                                <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                                                    Usuário: {historico.usuario.name}
+                                                </p>
+                                            )}
+
+                                            {historico.detalhes && (
+                                                <p className="mt-2 whitespace-pre-wrap text-sm text-gray-600 dark:text-gray-300">
+                                                    {historico.detalhes}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
 
                 <div className="flex justify-end gap-3">
 

@@ -168,27 +168,7 @@ if ($status === 'Todos') {
                 'destino',
                 'ILIKE',
                 $termo
-            )
-
-            ->orWhere(
-                'transportadora',
-                'ILIKE',
-                $termo
-            )
-
-            ->orWhere(
-                'numero_nfe',
-                'ILIKE',
-                $termo
-            )
-
-            ->orWhereHas('produto', function ($produto) use ($termo) {
-                $produto->where(
-                    'descricao',
-                    'ILIKE',
-                    $termo
-                );
-            });
+            );
 
         });
     }
@@ -627,7 +607,7 @@ public function atualizarNfe(Request $request, Pedido $pedido)
     |--------------------------------------------------------------------------
     */
 
-    public function cancelar(Pedido $pedido)
+    public function cancelar(Request $request, Pedido $pedido)
     {
         $this->permitir([
             'admin',
@@ -641,8 +621,24 @@ public function atualizarNfe(Request $request, Pedido $pedido)
             );
         }
 
+        $dados = $request->validate([
+            'motivo_cancelamento' => [
+                'required',
+                'string',
+                'max:1000',
+            ],
+        ]);
+
         $pedido->update([
             'status' => Pedido::STATUS_CANCELADO,
+        ]);
+
+        PedidoHistorico::create([
+            'pedido_id' => $pedido->id,
+            'user_id' => auth()->id(),
+            'acao' => 'Pedido cancelado',
+            'detalhes' => 'Motivo do cancelamento: ' .
+                $dados['motivo_cancelamento'] . '.',
         ]);
 
         return back()->with(

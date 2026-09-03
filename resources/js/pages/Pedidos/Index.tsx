@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Head, router, usePage } from "@inertiajs/react";
 
 import Button from "@/components/Button";
+import Modal from "@/components/Modal";
 
 import EmptyState from "./Components/EmptyState";
 import PedidoTable from "./Components/PedidoTable";
@@ -106,6 +107,12 @@ export default function Index({
     const [pedidoReplicando, setPedidoReplicando] =
         useState<Pedido | null>(null);
 
+    const [pedidoCancelando, setPedidoCancelando] =
+        useState<Pedido | null>(null);
+
+    const [motivoCancelamento, setMotivoCancelamento] =
+        useState("");
+
 
     const [filtroStatus, setFiltroStatus] =
         useState("Todos");
@@ -146,7 +153,8 @@ useEffect(() => {
         pedidoCarregando !== null ||
         pedidoFaturando !== null ||
         pedidoVisualizando !== null ||
-        pedidoReplicando !== null;
+        pedidoReplicando !== null ||
+        pedidoCancelando !== null;
 
     if (algumModalAberto) {
         return;
@@ -180,6 +188,7 @@ useEffect(() => {
     pedidoFaturando,
     pedidoVisualizando,
     pedidoReplicando,
+    pedidoCancelando,
 ]);
 
 
@@ -338,23 +347,40 @@ useEffect(() => {
 
 
     function cancelarPedido(pedido: Pedido) {
-
-    if (!confirm("Deseja cancelar este pedido?")) {
-        return;
+        setPedidoCancelando(pedido);
+        setMotivoCancelamento("");
     }
 
-    router.patch(
-        `/pedidos/${pedido.id}/cancelar`,
-        {},
-        {
-            onSuccess: () => {
-                router.reload({
-                    only: ["pedidos"],
-                });
-            },
+
+    function confirmarCancelamento() {
+        if (!pedidoCancelando) {
+            return;
         }
-    );
-}
+
+        const motivo = motivoCancelamento.trim();
+
+        if (!motivo) {
+            return;
+        }
+
+        router.patch(
+            `/pedidos/${pedidoCancelando.id}/cancelar`,
+            {
+                motivo_cancelamento: motivo,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setPedidoCancelando(null);
+                    setMotivoCancelamento("");
+
+                    router.reload({
+                        only: ["pedidos"],
+                    });
+                },
+            }
+        );
+    }
 
 
     function excluirPedido(pedido: Pedido) {
@@ -803,6 +829,71 @@ useEffect(() => {
                         setPedidoVisualizando(null)
                     }
                 />
+
+                <Modal
+                    show={pedidoCancelando !== null}
+                    onClose={() => {
+                        setPedidoCancelando(null);
+                        setMotivoCancelamento("");
+                    }}
+                    title="Cancelar pedido"
+                >
+                    <div className="space-y-4">
+
+                        <div>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                                Você está cancelando o pedido{" "}
+                                <strong>
+                                    #{pedidoCancelando?.numero_pedido}
+                                </strong>.
+                            </p>
+
+                            <p className="mt-1 text-sm text-gray-500">
+                                Informe o motivo do cancelamento.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="mb-1 block text-sm font-medium">
+                                Motivo / observação
+                            </label>
+
+                            <textarea
+                                value={motivoCancelamento}
+                                onChange={(e) =>
+                                    setMotivoCancelamento(e.target.value)
+                                }
+                                rows={4}
+                                placeholder="Ex.: Cliente solicitou o cancelamento..."
+                                className="w-full rounded-md border px-3 py-2 dark:bg-neutral-900"
+                                autoFocus
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-2">
+
+                            <Button
+                                variant="secondary"
+                                onClick={() => {
+                                    setPedidoCancelando(null);
+                                    setMotivoCancelamento("");
+                                }}
+                            >
+                                Voltar
+                            </Button>
+
+                            <Button
+                                variant="primary"
+                                disabled={!motivoCancelamento.trim()}
+                                onClick={confirmarCancelamento}
+                            >
+                                Confirmar cancelamento
+                            </Button>
+
+                        </div>
+
+                    </div>
+                </Modal>
 
             </div>
         </>

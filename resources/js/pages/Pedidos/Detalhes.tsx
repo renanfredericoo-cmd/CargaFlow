@@ -461,36 +461,97 @@ const horaFaturamento = pedido.hora_faturamento
                                 </div>
 
                                 <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5">
-                                    <div className="flex items-start gap-4">
-                                        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-100 text-sm">
-                                            ✓
+                                    {((pedido as Pedido & {
+                                        historicos?: Array<{
+                                            id: number;
+                                            acao: string;
+                                            detalhes?: string | null;
+                                            created_at?: string | null;
+                                            usuario?: {
+                                                name?: string | null;
+                                            } | null;
+                                        }>;
+                                    }).historicos ?? []).length > 0 ? (
+                                        <div className="space-y-4">
+                                            {((pedido as Pedido & {
+                                                historicos?: Array<{
+                                                    id: number;
+                                                    acao: string;
+                                                    detalhes?: string | null;
+                                                    created_at?: string | null;
+                                                    usuario?: {
+                                                        name?: string | null;
+                                                    } | null;
+                                                }>;
+                                            }).historicos ?? []).map((historico) => {
+                                                const dataHistorico =
+                                                    historico.created_at
+                                                        ? new Date(
+                                                              historico.created_at
+                                                          ).toLocaleString(
+                                                              "pt-BR",
+                                                              {
+                                                                  day: "2-digit",
+                                                                  month: "2-digit",
+                                                                  year: "numeric",
+                                                                  hour: "2-digit",
+                                                                  minute: "2-digit",
+                                                              }
+                                                          )
+                                                        : "-";
+
+                                                const cancelado =
+                                                    historico.acao ===
+                                                    "Pedido cancelado";
+
+                                                return (
+                                                    <div
+                                                        key={historico.id}
+                                                        className="flex items-start gap-4"
+                                                    >
+                                                        <div
+                                                            className={`mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm ${
+                                                                cancelado
+                                                                    ? "bg-red-100 text-red-600"
+                                                                    : "bg-violet-100 text-violet-700"
+                                                            }`}
+                                                        >
+                                                            {cancelado ? "✕" : "✓"}
+                                                        </div>
+
+                                                        <div className="min-w-0">
+                                                            <p className="text-sm font-bold text-neutral-900">
+                                                                {historico.acao}
+                                                            </p>
+
+                                                            <p className="mt-1 text-xs text-neutral-500">
+                                                                {dataHistorico}
+                                                            </p>
+
+                                                            {historico.usuario?.name && (
+                                                                <p className="mt-1 text-xs text-neutral-600">
+                                                                    Responsável:{" "}
+                                                                    <strong>
+                                                                        {historico.usuario.name}
+                                                                    </strong>
+                                                                </p>
+                                                            )}
+
+                                                            {historico.detalhes && (
+                                                                <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-700">
+                                                                    {historico.detalhes}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
-
-                                        <div>
-                                            <p className="text-sm font-bold text-neutral-900">
-                                                Pedido criado
-                                            </p>
-
-                                            <p className="mt-1 text-xs text-neutral-500">
-                                                {criadoEm}
-                                            </p>
-
-                                            {pedido.user && (
-                                                <p className="mt-1 text-xs text-neutral-600">
-                                                    Responsável:{" "}
-                                                    <strong>
-                                                        {pedido.user.name}
-                                                    </strong>
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-5 border-t border-neutral-200 pt-4 text-xs text-neutral-400">
-                                        Histórico detalhado de alterações será
-                                        exibido aqui quando o registro de
-                                        eventos estiver disponível.
-                                    </div>
+                                    ) : (
+                                        <p className="text-sm text-neutral-500">
+                                            Nenhum histórico registrado.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>
