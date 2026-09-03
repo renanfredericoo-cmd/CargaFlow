@@ -271,9 +271,7 @@ $pedidos->getCollection()->each(
 
         $dados['cliente'] = $cliente->nome;
 
-        $dados['status'] = $dados['tipo_frete'] === 'FOB'
-            ? Pedido::STATUS_AGENDADO
-            : Pedido::STATUS_PEDIDO;
+        $dados['status'] = Pedido::STATUS_PEDIDO;
 
         $dados['user_id'] = auth()->id();
 
@@ -316,18 +314,6 @@ return back()->with(
                 $dados['cliente'] = $cliente->nome;
             }
         }
-
-        if ($pedido->status === Pedido::STATUS_PEDIDO) {
-
-            if (($dados['tipo_frete'] ?? null) === 'FOB') {
-                $dados['status'] = Pedido::STATUS_AGENDADO;
-            }
-
-            if (($dados['tipo_frete'] ?? null) === 'CIF') {
-                $dados['status'] = Pedido::STATUS_PEDIDO;
-            }
-        }
-
         $pedido->update($dados);
 
         return back()->with(
