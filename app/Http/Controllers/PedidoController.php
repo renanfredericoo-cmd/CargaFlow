@@ -335,6 +335,7 @@ return back()->with(
         'admin',
         'pedidos',
         'agendamento',
+        'carregamento',
     ]);
 
     $dados = $request->validate([
@@ -424,10 +425,11 @@ $historico = PedidoHistorico::create([
     public function carregar(Request $request, Pedido $pedido)
 {
     $this->permitir([
-        'admin',
-        'pedidos',
-        'carregamento',
-    ]);
+    'admin',
+    'pedidos',
+    'agendamento',
+    'carregamento',
+]);
 
     $dados = $request->validate([
         'placa' => [

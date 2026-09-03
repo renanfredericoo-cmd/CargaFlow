@@ -410,7 +410,7 @@ export default function PedidoTable({
                                                     </>
                                                 )}
 
-                                                {userRole === "agendamento" && (
+                                                {["agendamento", "carregamento"].includes(userRole ?? "") && (
                                                     <Button
                                                         variant="warning"
                                                         title="Agendar carregamento"
