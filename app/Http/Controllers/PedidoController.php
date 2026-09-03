@@ -145,35 +145,39 @@ if ($status === 'Todos') {
         $termo = '%' . $busca . '%';
 
         $query->where(function ($q) use ($termo) {
-
-            $q->where(
-                'numero_pedido',
-                'ILIKE',
-                $termo
-            )
-
-            ->orWhere(
-                'cliente',
-                'ILIKE',
-                $termo
-            )
-
-            ->orWhere(
-                'vendedor',
-                'ILIKE',
-                $termo
-            )
-
-            ->orWhere(
-                'destino',
-                'ILIKE',
-                $termo
-            );
-
-        });
-    }
-}
-
+    $q->where(
+        'numero_pedido',
+        'ILIKE',
+        $termo
+    )
+    ->orWhere(
+        'cliente',
+        'ILIKE',
+        $termo
+    )
+    ->orWhere(
+        'transportadora',
+        'ILIKE',
+        $termo
+    )
+    ->orWhere(
+        'vendedor',
+        'ILIKE',
+        $termo
+    )
+    ->orWhere(
+        'destino',
+        'ILIKE',
+        $termo
+    )
+    ->orWhereHas('produto', function ($produto) use ($termo) {
+        $produto->where(
+            'descricao',
+            'ILIKE',
+            $termo
+        );
+    });
+});
 
         /*
         |--------------------------------------------------------------------------

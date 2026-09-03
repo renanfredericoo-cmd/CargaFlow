@@ -565,7 +565,7 @@ useEffect(() => {
                         onChange={(e) =>
                             setBusca(e.target.value)
                         }
-                        placeholder="🔎 Buscar pedido, cliente, vendedor ou destino..."
+                        placeholder="🔎 Buscar pedido, cliente, produto, transportadora, vendedor ou destino..."
                         className="
                             w-full
                             rounded-md
