@@ -5,6 +5,7 @@ import {
     Pencil,
     Calendar,
     Truck,
+    Undo2,
     X,
     Trash2,
     FileText,
@@ -27,6 +28,8 @@ interface Props {
 
     onAgendar: (pedido: Pedido) => void;
 
+    onVoltarParaPedido: (pedido: Pedido) => void;
+
     onCarregar: (pedido: Pedido) => void;
 
     onFaturar: (pedido: Pedido) => void;
@@ -47,6 +50,7 @@ export default function PedidoTable({
     onEditar,
     onEditarTransportadora,
     onAgendar,
+    onVoltarParaPedido,
     onCarregar,
     onFaturar,
     onDetalhes,
@@ -423,6 +427,21 @@ export default function PedidoTable({
                                                 )}
                                             </>
                                         )}
+
+                                        {/* AGENDADO */}
+{pedido.status === "Agendado" &&
+    (userRole === "admin" ||
+        userRole === "pedidos") && (
+        <Button
+            variant="secondary"
+            title="Voltar para Pedido"
+            onClick={() =>
+                onVoltarParaPedido(pedido)
+            }
+        >
+            <Undo2 size={20} />
+        </Button>
+    )}
 
                                         {/* EM CARREGAMENTO */}
                                         {pedido.status === "Em Carregamento" &&

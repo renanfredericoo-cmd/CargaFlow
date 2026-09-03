@@ -317,6 +317,24 @@ useEffect(() => {
         setPedidoAgendando(pedido);
     }
 
+    function voltarParaPedido(pedido: Pedido) {
+    if (
+        !window.confirm(
+            "Deseja realmente voltar este pedido para o status Pedido?"
+        )
+    ) {
+        return;
+    }
+
+    router.patch(
+        `/pedidos/${pedido.id}/voltar-para-pedido`,
+        {},
+        {
+            preserveScroll: true,
+        }
+    );
+}
+
 
     function carregarPedido(pedido: Pedido) {
         setPedidoCarregando(pedido);
@@ -587,6 +605,10 @@ useEffect(() => {
 
                         onAgendar={
                             agendarPedido
+                        }
+
+                        onVoltarParaPedido={
+                            voltarParaPedido
                         }
 
                         onCarregar={

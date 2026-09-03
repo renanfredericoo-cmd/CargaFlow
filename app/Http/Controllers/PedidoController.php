@@ -328,6 +328,39 @@ return back()->with(
     | Agendar pedido
     |--------------------------------------------------------------------------
     */
+    
+    public function voltarParaPedido(Pedido $pedido)
+{
+    $this->permitir([
+        'admin',
+        'pedidos',
+    ]);
+
+    if ($pedido->status !== Pedido::STATUS_AGENDADO) {
+        return back()->with(
+            'error',
+            'Somente pedidos agendados podem voltar para Pedido.'
+        );
+    }
+
+    $pedido->update([
+        'status' => Pedido::STATUS_PEDIDO,
+    ]);
+
+    PedidoHistorico::create([
+        'pedido_id' => $pedido->id,
+        'user_id' => auth()->id(),
+        'acao' => 'Pedido voltou para Pedido',
+        'detalhes' => 'Pedido retornado de Agendado para Pedido.',
+    ]);
+
+    return back()->with(
+        'success',
+        'Pedido voltou para Pedido com sucesso.'
+    );
+}
+
+
 
     public function agendar(Request $request, Pedido $pedido)
 {
